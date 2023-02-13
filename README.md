@@ -10,3 +10,7 @@ Distributed Minecraft server to run always on the available PC
 - Example command to get latest event on syncthing: `curl -H "X-API-Key: nsMQDyVwYkQAbRYJXfXdbHD4Rmkawa4A" "http://localhost:8384/rest/events?since=0&limit=1"`
 - You can check [this flake for modded minecraft servers](https://github.com/mkaito/nixos-modded-minecraft-servers)
 - [Run Go from Haskell?(To compile syncthing from Haskell)](https://sakshamsharma.com/2018/02/haskell-golang-ffi/)
+- [Getting Started with GHC & cabal](https://github.com/composewell/haskell-dev/blob/master/getting-started.rst#using-dependencies)
+- Build syncthing with:
+  - for linux: `go run build.go --goos linux -no-upgrade zip` or `go run build.go --goos linux -no-upgrade`
+  - for windows: `go run build.go --goos windows -no-upgrade zip`, couldn't ge it to work in any other way, zip file in the same folder as syncthing
