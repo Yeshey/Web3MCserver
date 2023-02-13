@@ -14,3 +14,6 @@ Distributed Minecraft server to run always on the available PC
 - Build syncthing with:
   - for linux: `go run build.go --goos linux -no-upgrade zip` or `go run build.go --goos linux -no-upgrade`
   - for windows: `go run build.go --goos windows -no-upgrade zip`, couldn't ge it to work in any other way, zip file in the same folder as syncthing
+- Building my project:
+  - I think what I'm going to use is a combination of cabbal + stack.yaml + nix to build everything. Check [this](https://www.reddit.com/r/haskell/comments/yu40pa/comment/iwa66q3/?utm_source=share&utm_medium=web2x&context=3) for an explanation on why haskell.nix exists, and see here [haskell.nix](https://github.com/input-output-hk/haskell.nix)
+  - [set up haskell with flakes](https://input-output-hk.github.io/haskell.nix/tutorials/getting-started-flakes.html)
