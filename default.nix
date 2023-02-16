@@ -1,5 +1,6 @@
 let
-  # Read in the Niv sources
+  # Read in the Niv sources 
+  
   sources = import ./nix/sources.nix {};
   # If ./nix/sources.nix file is not found run:
   #   niv init
@@ -27,5 +28,6 @@ in pkgs.haskell-nix.project {
   };
   # Specify the GHC version to use.
   compiler-nix-name = "ghc925"; # Not required for `stack.yaml` based projects.
+  
 }
  
