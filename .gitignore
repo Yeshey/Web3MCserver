@@ -1,4 +1,5 @@
 result*
+lib
 
 # Created by https://www.toptal.com/developers/gitignore/api/go,git,rust,linux,macos,haskell,windows,intellij,visualstudiocode,python,pythonvanilla,pycharm,jupyternotebooks,pydev
 # Edit at https://www.toptal.com/developers/gitignore?templates=go,git,rust,linux,macos,haskell,windows,intellij,visualstudiocode,python,pythonvanilla,pycharm,jupyternotebooks,pydev
