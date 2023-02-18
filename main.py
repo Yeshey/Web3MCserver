@@ -1,33 +1,23 @@
-import platform
-import urllib.request
 import os
+import subprocess
+import platform
 
 def main():
-    # Get the name of the operating system
-    os_name = platform.system().lower()
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(base_path)
 
-    # Set the URLs and file paths based on the OS name
-    if os_name == 'windows':
-        syncthing_url = 'https://github.com/syncthing/syncthing/releases/download/v1.23.1/syncthing-windows-amd64-v1.23.1.zip'
-        playit_url = 'https://github.com/playit-cloud/playit-agent/releases/download/v1.0.0-rc2/playit-cli.exe'
-        lib_dir = './lib/windows'
-    elif os_name == 'linux':
-        syncthing_url = 'https://github.com/syncthing/syncthing/releases/download/v1.23.1/syncthing-linux-amd64-v1.23.1.tar.gz'
-        playit_url = 'https://github.com/playit-cloud/playit-agent/releases/download/v1.0.0-rc2/playit-cli'
-        lib_dir = './lib/linux'
+    system = platform.system()
+    cli_path = None
+
+    if system == 'Windows':
+        cli_path = os.path.join(base_path, 'lib', 'windows', 'playit-cli.exe')
+    elif system == 'Linux':
+        cli_path = os.path.join(base_path, 'lib', 'linux', 'playit-cli')
     else:
-        print(f"Unsupported OS: {os_name}")
+        print(f"Unsupported system: {system}")
         return
 
-    # Create the lib directory if it doesn't exist
-    if not os.path.exists(lib_dir):
-        os.makedirs(lib_dir)
-
-    # Download Syncthing and Playit
-    syncthing_path = os.path.join(lib_dir, os.path.basename(syncthing_url))
-    playit_path = os.path.join(lib_dir, os.path.basename(playit_url))
-    urllib.request.urlretrieve(syncthing_url, syncthing_path)
-    urllib.request.urlretrieve(playit_url, playit_path)
+    subprocess.run([cli_path])
 
 if __name__ == '__main__':
     main()
