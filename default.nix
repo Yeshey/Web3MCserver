@@ -12,7 +12,7 @@ let
       #rustc.config = "x86_64-pc-linux-gnu";
     #};
 
-    crossSystem = { config = "x86_64-w64-mingw32"; }; 
+    # crossSystem = { config = "x86_64-w64-mingw32"; }; 
   };
 in
 pkgs.rustPlatform.buildRustPackage rec {
