@@ -26,27 +26,28 @@ def main():
     download_path, files = DOWNLOAD_PATHS[SYSTEM]
     os.makedirs(download_path, exist_ok=True)
 
-    for url, filename in files:
-        file_path = os.path.join(download_path, filename)
-        if os.path.exists(file_path):
-            print(f'File {filename} already exists. Skipping download.')
-        else:
-            print(f'Downloading {filename} from {url}')
-            urllib.request.urlretrieve(url, file_path)
-
-        if filename.endswith('.zip'):
-            with zipfile.ZipFile(file_path, 'r') as zip_ref:
-                zip_ref.extractall(download_path)
-            os.remove(file_path)
-        elif filename.endswith('.tar.gz'):
-            extracted_path = os.path.join(download_path, filename.replace('.tar.gz', ''))
-            if os.path.exists(os.path.join(download_path, 'syncthing')):
-                print('Syncthing folder already exists. Skipping rename.')
+    syncthing_path = os.path.join(download_path, 'syncthing')
+    if os.path.exists(syncthing_path):
+        print('Syncthing folder already exists. Skipping download and extraction.')
+    else:
+        for url, filename in files:
+            file_path = os.path.join(download_path, filename)
+            if os.path.exists(file_path):
+                print(f'File {filename} already exists. Skipping download.')
             else:
+                print(f'Downloading {filename} from {url}')
+                urllib.request.urlretrieve(url, file_path)
+
+            if filename.endswith('.zip'):
+                with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                    zip_ref.extractall(download_path)
+                os.remove(file_path)
+            elif filename.endswith('.tar.gz'):
                 with tarfile.open(file_path, 'r:gz') as tar_ref:
+                    extracted_path = tar_ref.getnames()[0]
                     tar_ref.extractall(download_path)
                 os.remove(file_path)
-                os.rename(extracted_path, os.path.join(download_path, 'syncthing'))
+                os.rename(os.path.join(download_path, extracted_path), syncthing_path)
 
 if __name__ == '__main__':
     main()
