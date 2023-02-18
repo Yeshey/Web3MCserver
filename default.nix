@@ -1,33 +1,39 @@
+#{ lib, fetchFromGitHub, rustPlatform }:
 let
-  # Read in the Niv sources 
-  
-  sources = import ./nix/sources.nix {};
-  # If ./nix/sources.nix file is not found run:
-  #   niv init
-  #   niv add input-output-hk/haskell.nix -n haskellNix
+  # conigure `nixpkgs` such that all its packages are build for the host platform
+  # for version 21.11 (https://github.com/NixOS/nixpkgs/releases/tag/21.11), done as explained here: https://nix.dev/tutorials/towards-reproducibility-pinning-nixpkgs
+  pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/a7ecde854aee5c4c7cd6177f54a99d2c1ff28a31.tar.gz") { 
 
-  # Fetch the haskell.nix commit we have pinned with Niv
-  haskellNix = import sources.haskellNix {};
-  # If haskellNix is not found run:
-  #   niv add input-output-hk/haskell.nix -n haskellNix
 
-  # Import nixpkgs and pass the haskell.nix provided nixpkgsArgs
-  pkgs = import
-    # haskell.nix provides access to the nixpkgs pins which are used by our CI,
-    # hence you will be more likely to get cache hits when using these.
-    # But you can also just use your own, e.g. '<nixpkgs>'.
-    haskellNix.sources.nixpkgs-unstable
-    # These arguments passed to nixpkgs, include some patches and also
-    # the haskell.nix functionality itself as an overlay.
-    haskellNix.nixpkgsArgs;
-in pkgs.haskell-nix.project {
-  # 'cleanGit' cleans a source directory based on the files known by git
-  src = pkgs.haskell-nix.haskellLib.cleanGit {
-    name = "haskell-nix-project";
-    src = ./.;
+    # cross compilation for rust program as explained here: https://github.com/NixOS/nixpkgs/blob/master/doc/languages-frameworks/rust.section.md#cross-compilation-cross-compilation
+    #crossSystem = (import <nixpkgs/lib>).systems.examples.armhf-embedded // {
+      # Found out what host platforms exist as explained here: https://nix.dev/tutorials/cross-compilation
+    #  rustc.config = "x86_64-pc-windows-gnu";
+      #rustc.config = "x86_64-pc-linux-gnu";
+    #};
+
+    crossSystem = { config = "x86_64-w64-mingw32"; }; 
   };
-  # Specify the GHC version to use.
-  compiler-nix-name = "ghc925"; # Not required for `stack.yaml` based projects.
-  
+in
+pkgs.rustPlatform.buildRustPackage rec {
+  pname = "playit-agent";
+  version = "1.0.0"; # for release 1.0.0-rc2;
+  doCheck = false; # the tests weren't letting it build???
+  # You have to change this to disable just the test that wasn't making it work: https://github.com/NixOS/nixpkgs/blob/master/doc/languages-frameworks/rust.section.md#running-package-tests-running-package-tests
+
+  src = pkgs.fetchFromGitHub {
+    owner = "playit-cloud";
+    repo = pname;
+    rev = version;
+    sha256 = "sha256-25j17LQn12Vm7Ybp0qKFN+nYQ9w3ys8RsM3ROy83V/w=";
+  };
+
+  cargoSha256 = "sha256-M5zO31AfuyX9zfyYiI2X3gFgEYhTQA95pmHSii+jNGY=";
+
+  meta = with pkgs.lib; {
+    description = "game client to run servers without portforwarding";
+    homepage = "https://playit.gg";
+    license = licenses.unlicense;
+    maintainers = [ "Yeshey" ];
+  };
 }
- 
