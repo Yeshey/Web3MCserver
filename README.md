@@ -22,12 +22,6 @@ Distributed Minecraft server to run always on the available PC
 
 # How to run
 
-1. Install nix package manager (in Windows you need WSL)
-2. clone and `cd` to the directory 
-3. run `nix-shell` to get the environment with the required dependencies
-4. run `nix-build -A Web3MCserver.components.exes.Web3MCserver && ./result/bin/Web3MCserver` to build and run
-   1. running `nix-build -A projectCross.mingwW64.hsPkgs.Web3MCserver.components.exes.Web3MCserver && wine64 ./result/bin/Web3MCserver.exe` compiles it for windows and runs it with wine.
-
 # To-Do
 
 - [Pin nixpkgs](https://nix.dev/tutorials/towards-reproducibility-pinning-nixpkgs#pinning-nixpkgs)
