@@ -39,10 +39,14 @@ def main():
                 zip_ref.extractall(download_path)
             os.remove(file_path)
         elif filename.endswith('.tar.gz'):
-            with tarfile.open(file_path, 'r:gz') as tar_ref:
-                tar_ref.extractall(download_path)
-            os.remove(file_path)
-
+            extracted_path = os.path.join(download_path, filename.replace('.tar.gz', ''))
+            if os.path.exists(os.path.join(download_path, 'syncthing')):
+                print('Syncthing folder already exists. Skipping rename.')
+            else:
+                with tarfile.open(file_path, 'r:gz') as tar_ref:
+                    tar_ref.extractall(download_path)
+                os.remove(file_path)
+                os.rename(extracted_path, os.path.join(download_path, 'syncthing'))
 
 if __name__ == '__main__':
     main()
