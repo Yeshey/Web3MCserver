@@ -22,7 +22,7 @@ def main():
     elif sys.platform.startswith('linux'):
         if 'NixOS' in distro.name():
             print('[download_dependencies.py]: system is NixOS, the shell.nix file downloads the dependencies for this system already')
-            exit(0)
+            return
         else:
             SYSTEM = 'Linux'
     else:
