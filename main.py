@@ -11,19 +11,18 @@ def main():
     cli_path = None
 
     if system == 'Windows':
-        cli_path = os.path.join(base_path, 'lib', 'windows', 'playit-cli.exe')
+        cli_path = os.path.join(base_path, 'bin', 'windows', 'playit-cli.exe')
     elif system == 'Linux':
         if 'NixOS' in distro.name():
-            cli_path = 'steam-run ' + os.path.join(base_path, 'lib', 'linux', 'playit-cli')
-            #cli_path = ['steam-run', cli_path]
+            cli_path = os.path.join(base_path, 'bin', 'nixos', 'playit-cli')
         else:
-            cli_path = os.path.join(base_path, 'lib', 'linux', 'playit-cli')
+            cli_path = os.path.join(base_path, 'bin', 'linux', 'playit-cli')
     else:
         print(f"Unsupported system: {system}")
         return
 
-    os.system(cli_path)
-    #subprocess.run(cli_path)
+    #os.system(cli_path)
+    subprocess.run(cli_path)
 
 if __name__ == '__main__':
     main()

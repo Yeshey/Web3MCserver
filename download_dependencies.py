@@ -3,6 +3,7 @@ import sys
 import urllib.request
 import zipfile
 import tarfile
+import distro
 
 DOWNLOAD_PATHS = {
     'Windows': ('./bin/windows', [
@@ -12,14 +13,18 @@ DOWNLOAD_PATHS = {
     'Linux': ('./bin/linux', [
         ('https://github.com/syncthing/syncthing/releases/download/v1.23.1/syncthing-linux-amd64-v1.23.1.tar.gz', 'syncthing.tar.gz'),
         ('https://github.com/playit-cloud/playit-agent/releases/download/v1.0.0-rc2/playit-cli', 'playit-cli')
-    ])
+    ]),
 }
 
 def main():
     if sys.platform.startswith('win'):
         SYSTEM = 'Windows'
     elif sys.platform.startswith('linux'):
-        SYSTEM = 'Linux'
+        if 'NixOS' in distro.name():
+            print('[download_dependencies.py]: system is NixOS, the shell.nix file downloads the dependencies for this system already')
+            exit(0)
+        else:
+            SYSTEM = 'Linux'
     else:
         raise OSError(f'Unsupported operating system: {sys.platform}')
 
@@ -28,14 +33,14 @@ def main():
 
     syncthing_path = os.path.join(download_path, 'syncthing')
     if os.path.exists(syncthing_path):
-        print('Syncthing folder already exists. Skipping download and extraction.')
+        print('[download_dependencies.py]: Syncthing folder already exists. Skipping download and extraction.')
     else:
         for url, filename in files:
             file_path = os.path.join(download_path, filename)
             if os.path.exists(file_path):
-                print(f'File {filename} already exists. Skipping download.')
+                print(f'[download_dependencies.py]: File {filename} already exists. Skipping download.')
             else:
-                print(f'Downloading {filename} from {url}')
+                print(f'[download_dependencies.py]: Downloading {filename} from {url}')
                 urllib.request.urlretrieve(url, file_path)
 
             if filename.endswith('.zip'):
