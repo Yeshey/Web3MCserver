@@ -1,5 +1,5 @@
 # pinning nixpkgs in version 21.11 (https://github.com/NixOS/nixpkgs/releases/tag/21.11), done as explained here: https://nix.dev/tutorials/towards-reproducibility-pinning-nixpkgs
-{ pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/a7ecde854aee5c4c7cd6177f54a99d2c1ff28a31.tar.gz") {
+{ pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/ce6aa13369b667ac2542593170993504932eb836.tar.gz") {
   config.allowUnfree = true; # for steam-run
 } }:
 
@@ -31,6 +31,8 @@ pkgs.mkShell {
     # Download dependencies using the Python script
     python3 download_dependencies.py
 
-    # maybe set more env-vars
+    mkdir ./bin/nixos/
+    cp ${pkgs.syncthing}/bin/syncthing ./bin/nixos/
+    cp ${(pkgs.callPackage ./nix/playit-cli.nix {})}/bin/playit-cli ./bin/nixos/
   '';
 }

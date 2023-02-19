@@ -5,11 +5,11 @@ import zipfile
 import tarfile
 
 DOWNLOAD_PATHS = {
-    'Windows': ('./lib/windows', [
+    'Windows': ('./bin/windows', [
         ('https://github.com/syncthing/syncthing/releases/download/v1.23.1/syncthing-windows-amd64-v1.23.1.zip', 'syncthing.zip'),
         ('https://github.com/playit-cloud/playit-agent/releases/download/v1.0.0-rc2/playit-cli.exe', 'playit-cli.exe')
     ]),
-    'Linux': ('./lib/linux', [
+    'Linux': ('./bin/linux', [
         ('https://github.com/syncthing/syncthing/releases/download/v1.23.1/syncthing-linux-amd64-v1.23.1.tar.gz', 'syncthing.tar.gz'),
         ('https://github.com/playit-cloud/playit-agent/releases/download/v1.0.0-rc2/playit-cli', 'playit-cli')
     ])
