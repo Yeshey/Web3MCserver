@@ -7,30 +7,29 @@ import threading
 def start_syncthing():
     print("Starting Syncthing...")
 
-    subprocess.run([cli_path + "/syncthing/syncthing", "--home", "./syncthing_config"])
+    subprocess.run([bin_path + "/syncthing/syncthing", "--home", "./syncthing_config"])
 
 def start_playit_cli():
     print("Starting Playit-cli...")
 
-    # Example: ./bin/nixos/playit-cli launch ./playit-cli_config/config.toml
-
-    subprocess.run([cli_path + "/playit-cli", "launch", "./playit-cli_config/config.toml"])
+    subprocess.run([bin_path + "/playit-cli", "launch", "./playit-cli_config/config.toml"])
     # final playit-gg command might be: playit-cli --secret 9cdb9e37b46ef10baa7d15f2c1d84b9852ddfc4d7085c5ae7dfe49399f63872a run 9e0a3886-8b6d-403a-9755-1d67987eb440=192.168.1.109:25565
+    # Example: ./bin/nixos/playit-cli launch ./playit-cli_config/config.toml
 
 def main():
     base_path = os.path.dirname(os.path.abspath(__file__))
     os.chdir(base_path)
 
     system = platform.system()
-    global cli_path
+    global bin_path
 
     if system == 'Windows':
-        cli_path = os.path.join(base_path, 'bin', 'windows')
+        bin_path = os.path.join(base_path, 'bin', 'windows')
     elif system == 'Linux':
         if 'NixOS' in distro.name():
-            cli_path = os.path.join(base_path, 'bin', 'nixos')
+            bin_path = os.path.join(base_path, 'bin', 'nixos')
         else:
-            cli_path = os.path.join(base_path, 'bin', 'linux')
+            bin_path = os.path.join(base_path, 'bin', 'linux')
     else:
         print(f"Unsupported system: {system}")
         return
@@ -60,7 +59,7 @@ From the LaunchConfig struct, the configuration file may have the following fiel
         id: The ID of the tunnel. This field is optional.
         tunnel_type: The type of the tunnel. This field is optional.
         name: The name of the tunnel.
-        proto: The protocol used by the tunnel.
+        proto: The protocol used by the tunnel. (Both, Tcp or Udp)
         port_count: The number of ports used by the tunnel.
         local: The local port used by the tunnel. This field is optional.
 

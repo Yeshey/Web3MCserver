@@ -1,19 +1,17 @@
-agent_name = "my-agent"
-agent_type = "rust-agent"
-
-secret_path = "path/to/secret/file"
-
-command = "/path/to/my/command"
+agent_name = "from-cli"
+agent_type = "my-type"
+secret_key = "<secret>"
+command = "my-command"
 command_args = ["arg1", "arg2"]
 
-[tunnels]
-[[tunnels.tunnel]]
-name = "tunnel1"
+[env_overrides]
+ENV1 = "value1"
+ENV2 = "value2"
+
+[[tunnels]]
+name = "YesheyTunnel"
 proto = "both"
 port_count = 2
-local = 8080
+local = 25565
 
-[[tunnels.tunnel]]
-name = "tunnel2"
-proto = "udp"
-port_count = 1
+special_lan = true
