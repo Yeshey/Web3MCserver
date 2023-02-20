@@ -1,4 +1,4 @@
-# Web3MCserver
+  # Web3MCserver
 Distributed Minecraft server to run always on the available PC
 
 # Links
@@ -22,6 +22,22 @@ Distributed Minecraft server to run always on the available PC
 
 # How to run
 
+- make and get the secret for a playit-gg account: `playit-cli claim generate` && `playit-cli claim url <CODE>` && `playit-cli claim exchange <CODE>`, then you can put the secret in the `./secrets/secrets.txt` file
+
 # To-Do
 
 - [Pin nixpkgs](https://nix.dev/tutorials/towards-reproducibility-pinning-nixpkgs#pinning-nixpkgs)
+- Check a working playit-gg tunnel configuration from the website:
+
+| Address              | communications-de.craft.ply.gg  |
+| -------------------- | ------------------------------- |
+| Custom Domain        | -                               |
+| Tunnel Type          | Minecraft Java                  |
+| IP                   | 224.ip.ply.gg                   |
+| IPV4                 | 147.185.221.224                 |
+| IPV6                 | 2602:fbaf::e0                   |
+| Protocol             | tcp                             |
+| Port                 | 20514                           |
+| Port-Range           | 20514-20514                     |
+| Port-Count           | 1                               |
+

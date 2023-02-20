@@ -12,16 +12,23 @@ def start_syncthing():
 def start_playit_cli():
     print("Starting Playit-cli...")
 
-    subprocess.run([bin_path + "/playit-cli", "launch", "./playit-cli_config/config.toml"])
+    subprocess.run([bin_path + "/playit-cli", "launch", "./../playit-cli_config/config.toml"], cwd="./server")
+    # cwd used so server fis are generated in the right place
     # final playit-gg command might be: playit-cli --secret 9cdb9e37b46ef10baa7d15f2c1d84b9852ddfc4d7085c5ae7dfe49399f63872a run 9e0a3886-8b6d-403a-9755-1d67987eb440=192.168.1.109:25565
     # Example: ./bin/nixos/playit-cli launch ./playit-cli_config/config.toml
 
 def main():
-    if not os.path.exists("secrets"):
-        print("Folder secrets doesn't exist")
-        os.makedirs("secrets")
-        print("creating... put a file there with your secret and run me again")
+    if not os.path.exists("secrets/secrets.txt"):
+        print("secrets.txt doesn't exist")
+        # create secrets folder if it doesn't exist
+        if not os.path.exists("secrets"):
+            os.makedirs("secrets")
+        # create secrets.txt file and write nothing inside
+        with open('secrets/secrets.txt', 'w') as f:
+            pass
+        print("creating... put your secret inside ./secrets/secrets.txt and run me again")
         return
+
 
     base_path = os.path.dirname(os.path.abspath(__file__))
     os.chdir(base_path)
@@ -70,45 +77,4 @@ From the LaunchConfig struct, the configuration file may have the following fiel
         local: The local port used by the tunnel. This field is optional.
 
 The configuration file may also have a PLAYIT_SECRET environment variable, which can be used as a fallback secret key if the secret_key field is not provided.
-'''
-
-#This is a example configuration file: (.toml)
-'''
-agent_name = "my-agent"
-agent_type = "rust-agent"
-
-secret_path = "path/to/secret/file"
-
-command = "/path/to/my/command"
-command_args = ["arg1", "arg2"]
-
-[tunnels]
-[[tunnels.tunnel]]
-name = "tunnel1"
-proto = "both"
-port_count = 2
-local = 8080
-
-[[tunnels.tunnel]]
-name = "tunnel2"
-proto = "udp"
-port_count = 1
-'''
-
-#This configuration specifies the following:
-
-#    The name of the agent is "my-agent" and its type is "rust-agent".
-#    The secret key for the agent is stored in a file located at "path/to/secret/file".
-#    The command to run is located at "/path/to/my/command" and its arguments are "arg1" and "arg2".
-#    The agent will create two tunnels. The first tunnel is named "tunnel1" and exposes 2 ports over TCP and UDP. The local port used to expose the tunnel is 8080. The second tunnel is named "tunnel2" and exposes 1 port over UDP.
-
-# or...?
-
-'''
-agent_name = "my-agent"
-command = "python"
-command_args = ["-m", "http.server"]
-tunnels = [
-  { name = "http-tunnel", proto = "tcp", port_count = 1 }
-]
 '''

@@ -1,18 +1,27 @@
-agent_name = "from-cli"
-agent_type = "my-type"
+agent_name = "web3MC"
+#agent_type = "my-type"
 #secret_key = "<secret>"
-secret_path = "./secrets/secrets.txt"
-command = "my-command"
-command_args = ["arg1", "arg2"]
+secret_path = "./../secrets/secrets.txt"
+command = "java"
+command_args = ["-Xmx1024M", "-Xms1024M", "-jar", "./server.jar", "nogui"] # 9e0a3886-8b6d-403a-9755-1d67987eb440=192.168.1.20:25565
+# java -Xmx1024M -Xms1024M -jar server.jar nogui
 
-[env_overrides]
-ENV1 = "value1"
-ENV2 = "value2"
+#[env_overrides]
+#ENV1 = "value1"
+#ENV2 = "value2"
 
 [[tunnels]]
+#tunnel_type = "minecraft-java"
+#id = "9e0a3886-8b6d-403a-9755-1d67987eb440"
 name = "YesheyTunnel"
 proto = "both"
 port_count = 2
 local = 25565
+
+#[[tunnels]]
+#name = "ssh-tunnel"
+#proto = "tcp"
+#local = 22
+#port_count = 1
 
 special_lan = true
