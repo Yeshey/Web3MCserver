@@ -1,6 +1,7 @@
 agent_name = "from-cli"
 agent_type = "my-type"
-secret_key = "<secret>"
+#secret_key = "<secret>"
+secret_path = "./secrets/secrets.txt"
 command = "my-command"
 command_args = ["arg1", "arg2"]
 

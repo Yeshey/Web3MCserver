@@ -17,6 +17,12 @@ def start_playit_cli():
     # Example: ./bin/nixos/playit-cli launch ./playit-cli_config/config.toml
 
 def main():
+    if not os.path.exists("secrets"):
+        print("Folder secrets doesn't exist")
+        os.makedirs("secrets")
+        print("creating... put a file there with your secret and run me again")
+        return
+
     base_path = os.path.dirname(os.path.abspath(__file__))
     os.chdir(base_path)
 
@@ -35,7 +41,7 @@ def main():
         return
 
 
-    threading.Thread(target=start_syncthing).start()
+    #threading.Thread(target=start_syncthing).start()
     threading.Thread(target=start_playit_cli).start()
     
 
