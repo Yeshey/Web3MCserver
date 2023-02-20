@@ -1,0 +1,19 @@
+agent_name = "my-agent"
+agent_type = "rust-agent"
+
+secret_path = "path/to/secret/file"
+
+command = "/path/to/my/command"
+command_args = ["arg1", "arg2"]
+
+[tunnels]
+[[tunnels.tunnel]]
+name = "tunnel1"
+proto = "both"
+port_count = 2
+local = 8080
+
+[[tunnels.tunnel]]
+name = "tunnel2"
+proto = "udp"
+port_count = 1
