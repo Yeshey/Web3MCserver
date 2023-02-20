@@ -36,6 +36,7 @@ pkgs.mkShell {
       echo "[shell.nix]: Downloading syncthing..."
       mkdir -p ./bin/nixos/syncthing/
       cp ${pkgs.syncthing}/bin/syncthing ./bin/nixos/syncthing/
+      chmod +x ./bin/nixos/syncthing/syncthing
     else
       echo "[shell.nix]: Directory ./bin/nixos/syncthing already exists, skipping download"
     fi
@@ -45,6 +46,7 @@ pkgs.mkShell {
     else
       echo "[shell.nix]: Downloading playit-cli..."
       cp ${(pkgs.callPackage ./nix/playit-cli.nix {})}/bin/playit-cli ./bin/nixos/
+      chmod +x ./bin/nixos/playit-cli
     fi
 
     echo
