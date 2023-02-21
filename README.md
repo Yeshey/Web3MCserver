@@ -44,8 +44,7 @@ Distributed Minecraft server to run always on the available PC
 
 # Program Planning:
 
-Check the common syncthing file and update it, see if I'm a new node (this file has the syncthing ID of each machine and a score based on internet speed and hardware power to see how likely it is to be picked to host, and weather each one is online or not, and witch one is running the server) 
-
+- Check the common syncthing file and update it, see if I'm a new node (this file has the syncthing ID of each machine and a score based on internet speed and hardware power to see how likely it is to be picked to host, and weather each one is online or not, and witch one is running the server) 
 - If I'm a new node: 
   - Question If I want to make a new distributed minecraft server? YES 
     - ... 
