@@ -55,34 +55,103 @@ def main():
         print(f"Unsupported system: {system}")
         return
 
+    # Check the common syncthing file and update it, if exists, I'm a new node
+    check_syncthing_file()
+
+    if new_node:
+        # Check if there are files in the server folder, and say that if we don't make a new minecraft server they will be deleted.
+        check_files_in_server_folder()
+        # Question If I want to make a new distributed minecraft server?
+        if make_new_distributed_minecraft_server():
+            # Walk user through the process of making a new secret with playit-cli
+            playit_cli_secret = subprocess.run(["./bin/nixos/playit-cli", "claim", "generate"], capture_output=True)
+            playit_cli_secret_code = playit_cli_secret.stdout.decode("utf-8")
+            playit_cli_url = subprocess.run(["./bin/nixos/playit-cli", "claim", "url", playit_cli_secret_code], capture_output=True)
+            playit_cli_exchange = subprocess.run(["./bin/nixos/playit-cli", "claim", "exchange", playit_cli_secret_code], capture_output=True)
+            playit_cli_secret_string = f"{playit_cli_secret_code}\n{playit_cli_url.stdout.decode('utf-8')}\n{playit_cli_exchange.stdout.decode('utf-8')}"
+            # Put the secret in the ./secrets/secrets.txt file
+            with open("./secrets/secrets.txt", "w") as f:
+                f.write(playit_cli_secret_string)
+            # Download minecraft 1.19.3 jar file and put it in the server folder.
+            minecraft_download_url = "https://launcher.mojang.com/v1/objects/56bd4a2a2a39e7b8d67c3c2c2f246c9fc06a415f/server.jar"
+            minecraft_jar_file = "./server/server.jar"
+            subprocess.run(["wget", minecraft_download_url, "-O", minecraft_jar_file])
+            # Launch syncthing in another thread
+            launch_syncthing()
+            # Create the common config file
+            create_common_config_file()
+            # Run it_has_been_determined_that_I_am_the_host_now()
+            run_it_has_been_determined_that_I_am_the_host_now()
+        else:
+            # Delete the files inside ./server
+            delete_files_inside_server_folder()
+            # Send a message to the playit-cli python tunnel with secret
+            # If no answer, wait, and send a new message every 30 seconds
+            # Get details to connect to syncthing
+            # Send message to connect to syncthing | have syncthing auto accept and sync the folders, and everyone is an introducer
+            connect_to_syncthing()
+            # Launch syncthing in another thread.
+            launch_syncthing()
+            # Create the common config file
+            create_common_config_file()
+            # Run it_has_been_determined_that_I_am_the_host_now()
+            run_it_has_been_determined_that_I_am_the_host_now()
+    else:
+        # Uses secret and checks out tunnels
+        # If the tunnels are clear, sends a message to the next location
+    # Otherwise, sends a message to the previous location to warn them
+        tunnels_clear = check_tunnels(secret)
+    if tunnels_clear:
+        message = "Tunnels clear. Moving to next location."
+        send_message(message, next_location)
+    else:
+        message = "Tunnels compromised. Warning previous location."
+        send_message(message, previous_location)
+        # Waits for response from previous location to confirm they received the message
+        response = wait_for_response()
+        if response == "Message received":
+            # Moves to next location once confirmation is received
+            message = "Moving to next location."
+            send_message(message, next_location)
+            # Calls function again to repeat the process at the next location
+            run_secret_mission(secret, next_location, previous_location)
+        else:
+            # If no confirmation is received, aborts the mission
+            message = "No confirmation received. Aborting mission."
+            send_message(message, "HQ")
+            return
+
 
     #threading.Thread(target=start_syncthing).start()
     #threading.Thread(target=start_playit_cli).start()
     
-
 if __name__ == "__main__":
     main()
 
-# How to make a configuration file for playit-gg:
-'''
-Based on the launch.rs file, it seems to be a Rust code for launching and managing tunnels, probably for a network application.
 
-From the LaunchConfig struct, the configuration file may have the following fields:
+def list_folders():
+    return os.listdir()
 
-    agent_name: The name of the agent that is running.
-    agent_type: The type of the agent that is running. This field is optional.
-    secret_key: The secret key to use to authenticate with the server.
-    secret_path: The path to the secret key file.
-    command: The command to run.
-    command_args: Any arguments to pass to the command.
-    env_overrides: A mapping of environment variable overrides.
-    tunnels: A list of tunnels that need to be set up, each with the following fields:
-        id: The ID of the tunnel. This field is optional.
-        tunnel_type: The type of the tunnel. This field is optional.
-        name: The name of the tunnel.
-        proto: The protocol used by the tunnel. (Both, Tcp or Udp)
-        port_count: The number of ports used by the tunnel.
-        local: The local port used by the tunnel. This field is optional.
+def check_syncthing_file():
+    pass
 
-The configuration file may also have a PLAYIT_SECRET environment variable, which can be used as a fallback secret key if the secret_key field is not provided.
-'''
+def check_files_in_server_folder():
+    pass
+
+def make_new_distributed_minecraft_server():
+    pass
+
+def delete_files_inside_server_folder():
+    pass
+
+def connect_to_syncthing():
+    pass
+
+def launch_syncthing():
+    pass
+
+def create_common_config_file():
+    pass
+
+def run_it_has_been_determined_that_I_am_the_host_now():
+    pass
