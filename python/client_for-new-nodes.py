@@ -2,8 +2,8 @@ from utils import *
 import socket
 
 def client_program():
-    host = "127.0.0.1"  # as both code is running on same pc
-    port = 9876  # socket server port number
+    host = "listed-washing.at.ply.gg"  # as both code is running on same pc
+    port = 45637  # socket server port number
     
     client_socket = socket.socket()  # instantiate
     client_socket.connect((host, port))  # connect to the server

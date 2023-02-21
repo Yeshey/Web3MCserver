@@ -2,10 +2,10 @@ from utils import *
 import socket
 import threading
 
-def server_program(port):
+def server_program():
     # get the hostname
     host = "127.0.0.1"
-    #port = 6323  # initiate port no above 1024
+    port = 45637  # initiate port no above 1024
 
     print(port)
 
@@ -34,5 +34,4 @@ if __name__ == '__main__':
     global secret
     secret = secret()
 
-    server_A_thread = threading.Thread(target=server_program(6323))
-    server_B_thread = threading.Thread(target=server_program(6324))
+    server_program()

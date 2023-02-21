@@ -16,7 +16,7 @@ command_args = ["./../python/server_for-new-nodes.py"] # 9e0a3886-8b6d-403a-9755
 name = "YesheyTunnel"
 proto = "both"
 port_count = 2
-local = 25565
+local = 45637
 
 #[[tunnels]]
 #name = "ssh-tunnel"
