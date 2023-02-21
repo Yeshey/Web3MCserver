@@ -13,10 +13,17 @@ def start_syncthing():
 def start_playit_cli():
     print("Starting Playit-cli...")
 
+    new_client_connecting()
+
     subprocess.run([bin_path + "/playit-cli", "launch", "./../playit-cli_config/config.toml"], cwd="./server")
+
+    print ("HELLOOOOOOOOOOOOO")
     # cwd used so server fis are generated in the right place
     # final playit-gg command might be: playit-cli --secret 9cdb9e37b46ef10baa7d15f2c1d84b9852ddfc4d7085c5ae7dfe49399f63872a run 9e0a3886-8b6d-403a-9755-1d67987eb440=192.168.1.109:25565
     # Example: ./bin/nixos/playit-cli launch ./playit-cli_config/config.toml
+
+def new_client_connecting():
+    print("ok")
 
 def main():
     download_dependencies()

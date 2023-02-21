@@ -42,3 +42,49 @@ Distributed Minecraft server to run always on the available PC
 | Port-Range           | 20514-20514                     |
 | Port-Count           | 1                               |
 
+# Program Planning:
+
+Check the common syncthing file and update it, see if I'm a new node (this file has the syncthing ID of each machine and a score based on internet speed and hardware power to see how likely it is to be picked to host, and weather each one is online or not, and witch one is running the server) 
+
+- If I'm a new node: 
+  - Question If I want to make a new distributed minecraft server? YES 
+    - ... 
+  - NO:  
+    - Send a message to the tunnel with secret 
+      - If no answer, wait, and send a new message every 30 seconds 
+    - Get details to connect to syncthing 
+    - Send message to connect to syncthing | have syncthing auto accept and sync the folders, and everyone is an introducer 
+    - Launch syncthing in another thread. 
+- If I'm not a new node: 
+  - Uses secret and checks out tunnels 
+    - If no Tunnels  
+      - Fatal error 
+    - There are tunnels: 
+      - None are active: 
+        - then "WARNING MESSAGE" saying that its not possible to confirm that I have the latest version of the server, starting anyways. 
+        - Run it_has_been_determined_that_I_am_the_host_now() 
+      - Playit-cli python server and playit-cli minecraft-server ports are active and reachable, the server is being ran by a peer 
+        - Put an observer in the syncthing files, or in the server ports 
+        - Run a thread that updates the sync file every 20min with info on how good this machine is to host 
+        - If observer is triggered and the server isn't running, then 
+        - Check if I have the heighest value and am gonna be picked to run the server 
+          - NO 
+            - Check in 30 seconds if server is already running, if not, then if I'm the second option in the list start, if not wait 30 more seconds.       
+          - YES 
+            - Update the sync file with the information, all the machines that were supposed to start the server but didn't should be marked as not online,  
+            - Run it_has_been_determined_that_I_am_the_host_now() 
+
+ 
+
+When shutting down: 
+- Update the syncthing common file saying that I'm not online anymore and I'm not hosting if need be, wait for it to finish syncing. 
+- Close all threads. 
+
+ 
+
+Def it_has_been_determined_that_I_am_the_host_now(): 
+- Run a thread that checks every 20min for peers that are not Online and updates them in the common syncthing file if it is not up to date. 
+- Check if all files have been synced, if I have the latest version of the files, if not, wait for them to finish syncing. 
+- Change the file informing saying that I'm going to host now 
+- Launch the playit-cli python server on another thread  
+- Launch the playit-cli minecraft server 
