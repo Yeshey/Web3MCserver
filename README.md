@@ -44,19 +44,25 @@ Distributed Minecraft server to run always on the available PC
 
 # Program Planning:
 
-- Check the common syncthing file and update it, see if I'm a new node (this file has the syncthing ID of each machine and a score based on internet speed and hardware power to see how likely it is to be picked to host, and weather each one is online or not, and witch one is running the server) 
+- Check the common syncthing file and update it, if exists, I'm a new node (this file has the syncthing ID of each machine and a score based on internet speed and hardware power to see how likely it is to be picked to host, and weather each one is online or not, and witch one is running the server) 
 - If I'm a new node: 
+  - Check if there are files in the server folder, and say that if we don't make a new minecraft server they will be deleted.
   - Question If I want to make a new distributed minecraft server? 
     - YES 
-      - ... 
+      - Walk user through the process of making a new secret with playit-cli: `playit-cli claim generate` && `playit-cli claim url <CODE>` && `playit-cli claim exchange <CODE>`, then you can put the secret in the `./secrets/secrets.txt` file
+      - Download minecraft 1.19.3 jar file and put it in the server folder.
+      - <span style="color:lightgreen">Launch syncthing in another thread.</span>
+      - <span style="color:lightgreen">Create the common config file</span>
+      - <span style="color:lightgreen">Run it_has_been_determined_that_I_am_the_host_now()</span>
     - NO:  
-      - Send a message to the tunnel with secret 
+      - delete the files inside ./server
+      - Send a message to the playit-cli python tunnel with secret 
         - If no answer, wait, and send a new message every 30 seconds 
       - Get details to connect to syncthing 
       - Send message to connect to syncthing | have syncthing auto accept and sync the folders, and everyone is an introducer 
-      - Launch syncthing in another thread. 
-      - Create the comon config file
-      - Run it_has_been_determined_that_I_am_the_host_now() 
+      - <span style="color:lightgreen">Launch syncthing in another thread.</span>
+      - <span style="color:lightgreen">Create the common config file</span>
+      - <span style="color:lightgreen">Run it_has_been_determined_that_I_am_the_host_now()</span>
 - If I'm not a new node: 
   - Uses secret and checks out tunnels 
     - If no Tunnels  
@@ -64,7 +70,7 @@ Distributed Minecraft server to run always on the available PC
     - There are tunnels: 
       - None are active: 
         - then "WARNING MESSAGE" saying that its not possible to confirm that I have the latest version of the server, starting anyways. 
-        - Run it_has_been_determined_that_I_am_the_host_now() 
+        - <span style="color:red">Run it_has_been_determined_that_I_am_the_host_now()</span> 
       - Playit-cli python server and playit-cli minecraft-server ports are active and reachable, the server is being ran by a peer 
         - Put an observer in the syncthing files, or in the server ports 
         - Run a thread that updates the sync file every 20min with info on how good this machine is to host 
@@ -74,7 +80,7 @@ Distributed Minecraft server to run always on the available PC
             - Check in 30 seconds if server is already running, if not, then if I'm the second option in the list start, if not wait 30 more seconds.       
           - YES 
             - Update the sync file with the information, all the machines that were supposed to start the server but didn't should be marked as not online,  
-            - Run it_has_been_determined_that_I_am_the_host_now() 
+            - <span style="color:red">Run it_has_been_determined_that_I_am_the_host_now()</span> 
 
  
 
@@ -84,7 +90,7 @@ When shutting down:
 
  
 
-Def it_has_been_determined_that_I_am_the_host_now(): 
+<span style="color:red">Run it_has_been_determined_that_I_am_the_host_now():</span> 
 - Run a thread that checks every 20min for peers that are not Online and updates them in the common syncthing file if it is not up to date. 
 - Check if all files have been synced, if I have the latest version of the files, if not, wait for them to finish syncing. 
 - Change the file informing saying that I'm going to host now 
