@@ -46,14 +46,17 @@ Distributed Minecraft server to run always on the available PC
 
 - Check the common syncthing file and update it, see if I'm a new node (this file has the syncthing ID of each machine and a score based on internet speed and hardware power to see how likely it is to be picked to host, and weather each one is online or not, and witch one is running the server) 
 - If I'm a new node: 
-  - Question If I want to make a new distributed minecraft server? YES 
-    - ... 
-  - NO:  
-    - Send a message to the tunnel with secret 
-      - If no answer, wait, and send a new message every 30 seconds 
-    - Get details to connect to syncthing 
-    - Send message to connect to syncthing | have syncthing auto accept and sync the folders, and everyone is an introducer 
-    - Launch syncthing in another thread. 
+  - Question If I want to make a new distributed minecraft server? 
+    - YES 
+      - ... 
+    - NO:  
+      - Send a message to the tunnel with secret 
+        - If no answer, wait, and send a new message every 30 seconds 
+      - Get details to connect to syncthing 
+      - Send message to connect to syncthing | have syncthing auto accept and sync the folders, and everyone is an introducer 
+      - Launch syncthing in another thread. 
+      - Create the comon config file
+      - Run it_has_been_determined_that_I_am_the_host_now() 
 - If I'm not a new node: 
   - Uses secret and checks out tunnels 
     - If no Tunnels  
