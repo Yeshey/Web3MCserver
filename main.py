@@ -1,3 +1,4 @@
+from python.download_dependencies import *
 import os
 import subprocess
 import platform
@@ -18,6 +19,7 @@ def start_playit_cli():
     # Example: ./bin/nixos/playit-cli launch ./playit-cli_config/config.toml
 
 def main():
+    download_dependencies()
     if not os.path.exists("secrets/secrets.txt"):
         print("secrets.txt doesn't exist")
         # create secrets folder if it doesn't exist

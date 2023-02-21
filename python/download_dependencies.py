@@ -16,7 +16,7 @@ DOWNLOAD_PATHS = {
     ]),
 }
 
-def main():
+def download_dependencies():
     if sys.platform.startswith('win'):
         SYSTEM = 'Windows'
     elif sys.platform.startswith('linux'):
@@ -54,5 +54,5 @@ def main():
                 os.remove(file_path)
                 os.rename(os.path.join(download_path, extracted_path), syncthing_path)
 
-if __name__ == '__main__':
-    main()
+#if __name__ == '__main__':
+#    main()

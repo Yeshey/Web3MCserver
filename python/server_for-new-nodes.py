@@ -1,10 +1,10 @@
 from utils import *
 import socket
 
-def server_program():
+def server_program(port):
     # get the hostname
     host = "127.0.0.1"
-    port = 6323  # initiate port no above 1024
+    #port = 6323  # initiate port no above 1024
 
     server_socket = socket.socket()  # get instance
     # look closely. The bind() function takes tuple as argument
@@ -33,4 +33,5 @@ if __name__ == '__main__':
     global secret
     secret = secret()
 
-    server_program()
+    port = 6323
+    server_program(port)
