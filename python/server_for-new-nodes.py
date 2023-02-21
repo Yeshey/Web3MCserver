@@ -1,17 +1,20 @@
 from utils import *
 import socket
+import threading
 
-def server_program():
+def server_program(port):
     # get the hostname
     host = "127.0.0.1"
-    port = 6323  # initiate port no above 1024
+    #port = 6323  # initiate port no above 1024
+
+    print(port)
 
     server_socket = socket.socket()  # get instance
     # look closely. The bind() function takes tuple as argument
     server_socket.bind((host, port))  # bind host address and port together
 
     # configure how many client the server can listen simultaneously
-    server_socket.listen(1)
+    server_socket.listen(2)
     conn, address = server_socket.accept()  # accept new connection
     print("Connection from: " + str(address))
     while True:
@@ -31,4 +34,5 @@ if __name__ == '__main__':
     global secret
     secret = secret()
 
-    server_program()
+    server_A_thread = threading.Thread(target=server_program(6323))
+    server_B_thread = threading.Thread(target=server_program(6324))
