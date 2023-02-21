@@ -1,7 +1,28 @@
-# https://stackoverflow.com/questions/18616226/how-to-get-a-python-script-to-listen-for-inputs-from-another-script
-
+from utils import *
 import socket
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(("localhost", 6323))
-s.sendall('My parameters that I want to share with the server')
-s.close()
+
+def client_program():
+    host = "127.0.0.1"  # as both code is running on same pc
+    port = 6323  # socket server port number
+    
+    client_socket = socket.socket()  # instantiate
+    client_socket.connect((host, port))  # connect to the server
+
+    message = input(" -> ")  # take input
+
+    while message.lower().strip() != 'bye':
+        client_socket.send(message.encode())  # send message
+        data = client_socket.recv(1024).decode()  # receive response
+
+        print('Received from server: ' + data)  # show in terminal
+
+        message = input(" -> ")  # again take input
+
+    client_socket.close()  # close the connection
+
+
+if __name__ == '__main__':
+    global secret
+    secret = secret()
+
+    client_program()
