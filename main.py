@@ -51,6 +51,27 @@ def check_syncthing_file():
     with open(SYNCTHING_FILE, 'w') as f:
         json.dump(data, f)
 
+def create_syncthing_file(syncthing_path):
+    syncthing_config = {
+        "gui": {
+            "enabled": False,
+            "tls": False
+        },
+        "options": {
+            "listen_address": "0.0.0.0:22000",
+            "global_announce_server": "udp4://announce.syncthing.net:22026",
+            "local_announce_server": "udp4://:21027",
+            "start_browser": False
+        },
+        "devices": []
+    }
+
+    with open(os.path.join(syncthing_path, "config.xml"), "w") as f:
+        xml_data = dicttoxml.dicttoxml(syncthing_config, custom_root='configuration', attr_type=False)
+        xml_data = xml.dom.minidom.parseString(xml_data).toprettyxml(indent="    ")
+        f.write(xml_data)
+
+
 def check_files_in_server_folder():
     # Checks if there are files in the server folder
     # If there are files in the server folder, inform the user
@@ -268,7 +289,7 @@ def main():
         # Uses secret and checks out tunnels
         # If the tunnels are clear, sends a message to the next location
     # Otherwise, sends a message to the previous location to warn them
-    tunnels_clear = check_tunnels(secret)
+        tunnels_clear = check_tunnels(secret)
     if tunnels_clear:
         message = "Tunnels clear. Moving to next location."
         send_message(message, next_location)
@@ -288,3 +309,4 @@ def main():
             message = "No confirmation received. Aborting mission."
             send_message(message, "HQ")
             return
+
