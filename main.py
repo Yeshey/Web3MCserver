@@ -63,7 +63,7 @@ if __name__ == "__main__":
     main()
 
 def mian2():
-    if new_node_and_update_syncthing_common_file():
+    if new_node_and_update_common_config_file():
         if files_exist_in_server_folder(): # this can go inside the function above
             print("files have been found in server folder, if you don't choose to make a new distributed server, they will be deleted in order to sync the server files from the server chain you'll join.")
         if user_wants_to_make_new_distributed_server():
@@ -87,25 +87,42 @@ def mian2():
                 i_will_be_host_now()
             else:
                 print("Add the secrets file")
-# ===============================================================                
-    else:
-        if check_for_active_tunnels():
-            if no_tunnels_are_active():
-                display_warning_message()
-                run_it_has_been_determined_that_I_am_the_host_now()
-            elif tunnels_are_active():
-                observe_files_and_ports()
-                update_sync_file_periodically()
-                if observer_is_triggered_and_server_is_not_running():
-                    if I_have_highest_value_and_will_be_picked_to_run_server():
-                        mark_other_machines_as_not_online()
-                        run_it_has_been_determined_that_I_am_the_host_now()
-                    else:
-                        check_if_server_is_already_running()
-                else:
-                    pass
-        else:
+    else: # not a new node
+        if not exist_tunnels_with_this_secret():
             raise FatalError()
+        else:
+            if not there_are_active_tunnels():
+                print("WARNING, no peers active or hosting, it is not possible to confirm that I have the latest version of the server.\nStarting anyways")
+                i_will_be_host_now()
+            else:
+                put_observer_for_changes() # Put an observer in the syncthing files, or in the server ports
+                update_common_config_file_periodically()
+
+def put_observer_for_changes():
+    if observer_is_triggered_and_server_is_not_running():
+        if my_priority_position_in_common_config_file() == 0:
+            i_will_be_host_now()
+        else:
+            check_if_server_started_correctly_or_I_need_to_host()
+
+def check_if_server_started_correctly_or_I_need_to_host():
+    time.sleep(30)
+    if not there_are_active_tunnels():
+        if my_priority_position_in_common_config_file() == 1: #I'm the second option
+            mark_other_machines_as_not_online()
+            i_will_be_host_now()
+
+def shutting_down_now():
+    update_common_config_file(shutting_down = true)
+    wait_for_sync_to_finish()
+    close_all_threads()
+
+def i_will_be_host_now():
+    check_periodically_for_online_peers_and_updates_common_sync_file_in_seperate_thread()
+    wait_for_sync_to_finish()
+    update_common_config_file_to_say_that_im_new_host()
+    launch_python_playitcli_server_on_seperate_thread()
+    launch_minecraft_playitcli_server_on_seperate_thread()
 
 def list_folders():
     return os.listdir()
