@@ -1,4 +1,5 @@
 from .utils.interpreter import Interpreter
+from .utils.download_dependencies import download_dependencies
 
 class Cli_interface:
     def __init__(self, web3mcserver):
@@ -15,6 +16,13 @@ class Cli_interface:
         pass
 
     def start(self):
+        download_dependencies()
+
+        # this should not go here
+        if not self.web3mcserver.secret_file_exists():
+            print("secrets.txt doesn't exist\ncreating... put your secret inside ./secrets/secrets.txt and run me again")
+            self.web3mcserver.create_secret_file()
+
         if self.web3mcserver.common_config_file_manager.new_node_and_update_common_config_file():
             if self.web3mcserver.files_exist_in_server_folder():
                 print("files have been found in server folder, if you don't choose to make a new distributed server, they will be deleted in order to sync the server files from the server chain you'll join.")

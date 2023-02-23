@@ -1,6 +1,13 @@
+import subprocess
+
 class SyncthingManager:
+    def __init__(self, bin_path):
+        self.bin_path = bin_path
+
     def launch_syncthing_in_separate_thread(self):
-        pass
+        print("Starting Playit-cli...")
+
+        subprocess.run([self.bin_path + "/playit-cli", "launch", "./../playit-cli_config/config.toml"], cwd="./server")
 
     def get_syncthing_details_from_playit_cli_python_server(self):
         pass
