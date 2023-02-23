@@ -1,4 +1,7 @@
 class CommonConfigFileManager:
+    def __init__(self, web3mcserverLogic):
+        self.web3mcserverLogic = web3mcserverLogic
+
     def create_common_config_file(self):
         pass
 
@@ -19,3 +22,6 @@ class CommonConfigFileManager:
 
     def check_periodically_for_online_peers_and_updates_common_sync_file_in_separate_thread(self):
         pass
+
+    def is_new_node_and_update_common_config_file(self):
+        return True

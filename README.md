@@ -23,7 +23,7 @@ Distributed Minecraft server to run always on the available PC
 # How to run
 
 - run `download_dependencies.py`
-- make and get the secret for a playit-gg account: `playit-cli claim generate` && `playit-cli claim url <CODE>` && `playit-cli claim exchange <CODE>`, then you can put the secret in the `./secrets/secrets.txt` file
+- make and get the secret for a playit-gg account: `playit-cli claim generate` && `playit-cli claim url <CODE>` && `playit-cli claim exchange <CODE>`, then you can put the secret in the `./secrets/secrets.toml` file
 
 # To-Do
 
@@ -49,7 +49,7 @@ Distributed Minecraft server to run always on the available PC
   - Check if there are files in the server folder, and say that if we don't make a new minecraft server they will be deleted.
   - Question If I want to make a new distributed minecraft server? 
     - YES 
-      - Walk user through the process of making a new secret with playit-cli: `playit-cli claim generate` && `playit-cli claim url <CODE>` && `playit-cli claim exchange <CODE>`, then you can put the secret in the `./secrets/secrets.txt` file
+      - Walk user through the process of making a new secret with playit-cli: `playit-cli claim generate` && `playit-cli claim url <CODE>` && `playit-cli claim exchange <CODE>`, then you can put the secret in the `./secrets/secrets.toml` file
       - Download minecraft 1.19.3 jar file and put it in the server folder.
       - <span style="color:lightgreen">Launch syncthing in another thread.</span>
       - <span style="color:lightgreen">Create the common config file</span>

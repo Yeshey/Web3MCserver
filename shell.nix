@@ -8,11 +8,12 @@ let
   my-python = pkgs.python3;
   python-with-my-packages = my-python.withPackages (p: with p; [
     distro # to see that we're on nixOS
+    toml
     # pandas
-    #beautifulsoup4
-    #requests
-    #lxml
-    #pillow
+    # beautifulsoup4
+    # requests
+    # lxml
+    # pillow
     # other python packages you want
   ]);
 in

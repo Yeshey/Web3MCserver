@@ -1,13 +1,13 @@
 import subprocess
 
 class SyncthingManager:
-    def __init__(self, bin_path):
-        self.bin_path = bin_path
+    def __init__(self, web3mcserverLogic):
+        self.web3mcserverLogic = web3mcserverLogic
 
     def launch_syncthing_in_separate_thread(self):
         print("Starting Playit-cli...")
 
-        subprocess.run([self.bin_path + "/playit-cli", "launch", "./../playit-cli_config/config.toml"], cwd="./server")
+        subprocess.run([self.web3mcserverLogic.bin_path + "/syncthing/syncthing", "--home", self.web3mcserverLogic.syncthing_config])
 
     def get_syncthing_details_from_playit_cli_python_server(self):
         pass
