@@ -30,7 +30,7 @@ pkgs.mkShell {
     PYTHONPATH=${python-with-my-packages}/${python-with-my-packages.sitePackages}
 
     # Download dependencies using the Python script
-    python3 download_dependencies.py
+    python3 ./src/utils/download_dependencies.py
 
     if [ ! -d ./bin/nixos/syncthing ]; then
       echo "[shell.nix]: Downloading syncthing..."
