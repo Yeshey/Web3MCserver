@@ -72,7 +72,6 @@ class Web3MCserverLogic:
         self.playitcli_manager.launch_python_playitcli_server_on_separate_thread()
         self.playitcli_manager.launch_minecraft_playitcli_server_on_separate_thread()
 
-    # THIS ONE IS NOT WORKING YET! you should ignore .stignore file and .stfolder inside the ./server folder
     def files_exist_in_server_folder(self):
         # Check if the directory exists
         if os.path.exists(self.server_path):
@@ -85,7 +84,7 @@ class Web3MCserverLogic:
             else:
                 # Check if any non-hidden files or directories exist and ignore those
                 for item in contents:
-                    if not item.startswith(".") and item != "stignore":
+                    if not item.startswith("."):
                         return True
                 return False
         else:
