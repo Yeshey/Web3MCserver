@@ -8,6 +8,14 @@ class PlayitCliManager:
     def launch_python_playitcli_server_on_separate_thread(self):
         pass
 
+    def create_syncthing_tunnel():
+        # create syncthing tunnel and save secret
+        pass
+
+    def create_server_tunnel():
+        # create syncthing tunnel and save secret
+        pass
+
     def make_new_secret(self):
         # run
         # playit-cli claim generate

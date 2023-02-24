@@ -47,6 +47,8 @@ class Cli_interface:
                 else:
                     self.instructions_on_how_to_set_their_own_server()
                 self.web3mcserver.common_config_file_manager.create_common_config_file() # todo implement
+                self.web3mcserver.playitcli_manager.create_syncthing_tunnel()
+                self.web3mcserver.playitcli_manager.create_server_tunnel()
                 self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread() # todo implement
                 self.web3mcserver.i_will_be_host_now() # todo implement
             else:
