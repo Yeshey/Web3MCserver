@@ -1,0 +1,28 @@
+agent_name = "web3MC"
+#agent_type = "my-type"
+#secret_key = "<secret>"
+secret_path = "./../secrets/secrets.toml"
+command = "python3"
+command_args = ["./../python/server_for-new-nodes.py"] # 9e0a3886-8b6d-403a-9755-1d67987eb440=192.168.1.20:25565
+# java -Xmx1024M -Xms1024M -jar server.jar nogui
+
+#[env_overrides]
+#ENV1 = "value1"
+#ENV2 = "value2"
+
+[[tunnels]]
+#tunnel_type = "minecraft-java"
+#id = "9e0a3886-8b6d-403a-9755-1d67987eb440"
+name = "YesheyTunnel"
+proto = "both"
+port_count = 2
+local = 9876
+
+[[tunnels]]
+id = "0bb170d8-a949-49a5-a747-5ecac885c441"
+name = "ssh-tunnel"
+proto = "tcp"
+port_count = 1
+local = 9999
+
+special_lan = true

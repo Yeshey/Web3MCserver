@@ -15,7 +15,7 @@ class Web3MCserverLogic:
     server_path = "./../server/"
     minecraft_server_file_name = "server.jar"
     minecraft_server_url = "https://piston-data.mojang.com/v1/objects/c9df48efed58511cdd0213c56b9013a7b5c9ac1f/server.jar"
-    playitcli_config_toml = "./../playit-cli_config/config.toml"
+    playitcli_config_toml = "./../playit-cli_config/main_server_config.toml"
     syncthing_config = "./../syncthing_config"
 
     def __init__(self):
@@ -69,7 +69,6 @@ class Web3MCserverLogic:
         self.common_config_file_manager.check_periodically_for_online_peers_and_updates_common_sync_file_in_separate_thread()
         self.syncthing_manager.wait_for_sync_to_finish()
         self.common_config_file_manager.update_common_config_file_to_say_that_im_new_host()
-        self.playitcli_manager.launch_python_playitcli_server_on_separate_thread()
         self.playitcli_manager.launch_minecraft_playitcli_server_on_separate_thread()
 
     def files_exist_in_server_folder(self):
