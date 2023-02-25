@@ -5,14 +5,6 @@ class PlayitCliManager:
     def __init__(self, web3mcserverLogic):
         self.web3mcserverLogic = web3mcserverLogic
 
-    def create_syncthing_tunnel():
-        # create syncthing tunnel and save secret/address
-        pass
-
-    def create_server_tunnel():
-        # create syncthing tunnel and save secret/address
-        pass
-
     def make_new_secret(self):
         # run
         # playit-cli claim generate

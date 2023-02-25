@@ -20,13 +20,16 @@ class Cli_interface:
                 print("Invalid input. Please enter 'y' or 'n'.")
 
     def process_of_making_new_playitcli_secret(self):
+        if not self.web3mcserver.secrets_file_empty():
+            print("[WARNING] secrets file not empty, to continue they have to be overridden")
+            print(["[INFO] control the number of tunnels and agents in your account as it is limited, it is recommended to delete all existing agents and tunnels before creating a new server with this tool: https://playit.gg/account/overview"])
+            if not self.ask_question("continue? the existing secrets will be overridden"):
+                print(["[INFO] exiting..."])
+                exit()
         print("[INFO] to make a new secret, you'll need to login and accept the agent in your browser")
-        if not self.ask_question("Do you already have a secret?"):
-            playit_secret = self.web3mcserver.playitcli_manager.make_new_secret()
-            print("[INFO] writing secret to secrets.toml")
-            self.web3mcserver.write_secrets_file(playit_secret = playit_secret)
-        else:
-            print("[INFO] Make sure to add the secret in the ./secrets/secrets.toml file")
+        playit_secret = self.web3mcserver.playitcli_manager.make_new_secret()
+        self.write_secrets_file(playit_secret = playit_secret)
+        print("[INFO] writing hash secret to secrets.toml")
 
     def start(self):
         download_dependencies()
@@ -47,10 +50,11 @@ class Cli_interface:
                 else:
                     self.instructions_on_how_to_set_their_own_server()
                 self.web3mcserver.common_config_file_manager.create_common_config_file() # todo implement
-                self.web3mcserver.playitcli_manager.create_syncthing_tunnel()
-                self.web3mcserver.playitcli_manager.create_server_tunnel()
+
                 self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread() # todo implement
-                self.web3mcserver.i_will_be_host_now() # todo implement
+                self.web3mcserver.save_syncthing_server_address_in_secrets() # as its the first time
+
+                self.web3mcserver.i_will_be_host_now(save_server_address_in_secrets = True) # todo implement
             else:
                 if self.web3mcserver.secrets_file_in_place():
                     if self.web3mcserver.files_exist_in_server_folder():

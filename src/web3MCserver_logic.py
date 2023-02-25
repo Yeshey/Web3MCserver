@@ -101,6 +101,15 @@ class Web3MCserverLogic:
         else:
             print("Minecraft server already downloaded.")
 
+# ============== Secrets File Management ==============
+
+    def secrets_file_empty(self):
+        if not self.secret_file_exists():
+            raise FileNotFoundError(f"{self.secrets_path + self.secrets_file_name} does not exist.")
+
+        with open(self.secrets_path + self.secrets_file_name, "r") as f:
+            return len(f.read().strip()) == 0
+
     def secret_file_exists(self):
         return os.path.exists(self.secrets_path + self.secrets_file_name)
 
@@ -116,6 +125,8 @@ class Web3MCserverLogic:
 
     def secrets_file_in_place(self):
         pass
+
+# ============== Secrets File Management ==============
 
     def i_will_be_host_now(self):
         pass
