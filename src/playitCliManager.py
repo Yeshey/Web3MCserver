@@ -31,4 +31,4 @@ class PlayitCliManager:
     def launch_minecraft_playitcli_server_on_separate_thread(self):
         print("[DEBUG] Starting Playit-cli...")
 
-        subprocess.run([self.web3mcserverLogic.bin_path + "/playit-cli", "launch", self.web3mcserverLogic.playitcli_config_toml], cwd=self.web3mcserverLogic.server_path)
+        subprocess.run([self.web3mcserverLogic.bin_path + "/playit-cli", "launch", self.web3mcserverLogic.playitcli_toml_config_main_server], cwd=self.web3mcserverLogic.server_path)

@@ -12,10 +12,12 @@ class Web3MCserverLogic:
     # Define the directory path
     secrets_path = "./../secrets/"
     secrets_file_name = "secrets.toml"
+    secret_playitcli = "secret_playitcli.txt"
     server_path = "./../server/"
     minecraft_server_file_name = "server.jar"
     minecraft_server_url = "https://piston-data.mojang.com/v1/objects/c9df48efed58511cdd0213c56b9013a7b5c9ac1f/server.jar"
-    playitcli_config_toml = "./../playit-cli_config/main_server_config.toml"
+    playitcli_toml_config_main_server = "./../playit-cli_config/main_server_config.toml"
+    playitcli_toml_config_syncthing_server = "./playit-cli_config/syncthing_server_config.toml"
     syncthing_config = "./../syncthing_config"
 
     def __init__(self):
@@ -105,23 +107,43 @@ class Web3MCserverLogic:
 
     def secrets_file_empty(self):
         if not self.secret_file_exists():
-            raise FileNotFoundError(f"{self.secrets_path + self.secrets_file_name} does not exist.")
+            raise FileNotFoundError(f"{self.secrets_path + self.secret_playitcli} does not exist.")
 
-        with open(self.secrets_path + self.secrets_file_name, "r") as f:
+        with open(self.secrets_path + self.secret_playitcli, "r") as f:
             return len(f.read().strip()) == 0
 
     def secret_file_exists(self):
-        return os.path.exists(self.secrets_path + self.secrets_file_name)
+        return os.path.exists(self.secrets_path + self.secret_playitcli)
 
-    def write_secrets_file(self, playit_secret=""):
+    def write_secret_addresses_toml_file(self, playit_secret=""):
         if not os.path.exists(self.secrets_path):
             os.makedirs(self.secrets_path)
         if playit_secret:
             data = {'playit-secret': playit_secret}
         else:
             data = {}
-        with open(os.path.join(self.secrets_path, self.secrets_file_name), 'w') as f:
+        with open(os.path.join(self.secrets_path, self.secret_playitcli), 'w') as f:
             toml.dump(data, f)
+
+    def write_secrets_playitcli_file(self, playit_secret=""):
+        if not os.path.exists(self.secrets_path):
+            os.makedirs(self.secrets_path)
+
+        if self.secret_file_exists():
+            mode = 'w'  # override existing file
+        else:
+            mode = 'x'  # create new file
+
+        with open(os.path.join(self.secrets_path, self.secret_playitcli), mode) as f:
+            f.write(playit_secret)
+
+    def get_secrets_playitcli_file(self):
+        if self.secret_file_exists():
+            with open(os.path.join(self.secrets_path, self.secret_playitcli), 'r') as f:
+                return f.read()
+        else:
+            return ""
+
 
     def secrets_file_in_place(self):
         pass
