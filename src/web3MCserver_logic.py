@@ -16,7 +16,8 @@ class Web3MCserverLogic:
     # Define the directory path
     secrets_path = "./../secrets/"
     secrets_file_name = "secret_addresses.toml"
-    secret_playitcli = "secret_syncthing_playitcli.txt"
+    secret_syncthing_playitcli = "secret_syncthing_playitcli.txt"
+    secret_main_playitcli = "secret_main_playitcli.txt"
     server_path = "./../server/"
     minecraft_server_file_name = "server.jar"
     minecraft_server_url = "https://piston-data.mojang.com/v1/objects/c9df48efed58511cdd0213c56b9013a7b5c9ac1f/server.jar"
@@ -145,13 +146,13 @@ class Web3MCserverLogic:
 
     def secrets_file_empty(self):
         if not self.secret_file_exists():
-            raise FileNotFoundError(f"{self.secrets_path + self.secret_playitcli} does not exist.")
+            raise FileNotFoundError(f"{self.secrets_path + self.secret_syncthing_playitcli} does not exist.")
 
-        with open(self.secrets_path + self.secret_playitcli, "r") as f:
+        with open(self.secrets_path + self.secret_syncthing_playitcli, "r") as f:
             return len(f.read().strip()) == 0
 
     def secret_file_exists(self):
-        return os.path.exists(self.secrets_path + self.secret_playitcli)
+        return os.path.exists(self.secrets_path + self.secret_syncthing_playitcli)
 
     def write_secret_addresses_toml_file(self, syncthing_address="", main_server_address=""):
         if not os.path.exists(self.secrets_path):
@@ -164,7 +165,12 @@ class Web3MCserverLogic:
         with open(os.path.join(self.secrets_path, self.secrets_file_name), 'w') as f:
             toml.dump(data, f)
 
-    def write_secret_playitcli_file(self, playit_secret=""):
+    def write_secret_playitcli_file(self, syncthing_secret ,playit_secret=""):
+        if syncthing_secret:
+            to_save = self.secret_syncthing_playitcli
+        else:
+            to_save = self.secret_main_playitcli
+
         if not os.path.exists(self.secrets_path):
             os.makedirs(self.secrets_path)
 
@@ -173,12 +179,12 @@ class Web3MCserverLogic:
         else:
             mode = 'x'  # create new file
 
-        with open(os.path.join(self.secrets_path, self.secret_playitcli), mode) as f:
+        with open(os.path.join(self.secrets_path, to_save), mode) as f:
             f.write(playit_secret)
 
     def get_secrets_playitcli_file(self):
         if self.secret_file_exists():
-            with open(os.path.join(self.secrets_path, self.secret_playitcli), 'r') as f:
+            with open(os.path.join(self.secrets_path, self.secret_syncthing_playitcli), 'r') as f:
                 return f.read()
         else:
             return ""

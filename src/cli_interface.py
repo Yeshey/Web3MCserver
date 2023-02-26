@@ -27,9 +27,13 @@ class Cli_interface:
                 print(["[INFO] exiting..."])
                 exit()
         print("[INFO] to make a new secret, you'll need to login and accept the agent in your browser")
-        playit_secret = self.web3mcserver.playitcli_manager.make_new_secret()
-        self.web3mcserver.write_secret_playitcli_file(playit_secret = playit_secret)
+        playit_sycthing_secret = self.web3mcserver.playitcli_manager.make_new_secret()
+        self.web3mcserver.write_secret_playitcli_file(playit_secret = playit_sycthing_secret, syncthing_secret = True)
         print("[INFO] writing hash secret to secret_syncthing_playitcli.txt")
+        print("[INFO] We need another secret for the main server")
+        playit_main_secret = self.web3mcserver.playitcli_manager.make_new_secret()
+        self.web3mcserver.write_secret_playitcli_file(playit_secret = playit_main_secret, syncthing_secret = False)
+        print("[INFO] writing hash secret to secret_main_playitcli.txt")
 
     def start(self):
         download_dependencies()

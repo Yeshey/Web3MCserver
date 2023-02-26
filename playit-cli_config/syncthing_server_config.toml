@@ -12,8 +12,8 @@ command_args = ["--home", "./syncthing_config", "--gui-apikey=JbzbY7RMxxffL43AGN
 
 [[tunnels]]
 name = "YesheyTunnel"
-proto = "both"
-port_count = 2
+proto = "tcp"
+port_count = 1
 local = 23840
 
 #[[tunnels]]
