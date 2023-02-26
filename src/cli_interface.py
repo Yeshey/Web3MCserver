@@ -67,7 +67,7 @@ class Cli_interface:
                 self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(save_syncthing_server_address_in_secrets = True) # todo implement
                 self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = True) # todo implement
             else:
-                if self.web3mcserver.secrets_file_in_place():
+                if self.web3mcserver.secrets_file_empty():
                     if self.web3mcserver.files_exist_in_server_folder():
                         if self.ask_question("Files have been found in server folder, they need to be deleted to continue. Proceed?"):
                             self.web3mcserver.delete_files_inside_server_folder()
