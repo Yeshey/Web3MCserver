@@ -23,12 +23,7 @@ class SyncthingManager:
                 print("[DEBUG] Syncthing running, continuing...")
                 break
 
-        tunnels_list = subprocess.check_output([self.web3mcserverLogic.bin_path + "/playit-cli", 
-            "--secret", 
-            self.web3mcserverLogic.get_secrets_playitcli_file(),
-            "tunnels", 
-            "list"])
-        tunnels_list = tunnels_list.decode().strip()
+        tunnels_list = self.web3mcserverLogic.get_existing_tunnels(self.web3mcserverLogic.get_secrets_playitcli_file(self.web3mcserverLogic.secret_syncthing_playitcli))
         port_of_first_tunnel = tunnels_list.split()[4]
         address_of_first_tunnel = tunnels_list.split()[3]
 

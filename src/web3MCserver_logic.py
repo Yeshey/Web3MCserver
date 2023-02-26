@@ -95,10 +95,35 @@ class Web3MCserverLogic:
         notification.message = "server address: "
         notification.send()
 
-        self.playitcli_manager.launch_minecraft_playitcli_server_on_separate_thread()
+        # Start the server
+        address_added = False # Make it save the address
+
+        for path in self.execute([self.bin_path + "/playit-cli", 
+            "launch", 
+            self.playitcli_toml_config_main_server],
+            cwd="./../server/"):
+
+            if save_main_erver_address_in_secrets:
+                if not address_added and 'Preparing spawn area:' in path:
+                    address_added = True
+                    tunnels_list = self.get_existing_tunnels(self.get_secrets_playitcli_file(self.secret_main_playitcli))
+                    port_of_first_tunnel = tunnels_list.split()[4]
+                    address_of_first_tunnel = tunnels_list.split()[3]
+                    print(f"[DEBUG] You can access the minecraft server with: http://{address_of_first_tunnel} or if that doesn't work: http://{address_of_first_tunnel}:{port_of_first_tunnel}")
+                    
+
+            print(path, end="")
 
         if save_main_erver_address_in_secrets:
             pass
+
+    def get_existing_tunnels(self, secret_to_use):
+        tunnels_list = subprocess.check_output([self.bin_path + "/playit-cli", 
+            "--secret", 
+            secret_to_use,
+            "tunnels", 
+            "list"])
+        return tunnels_list.decode().strip()
 
     def execute(self, cmd, cwd = ""):
         # https://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
@@ -133,7 +158,6 @@ class Web3MCserverLogic:
 
 
     def download_minecraft_server(self):
-    
         # Download the server file if it doesn't exist
         if not os.path.exists(self.server_path + self.minecraft_server_file_name):
             print("Downloading Minecraft server...")
@@ -182,9 +206,9 @@ class Web3MCserverLogic:
         with open(os.path.join(self.secrets_path, to_save), mode) as f:
             f.write(playit_secret)
 
-    def get_secrets_playitcli_file(self):
+    def get_secrets_playitcli_file(self, secret_file_to_check):
         if self.secret_file_exists():
-            with open(os.path.join(self.secrets_path, self.secret_syncthing_playitcli), 'r') as f:
+            with open(os.path.join(self.secrets_path, secret_file_to_check), 'r') as f:
                 return f.read()
         else:
             return ""

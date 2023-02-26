@@ -27,15 +27,3 @@ class PlayitCliManager:
         print("[DEBUG] This is the secret: "+ playitcli_secret)
         return playitcli_secret
 
-
-    def launch_minecraft_playitcli_server_on_separate_thread(self):
-
-        for path in self.web3mcserverLogic.execute([self.web3mcserverLogic.bin_path + "/playit-cli", 
-            "launch", 
-            self.web3mcserverLogic.playitcli_toml_config_main_server],
-            cwd="./../server/"):
-            print(path, end="")
-
-        #print("[DEBUG] Starting Playit-cli...")
-
-        #subprocess.run([self.web3mcserverLogic.bin_path + "/playit-cli", "launch", self.web3mcserverLogic.playitcli_toml_config_main_server], cwd=self.web3mcserverLogic.server_path)
