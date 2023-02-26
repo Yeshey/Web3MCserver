@@ -110,7 +110,7 @@ class Web3MCserverLogic:
                     port_of_first_tunnel = tunnels_list.split()[4]
                     address_of_first_tunnel = tunnels_list.split()[3]
                     print(f"[DEBUG] You can access the minecraft server with: http://{address_of_first_tunnel} or if that doesn't work: http://{address_of_first_tunnel}:{port_of_first_tunnel}")
-                    
+                    self.write_secret_addresses_toml_file(main_server_address=address_of_first_tunnel)
 
             print(path, end="")
 
@@ -181,13 +181,21 @@ class Web3MCserverLogic:
     def write_secret_addresses_toml_file(self, syncthing_address="", main_server_address=""):
         if not os.path.exists(self.secrets_path):
             os.makedirs(self.secrets_path)
+
         data = {}
-        if syncthing_address:
+        if os.path.isfile(os.path.join(self.secrets_path, self.secrets_file_name)):
+            with open(os.path.join(self.secrets_path, self.secrets_file_name), 'r') as f:
+                data = toml.load(f)
+
+        if syncthing_address and 'syncthing_server_address' not in data:
             data['syncthing_server_address'] = syncthing_address
-        if main_server_address:
+
+        if main_server_address and 'main_server_address' not in data:
             data['main_server_address'] = main_server_address
+
         with open(os.path.join(self.secrets_path, self.secrets_file_name), 'w') as f:
             toml.dump(data, f)
+
 
     def write_secret_playitcli_file(self, syncthing_secret ,playit_secret=""):
         if syncthing_secret:
