@@ -23,7 +23,7 @@ pkgs.mkShell {
     python-with-my-packages
     pkgs.cacert # to fix certificate issues (https://github.com/NixOS/nixpkgs/issues/66716#issuecomment-883399373)
     pkgs.libnotify # to support notifications
-    jdk17
+    pkgs.jdk17
     # pkgs.steam-run # I know this sucks, but making nix work sucks more..
     #pkgs.curl
     #pkgs.unzip
