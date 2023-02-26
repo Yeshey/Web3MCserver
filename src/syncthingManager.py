@@ -1,6 +1,5 @@
 import subprocess
 import time
-import threading
 
 class SyncthingManager:
     def __init__(self, web3mcserverLogic):
@@ -12,10 +11,17 @@ class SyncthingManager:
         # todo: to make it more secure you should add password and user. But it seems like you'd need to stop syncthing and run some commands and start again
         # https://docs.syncthing.net/users/faq.html#how-do-i-reset-the-gui-password
         
-        t = threading.Thread(target=self.launch_syncthing)
-        t.start()
+        #t = threading.Thread(target=self.launch_syncthing)
+        #t.start()
 
-        time.sleep(15) # terrible terrible practice
+        for path in self.web3mcserverLogic.execute([self.web3mcserverLogic.bin_path + "/playit-cli", 
+            "launch", 
+            self.web3mcserverLogic.playitcli_toml_config_syncthing_server],
+            cwd="./../"):
+            print(path, end="")
+            if 'INFO: My name is' in path: # allow it to continue when it sees this string in the output
+                print("[DEBUG] Syncthing running, continuing...")
+                break
 
         tunnels_list = subprocess.check_output([self.web3mcserverLogic.bin_path + "/playit-cli", 
             "--secret", 
@@ -28,17 +34,13 @@ class SyncthingManager:
 
         print(f"[DEBUG] You can access syncthing with: http://{address_of_first_tunnel}:{port_of_first_tunnel}")
 
-        
         if save_syncthing_server_address_in_secrets:
-            # todo: add the address syncthing is running on to the secrets.
-            pass
-
-        time.sleep(100)
+            self.web3mcserverLogic.write_secret_addresses_toml_file(syncthing_address="http://" + address_of_first_tunnel + ":" + port_of_first_tunnel)
 
         #subprocess.run([self.web3mcserverLogic.bin_path + "/syncthing/syncthing", "--home", self.web3mcserverLogic.syncthing_config])
 
-    def launch_syncthing(self):
-        subprocess.run([self.web3mcserverLogic.bin_path + "/playit-cli", "launch", self.web3mcserverLogic.playitcli_toml_config_syncthing_server], cwd="./../")    
+    #def launch_syncthing(self):
+    #    subprocess.run([self.web3mcserverLogic.bin_path + "/playit-cli", "launch", self.web3mcserverLogic.playitcli_toml_config_syncthing_server], cwd="./../")    
 
     def get_syncthing_details_from_playit_cli_python_server(self):
         pass

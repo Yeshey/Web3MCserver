@@ -7,12 +7,16 @@ import distro
 import platform
 import urllib.request
 import toml
+from notifypy import Notify
+import subprocess
+import atexit
+import signal
 
 class Web3MCserverLogic:
     # Define the directory path
     secrets_path = "./../secrets/"
-    secrets_file_name = "secrets.toml"
-    secret_playitcli = "secret_playitcli.txt"
+    secrets_file_name = "secret_addresses.toml"
+    secret_playitcli = "secret_syncthing_playitcli.txt"
     server_path = "./../server/"
     minecraft_server_file_name = "server.jar"
     minecraft_server_url = "https://piston-data.mojang.com/v1/objects/c9df48efed58511cdd0213c56b9013a7b5c9ac1f/server.jar"
@@ -27,6 +31,8 @@ class Web3MCserverLogic:
         self.common_config_file_manager = CommonConfigFileManager(self)
         self.syncthing_manager = SyncthingManager(self)
         self.playitcli_manager = PlayitCliManager(self)
+
+        self.syncthing_process = None # needs to be a list so it is a muttable object
 
         # ======= Figuring out witch platform I'm running on ======= #
         base_path = os.path.dirname(os.path.abspath(__file__))
@@ -60,18 +66,50 @@ class Web3MCserverLogic:
                 self.common_config_file_manager.mark_other_machines_as_not_online()
                 self.i_will_be_host_now()
 
+    def set_exit_function(self):
+        atexit.register(self.shutting_down_now)
+
     def shutting_down_now(self):
+        print ('[DEBUG] Terminating...')
         self.common_config_file_manager.update_common_config_file(shutting_down = True)
         self.syncthing_manager.wait_for_sync_to_finish()
-        self.close_all_threads()
 
-    def i_will_be_host_now(self):
+        # Kill all related processes
+        if self.syncthing_process != None:
+            print("[DEBUG] Killing syncthing")
+            # https://stackoverflow.com/questions/4789837/how-to-terminate-a-python-subprocess-launched-with-shell-true/4791612#4791612
+            print(self.syncthing_process)
+            os.killpg(os.getpgid(self.syncthing_process), signal.SIGTERM)
+
+    def i_will_be_host_now(self, save_main_erver_address_in_secrets = False):
         # Send system notification saying that thes PC will be host now
         print("Becoming Host")
-        self.common_config_file_manager.check_periodically_for_online_peers_and_updates_common_sync_file_in_separate_thread()
-        self.syncthing_manager.wait_for_sync_to_finish()
-        self.common_config_file_manager.update_common_config_file_to_say_that_im_new_host()
+        self.common_config_file_manager.check_periodically_for_online_peers_and_updates_common_sync_file_in_separate_thread() # todo
+        self.syncthing_manager.wait_for_sync_to_finish() # todo, check https://man.archlinux.org/man/community/syncthing/syncthing-rest-api.7.en
+        self.common_config_file_manager.update_common_config_file_to_say_that_im_new_host() # todo
+
+        # Send desktop notification
+        notification = Notify()
+        notification.title = "This computer will be host for the Minecraft server now"
+        notification.message = "server address: "
+        notification.send()
+
         self.playitcli_manager.launch_minecraft_playitcli_server_on_separate_thread()
+
+        if save_main_erver_address_in_secrets:
+            pass
+
+    def execute(self, cmd, cwd = ""):
+        # https://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
+        popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=cwd, universal_newlines=True)
+        print(F"[DEBUG] PID: {popen.pid}")
+        self.syncthing_process = popen.pid
+        for stdout_line in iter(popen.stdout.readline, ""):
+            yield stdout_line 
+        popen.stdout.close()    
+        return_code = popen.wait()
+        if return_code:
+            raise subprocess.CalledProcessError(return_code, cmd)
 
     def files_exist_in_server_folder(self):
         # Check if the directory exists
@@ -115,17 +153,18 @@ class Web3MCserverLogic:
     def secret_file_exists(self):
         return os.path.exists(self.secrets_path + self.secret_playitcli)
 
-    def write_secret_addresses_toml_file(self, playit_secret=""):
+    def write_secret_addresses_toml_file(self, syncthing_address="", main_server_address=""):
         if not os.path.exists(self.secrets_path):
             os.makedirs(self.secrets_path)
-        if playit_secret:
-            data = {'playit-secret': playit_secret}
-        else:
-            data = {}
-        with open(os.path.join(self.secrets_path, self.secret_playitcli), 'w') as f:
+        data = {}
+        if syncthing_address:
+            data['syncthing_server_address'] = syncthing_address
+        if main_server_address:
+            data['main_server_address'] = main_server_address
+        with open(os.path.join(self.secrets_path, self.secrets_file_name), 'w') as f:
             toml.dump(data, f)
 
-    def write_secrets_playitcli_file(self, playit_secret=""):
+    def write_secret_playitcli_file(self, playit_secret=""):
         if not os.path.exists(self.secrets_path):
             os.makedirs(self.secrets_path)
 
@@ -144,22 +183,15 @@ class Web3MCserverLogic:
         else:
             return ""
 
-
     def secrets_file_in_place(self):
         pass
 
 # ============== Secrets File Management ==============
 
-    def i_will_be_host_now(self):
-        pass
-
     def delete_files_inside_server_folder(self):
         pass
 
     def observer_is_triggered_and_server_is_not_running(self):
-        pass
-
-    def close_all_threads(self):
         pass
 
     def there_are_active_tunnels(self):

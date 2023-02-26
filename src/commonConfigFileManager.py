@@ -2,6 +2,9 @@ class CommonConfigFileManager:
     def __init__(self, web3mcserverLogic):
         self.web3mcserverLogic = web3mcserverLogic
 
+    def update_common_config_file_to_say_that_im_new_host(self):
+        pass
+
     def create_common_config_file(self):
         pass
 

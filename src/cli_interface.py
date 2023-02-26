@@ -28,24 +28,29 @@ class Cli_interface:
                 exit()
         print("[INFO] to make a new secret, you'll need to login and accept the agent in your browser")
         playit_secret = self.web3mcserver.playitcli_manager.make_new_secret()
-        self.web3mcserver.write_secrets_playitcli_file(playit_secret = playit_secret)
-        print("[INFO] writing hash secret to secrets.toml")
+        self.web3mcserver.write_secret_playitcli_file(playit_secret = playit_secret)
+        print("[INFO] writing hash secret to secret_syncthing_playitcli.txt")
 
     def start(self):
         download_dependencies()
 
         # self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(save_syncthing_server_address_in_secrets = True) # todo implement
 
+        # Set Exit function
+        self.web3mcserver.set_exit_function()
+
         # this should not go here
         if not self.web3mcserver.secret_file_exists():
-            print("secrets.toml doesn't exist\ncreating... put your secret inside ./secrets/secrets.toml and run me again")
-            self.web3mcserver.write_secrets_playitcli_file()
+            print("secret_syncthing_playitcli.txt doesn't exist\ncreating... put your secret inside ./secrets/secret_syncthing_playitcli.txt and run me again")
+            self.web3mcserver.write_secret_playitcli_file()
 
         if self.web3mcserver.common_config_file_manager.is_new_node_and_update_common_config_file(): # todo implement
             if self.ask_question("Do you want to create a new distributed server?"):
                 if not self.web3mcserver.secrets_file_empty():
                     if not self.ask_question("secrets file not empty, use current secret?"):
                         self.process_of_making_new_playitcli_secret()
+                else:
+                    self.process_of_making_new_playitcli_secret()
                 if not self.web3mcserver.files_exist_in_server_folder():
                     if self.ask_question("Do you want a Minecraft server?"):
                         self.web3mcserver.download_minecraft_server()
@@ -56,7 +61,6 @@ class Cli_interface:
                 self.web3mcserver.common_config_file_manager.create_common_config_file() # todo implement
 
                 self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(save_syncthing_server_address_in_secrets = True) # todo implement
-
                 self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = True) # todo implement
             else:
                 if self.web3mcserver.secrets_file_in_place():
