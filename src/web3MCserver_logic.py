@@ -80,7 +80,10 @@ class Web3MCserverLogic:
             print("[DEBUG] Killing syncthing")
             # https://stackoverflow.com/questions/4789837/how-to-terminate-a-python-subprocess-launched-with-shell-true/4791612#4791612
             print(self.syncthing_process)
-            os.killpg(os.getpgid(self.syncthing_process), signal.SIGTERM)
+            try:
+                os.killpg(os.getpgid(self.syncthing_process), signal.SIGTERM)
+            except:
+                print("[DEBUG] Error, PID not found? Syncthing should exit with broken pipe")
 
     def i_will_be_host_now(self, save_main_erver_address_in_secrets = False):
         # Send system notification saying that thes PC will be host now
@@ -111,7 +114,6 @@ class Web3MCserverLogic:
                     address_of_first_tunnel = tunnels_list.split()[3]
                     print(f"[DEBUG] You can access the minecraft server with: http://{address_of_first_tunnel} or if that doesn't work: http://{address_of_first_tunnel}:{port_of_first_tunnel}")
                     self.write_secret_addresses_toml_file(main_server_address=address_of_first_tunnel)
-
             print(path, end="")
 
         if save_main_erver_address_in_secrets:
@@ -131,6 +133,11 @@ class Web3MCserverLogic:
         print(F"[DEBUG] PID: {popen.pid}")
         self.syncthing_process = popen.pid
         for stdout_line in iter(popen.stdout.readline, ""):
+            if "Error: Broken pipe" in stdout_line:
+                popen.stdout.close()    
+                return_code = popen.wait()
+                if return_code:
+                    raise subprocess.CalledProcessError(return_code, cmd)
             yield stdout_line 
         popen.stdout.close()    
         return_code = popen.wait()

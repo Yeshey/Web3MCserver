@@ -1,5 +1,4 @@
-import subprocess
-import time
+import webbrowser
 
 class SyncthingManager:
     def __init__(self, web3mcserverLogic):
@@ -27,7 +26,9 @@ class SyncthingManager:
         port_of_first_tunnel = tunnels_list.split()[4]
         address_of_first_tunnel = tunnels_list.split()[3]
 
-        print(f"[DEBUG] You can access syncthing with: http://{address_of_first_tunnel}:{port_of_first_tunnel}")
+        syncthing_url = f"http://{address_of_first_tunnel}:{port_of_first_tunnel}"
+        print(f"[DEBUG] You can access syncthing with: {syncthing_url}")
+        webbrowser.open(syncthing_url, new=0, autoraise=True) 
 
         if save_syncthing_server_address_in_secrets:
             self.web3mcserverLogic.write_secret_addresses_toml_file(syncthing_address="http://" + address_of_first_tunnel + ":" + port_of_first_tunnel)
