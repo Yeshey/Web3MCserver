@@ -45,8 +45,12 @@ class Cli_interface:
 
         # this should not go here
         if not self.web3mcserver.secret_file_exists():
-            print("secret_syncthing_playitcli.txt doesn't exist\ncreating... put your secret inside ./secrets/secret_syncthing_playitcli.txt and run me again")
-            self.web3mcserver.write_secret_playitcli_file()
+            print("secret_syncthing_playitcli.txt doesn't exist\ncreating...")
+            self.web3mcserver.write_secret_playitcli_file(syncthing_secret = True)
+
+        self.web3mcserver.common_config_file_manager.update_common_config_file()
+
+        exit()
 
         if self.web3mcserver.common_config_file_manager.is_new_node_and_update_common_config_file(): # todo implement
             if self.ask_question("Do you want to create a new distributed server?"):
@@ -62,7 +66,7 @@ class Cli_interface:
                         self.instructions_on_how_to_set_their_own_server()
                 else:
                     self.instructions_on_how_to_set_their_own_server()
-                self.web3mcserver.common_config_file_manager.create_common_config_file() # todo implement
+                self.web3mcserver.common_config_file_manager.update_common_config_file() # todo implement
 
                 self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(save_syncthing_server_address_in_secrets = True) # todo implement
                 self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = True) # todo implement
@@ -75,7 +79,7 @@ class Cli_interface:
                             return
                     syncthing_details_to_connect = self.web3mcserver.syncthing_manager.get_syncthing_details_from_playit_cli_python_server()
                     self.web3mcserver.syncthing_manager.connect_to_syncthing_peer(syncthing_details_to_connect)
-                    self.web3mcserver.common_config_file_manager.create_common_config_file()
+                    self.web3mcserver.common_config_file_manager.update_common_config_file()
                     self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread()
                     self.web3mcserver.i_will_be_host_now()
                 else:

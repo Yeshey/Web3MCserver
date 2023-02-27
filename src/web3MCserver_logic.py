@@ -24,6 +24,7 @@ class Web3MCserverLogic:
     playitcli_toml_config_main_server = "./../playit-cli_config/main_server_config.toml"
     playitcli_toml_config_syncthing_server = "./playit-cli_config/syncthing_server_config.toml"
     syncthing_config = "./../syncthing_config"
+    common_config_file_path = "./../common_config_file/common_conf.toml"
 
     def __init__(self):
 
@@ -204,7 +205,7 @@ class Web3MCserverLogic:
             toml.dump(data, f)
 
 
-    def write_secret_playitcli_file(self, syncthing_secret ,playit_secret=""):
+    def write_secret_playitcli_file(self, syncthing_secret, playit_secret=""):
         if syncthing_secret:
             to_save = self.secret_syncthing_playitcli
         else:
