@@ -6,7 +6,7 @@ class CommonConfigFileManager:
     def __init__(self, web3mcserverLogic):
         self.web3mcserverLogic = web3mcserverLogic
 
-    def update_common_config_file(self):
+    def update_common_config_file(self, shutting_down = False):
         # Check if the folder exists, create it if necessary
         folder_path = os.path.dirname(self.web3mcserverLogic.common_config_file_path)
         if not os.path.exists(folder_path):

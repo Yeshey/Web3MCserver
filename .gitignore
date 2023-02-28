@@ -6,6 +6,7 @@ server
 .vscode
 *.tmp
 *sync-conflict*
+common_config_file
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/go,git,rust,linux,macos,haskell,windows,intellij,visualstudiocode,python,pythonvanilla,pycharm,jupyternotebooks,pydev
