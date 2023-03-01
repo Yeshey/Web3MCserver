@@ -11,6 +11,8 @@ from notifypy import Notify
 import subprocess
 import atexit
 import signal
+import speedtest
+import psutil
 
 class Web3MCserverLogic:
     # Define the directory path
@@ -35,6 +37,7 @@ class Web3MCserverLogic:
         self.playitcli_manager = PlayitCliManager(self)
 
         self.syncthing_process = None # needs to be a list so it is a muttable object
+        self.local_syncthing_address = None
 
         # ======= Figuring out witch platform I'm running on ======= #
         base_path = os.path.dirname(os.path.abspath(__file__))
@@ -233,6 +236,30 @@ class Web3MCserverLogic:
         pass
 
 # ============== Secrets File Management ==============
+
+    def test_machine(self):
+        print("[DEBUG] Calculating Machine performance...")
+        # Get internet speed score
+        st = speedtest.Speedtest()
+        download_speed = st.download() / 10**6  # convert to Mbps
+        upload_speed = st.upload() / 10**6  # convert to Mbps
+        internet_score = ((download_speed + upload_speed) / 2) / 100 * 75
+        
+        # Get hardware score
+        cpu_usage = psutil.cpu_percent()
+        ram_usage = psutil.virtual_memory().percent
+        disk_usage = psutil.disk_usage('/').percent
+        hardware_score = (100 - cpu_usage - ram_usage - disk_usage) / 100 * 25
+        
+        # Calculate total score with 75% weight for internet score and 25% weight for hardware score
+        total_score = internet_score * 0.75 + hardware_score * 0.25
+        
+        # Ensure score is between 0 and 100
+        total_score = max(0, min(total_score, 100))
+        
+        print(f"[DEBUG] Performance given: {total_score}")
+        return total_score
+
 
     def delete_files_inside_server_folder(self):
         pass

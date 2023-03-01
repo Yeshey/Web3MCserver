@@ -1,4 +1,5 @@
 import os
+import string
 import toml
 import random
 
@@ -18,19 +19,31 @@ class CommonConfigFileManager:
                 config = toml.load(f)
         else:
             config = {}
-        
-        # Update the config with new values
-        if 'info' not in config:
-            config['info'] = []
-        for i in range(3):
-            new_info = {
-                'ID': '-'.join([''.join(random.choices('0123456789ABCDEF', k=8)) for j in range(8)]),
-                'some_info': 'some_value',
+
+        try:
+            syncthingDeviceID = self.web3mcserverLogic.syncthing_manager.get_syncthing_ID()
+        except RuntimeError as e:
+            print("[DEBUG] Syncthing shouldn't exist yet: ", e)
+            return
+
+        # Check if a machine with the same ID already exists in the config
+        machine_exists = False
+        for machine in config.get('machines', []):
+            if machine.get('ID') == syncthingDeviceID:
+                machine_exists = True
+                # Update the existing machine's information
+                machine['Is_Host'] = False
+                machine['server_run_priority'] = self.web3mcserverLogic.test_machine()
+
+        # If the machine doesn't exist, add a new one to the list
+        if not machine_exists:
+            new_machine = {
+                'ID': syncthingDeviceID,
+                'Is_Host': False,
+                'server_run_priority': self.web3mcserverLogic.test_machine()
             }
-            config['info'].append(new_info)
-        config['server_run_priority'] = 10
-        config['Is_Host'] = True
-        
+            config.setdefault('machines', []).append(new_machine)
+
         print(f"this is the path: {self.web3mcserverLogic.common_config_file_path}")
 
         # Save the updated config to file

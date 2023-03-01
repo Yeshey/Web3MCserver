@@ -10,6 +10,8 @@ let
     distro # to see that we're on nixOS
     toml
     notify-py
+    psutil
+    speedtest-cli
     # pandas
     # beautifulsoup4
     # requests

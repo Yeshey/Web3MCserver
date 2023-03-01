@@ -1,4 +1,5 @@
 import webbrowser
+import subprocess
 
 class SyncthingManager:
     def __init__(self, web3mcserverLogic):
@@ -18,6 +19,8 @@ class SyncthingManager:
             self.web3mcserverLogic.playitcli_toml_config_syncthing_server],
             cwd="./../"):
             print(path, end="")
+            if 'Access the GUI via the following URL:' in path:
+                self.web3mcserverLogic.local_syncthing_address = path.split()[-1]
             if 'INFO: My name is' in path: # allow it to continue when it sees this string in the output
                 print("[DEBUG] Syncthing running, continuing...")
                 break
@@ -37,6 +40,16 @@ class SyncthingManager:
 
     #def launch_syncthing(self):
     #    subprocess.run([self.web3mcserverLogic.bin_path + "/playit-cli", "launch", self.web3mcserverLogic.playitcli_toml_config_syncthing_server], cwd="./../")    
+
+    def get_syncthing_ID(self):
+        syncthingDeviceID = subprocess.check_output([self.web3mcserverLogic.bin_path + "/syncthing/syncthing", 
+            "--home", 
+            "./../syncthing_config",
+            "-device-id" ])
+        syncthingDeviceID = syncthingDeviceID.decode().strip()
+        if 'Error' in syncthingDeviceID:
+            raise RuntimeError('Unable to get Syncthing device ID')
+        return syncthingDeviceID
 
     def get_syncthing_details_from_playit_cli_python_server(self):
         pass
