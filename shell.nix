@@ -38,21 +38,21 @@ pkgs.mkShell {
     # Download dependencies using the Python script
     python3 ./src/utils/download_dependencies.py
 
-    if [ ! -d ./bin/nixos/syncthing ]; then
+    if [ ! -d ./bin/linux/syncthing ]; then
       echo "[shell.nix]: Downloading syncthing..."
-      mkdir -p ./bin/nixos/syncthing/
-      cp ${pkgs.syncthing}/bin/syncthing ./bin/nixos/syncthing/
-      chmod +x ./bin/nixos/syncthing/syncthing
+      mkdir -p ./bin/linux/syncthing/
+      cp ${pkgs.syncthing}/bin/syncthing ./bin/linux/syncthing/
+      chmod +x ./bin/linux/syncthing/syncthing
     else
-      echo "[shell.nix]: Directory ./bin/nixos/syncthing already exists, skipping download"
+      echo "[shell.nix]: Directory ./bin/linux/syncthing already exists, skipping download"
     fi
 
-    if [ -f "./bin/nixos/playit-cli" ]; then
-      echo "[shell.nix]: File ./bin/nixos/playit-cli already exists, skipping download."
+    if [ -f "./bin/linux/playit-cli" ]; then
+      echo "[shell.nix]: File ./bin/linux/playit-cli already exists, skipping download."
     else
       echo "[shell.nix]: Downloading playit-cli..."
-      cp ${(pkgs.callPackage ./nix/playit-cli.nix {})}/bin/playit-cli ./bin/nixos/
-      chmod +x ./bin/nixos/playit-cli
+      cp ${(pkgs.callPackage ./nix/playit-cli.nix {})}/bin/playit-cli ./bin/linux/
+      chmod +x ./bin/linux/playit-cli
     fi
 
     echo

@@ -1,6 +1,6 @@
 agent_name = "web3MC"
 secret_path = "./secrets/secret_syncthing_playitcli.txt"
-command = "./bin/nixos/syncthing/syncthing"
+command = "./bin/linux/syncthing/syncthing"
 command_args = [ "--home", "./syncthing_config", "--gui-apikey=JbzbY7RMxxffL43AGNpnKjExhH3zxyt5", "--no-default-folder", "--no-browser", "--gui-address=0.0.0.0:23841",]
 [[tunnels]]
 name = "YesheyTunnel"

@@ -34,7 +34,7 @@ class Web3MCserverLogic:
     def __init__(self):
 
         # needs to be inside to not share data between instances of class
-        self.bin_path = str() # for example ./bin/nixos
+        self.bin_path = str() # for example ./bin/linux
         self.common_config_file_manager = CommonConfigFileManager(self)
         self.syncthing_manager = SyncthingManager(self)
         self.playitcli_manager = PlayitCliManager(self)
@@ -49,10 +49,7 @@ class Web3MCserverLogic:
         if system == 'Windows':
             self.bin_path = os.path.join(base_path, '..', 'bin', 'windows')
         elif system == 'Linux':
-            if 'NixOS' in distro.name():
-                self.bin_path = os.path.join(base_path, '..', 'bin', 'nixos')
-            else:
-                self.bin_path = os.path.join(base_path, '..', 'bin', 'linux')
+            self.bin_path = os.path.join(base_path, '..', 'bin', 'linux')
         else:
             print(f"Unsupported system: {system}")
             return
@@ -280,7 +277,7 @@ class Web3MCserverLogic:
             # Generate a random string of 20 characters
             api_key = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(20))
             # Use the random string as the API key in the default command
-            default_command = f"./bin/nixos/syncthing/syncthing --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
+            default_command = f"{self.bin_path} --home ./../syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
             
             playitcli_toml_config = self.playitcli_toml_config_syncthing_server2
         else:
