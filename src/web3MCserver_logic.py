@@ -76,7 +76,7 @@ class Web3MCserverLogic:
 
     def shutting_down_now(self):
         print ('[DEBUG] Terminating...')
-        self.common_config_file_manager.update_common_config_file(shutting_down = True)
+        self.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = False)
         self.syncthing_manager.wait_for_sync_to_finish()
 
         # Kill all related processes
@@ -92,14 +92,17 @@ class Web3MCserverLogic:
     def i_will_be_host_now(self, save_main_erver_address_in_secrets = False):
         # Send system notification saying that thes PC will be host now
         print("Becoming Host")
-        self.common_config_file_manager.check_periodically_for_online_peers_and_updates_common_sync_file_in_separate_thread() # todo
         self.syncthing_manager.wait_for_sync_to_finish() # todo, check https://man.archlinux.org/man/community/syncthing/syncthing-rest-api.7.en
-        self.common_config_file_manager.update_common_config_file_to_say_that_im_new_host() # todo
 
         # Send desktop notification
         notification = Notify()
         notification.title = "This computer will be host for the Minecraft server now"
-        notification.message = "server address: "
+        try:
+            server_address = self.get_main_server_address()
+        except Exception:
+            server_address = "/First time running, please check secrets/secret_addresses.toml/"
+        notification.message = f"server address: {server_address}"
+
         notification.send()
 
         # Start the server
@@ -207,6 +210,17 @@ class Web3MCserverLogic:
         with open(os.path.join(self.secrets_path, self.secrets_file_name), 'w') as f:
             toml.dump(data, f)
 
+    def get_main_server_address(self):
+        # Read the secrets file
+        with open(os.path.join(self.secrets_path, self.secrets_file_name), 'r') as f:
+            secrets_data = toml.load(f)
+
+        # Check if main server address exists in secrets file
+        if 'main_server_address' in secrets_data:
+            return secrets_data['main_server_address']
+        else:
+            raise Exception('Main server address not found.')
+
 
     def write_secret_playitcli_file(self, syncthing_secret, playit_secret=""):
         if syncthing_secret:
@@ -231,9 +245,6 @@ class Web3MCserverLogic:
                 return f.read()
         else:
             return ""
-
-    def secrets_file_in_place(self):
-        pass
 
 # ============== Secrets File Management ==============
 

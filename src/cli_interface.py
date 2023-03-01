@@ -66,9 +66,9 @@ class Cli_interface:
                         self.instructions_on_how_to_set_their_own_server()
                 else:
                     self.instructions_on_how_to_set_their_own_server()
-                self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(save_syncthing_server_address_in_secrets = True) # todo implement
-                self.web3mcserver.common_config_file_manager.update_common_config_file() # todo implement
-                self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = True) # todo implement
+                self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(save_syncthing_server_address_in_secrets = True)
+                self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
+                self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = True)
             else:
                 if self.web3mcserver.secrets_file_empty():
                     if self.web3mcserver.files_exist_in_server_folder():
@@ -79,7 +79,7 @@ class Cli_interface:
                     syncthing_details_to_connect = self.web3mcserver.syncthing_manager.get_syncthing_details_from_playit_cli_python_server()
                     self.web3mcserver.syncthing_manager.connect_to_syncthing_peer(syncthing_details_to_connect)
                     self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread()
-                    self.web3mcserver.common_config_file_manager.update_common_config_file()
+                    self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
                     self.web3mcserver.i_will_be_host_now()
                 else:
                     print("Add the secrets file")
