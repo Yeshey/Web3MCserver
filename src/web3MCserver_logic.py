@@ -221,6 +221,16 @@ class Web3MCserverLogic:
         else:
             raise Exception('Main server address not found.')
 
+    def get_syncthing_server_address(self):
+        # Read the secrets file
+        with open(os.path.join(self.secrets_path, self.secrets_file_name), 'r') as f:
+            secrets_data = toml.load(f)
+
+        # Check if main server address exists in secrets file
+        if 'syncthing_server_address' in secrets_data:
+            return secrets_data['syncthing_server_address']
+        else:
+            raise Exception('Syncthing server address not found.')
 
     def write_secret_playitcli_file(self, syncthing_secret, playit_secret=""):
         if syncthing_secret:
@@ -271,9 +281,21 @@ class Web3MCserverLogic:
         print(f"[DEBUG] Performance given: {total_score}")
         return total_score
 
-
     def delete_files_inside_server_folder(self):
-        pass
+        if os.path.exists(self.server_path):
+            try:
+                for root, dirs, files in os.walk(self.server_path):
+                    for file in files:
+                        if not file.startswith('.'):
+                            os.remove(os.path.join(root, file))
+                    for dir in dirs:
+                        if not dir.startswith('.'):
+                            os.rmdir(os.path.join(root, dir))
+            except Exception as e:
+                print(f"Failed to delete. Reason: {e}")
+        else:
+            print(f"[DEBUG] {self.server_path} does not exist")
+
 
     def observer_is_triggered_and_server_is_not_running(self):
         pass

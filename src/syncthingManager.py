@@ -41,7 +41,7 @@ class SyncthingManager:
     #def launch_syncthing(self):
     #    subprocess.run([self.web3mcserverLogic.bin_path + "/playit-cli", "launch", self.web3mcserverLogic.playitcli_toml_config_syncthing_server], cwd="./../")    
 
-    def get_syncthing_ID(self):
+    def get_my_syncthing_ID(self):
         syncthingDeviceID = subprocess.check_output([self.web3mcserverLogic.bin_path + "/syncthing/syncthing", 
             "--home", 
             "./../syncthing_config",
@@ -51,7 +51,8 @@ class SyncthingManager:
             raise RuntimeError('Unable to get Syncthing device ID')
         return syncthingDeviceID
 
-    def get_syncthing_details_from_playit_cli_python_server(self):
+    def get_remote_syncthing_ID(self):
+        remoteSyncthingID = self.web3mcserverLogic.get_syncthing_server_address()
         pass
 
     def connect_to_syncthing_peer(self, syncthing_details_to_connect):

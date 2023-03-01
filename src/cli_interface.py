@@ -39,8 +39,6 @@ class Cli_interface:
     def start(self):
         download_dependencies()
 
-        # self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(save_syncthing_server_address_in_secrets = True) # todo implement
-
         # Set Exit function
         self.web3mcserver.set_exit_function()
 
@@ -66,7 +64,7 @@ class Cli_interface:
                         self.instructions_on_how_to_set_their_own_server()
                 else:
                     self.instructions_on_how_to_set_their_own_server()
-                self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(save_syncthing_server_address_in_secrets = True)
+                self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(save_syncthing_server_address_in_secrets = True) # needs to generate right xml config
                 self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
                 self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = True)
             else:
@@ -75,9 +73,13 @@ class Cli_interface:
                         if self.ask_question("Files have been found in server folder, they need to be deleted to continue. Proceed?"):
                             self.web3mcserver.delete_files_inside_server_folder()
                         else:
+                            print("[INFO] Exiting...")
                             return
-                    syncthing_details_to_connect = self.web3mcserver.syncthing_manager.get_syncthing_details_from_playit_cli_python_server()
-                    self.web3mcserver.syncthing_manager.connect_to_syncthing_peer(syncthing_details_to_connect)
+
+                    # If these two cause an exception, then remote syncthing probs not online, you should update common config to say that no one is host and keep running them every 30 seconds until a peer comes online
+                    remote_syncthing_ID = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
+                    self.web3mcserver.syncthing_manager.connect_to_syncthing_peer(remote_syncthing_ID)
+
                     self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread()
                     self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
                     self.web3mcserver.i_will_be_host_now()

@@ -24,7 +24,7 @@ class CommonConfigFileManager:
             config = {}
 
         try:
-            syncthingDeviceID = self.web3mcserverLogic.syncthing_manager.get_syncthing_ID()
+            syncthingDeviceID = self.web3mcserverLogic.syncthing_manager.get_my_syncthing_ID()
         except RuntimeError as e:
             print("[DEBUG] Syncthing config doesn't exist yet: ", e)
             return
