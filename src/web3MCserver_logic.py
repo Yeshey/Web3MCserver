@@ -1,3 +1,4 @@
+from enum import Flag
 from .playitCliManager import PlayitCliManager
 from .syncthingManager import SyncthingManager
 from .commonConfigFileManager import CommonConfigFileManager
@@ -182,15 +183,15 @@ class Web3MCserverLogic:
 
 # ============== Secrets File Management ==============
 
-    def secrets_file_empty(self):
-        if not self.secret_file_exists():
-            raise FileNotFoundError(f"{self.secrets_path + self.secret_syncthing_playitcli} does not exist.")
+    def file_empty(self, file_path_to_check):
+        if not self.file_exists(file_path_to_check):
+            return True
 
-        with open(self.secrets_path + self.secret_syncthing_playitcli, "r") as f:
+        with open(file_path_to_check, "r") as f:
             return len(f.read().strip()) == 0
 
-    def secret_file_exists(self):
-        return os.path.exists(self.secrets_path + self.secret_syncthing_playitcli)
+    def file_exists(self, file_path_to_check):
+        return os.path.exists(file_path_to_check)
 
     def write_secret_addresses_toml_file(self, syncthing_address="", main_server_address=""):
         if not os.path.exists(self.secrets_path):
@@ -241,7 +242,7 @@ class Web3MCserverLogic:
         if not os.path.exists(self.secrets_path):
             os.makedirs(self.secrets_path)
 
-        if self.secret_file_exists():
+        if self.file_exists(os.path.join(self.web3mcserver.secrets_path, to_save)):
             mode = 'w'  # override existing file
         else:
             mode = 'x'  # create new file
@@ -250,7 +251,7 @@ class Web3MCserverLogic:
             f.write(playit_secret)
 
     def get_secrets_playitcli_file(self, secret_file_to_check):
-        if self.secret_file_exists():
+        if self.file_exists(os.path.join(self.secrets_path, secret_file_to_check)):
             with open(os.path.join(self.secrets_path, secret_file_to_check), 'r') as f:
                 return f.read()
         else:
@@ -261,12 +262,15 @@ class Web3MCserverLogic:
             raise ValueError("Invalid 'to_update' parameter.")
         
         secrets_file_path = os.path.join(self.secrets_path, self.secrets_file_name)
-        if not self.secret_file_exists():
-            print("[INFO] secret_syncthing_playitcli.txt doesn't exist\ncreating...")
-            self.write_secret_playitcli_file(syncthing_secret = True)
+        #if not self.file_exists(secrets_file_path):
+        #    print(f"[INFO] {secrets_file_path} doesn't exist\ncreating...")
+        #    self.write_secret_playitcli_file(syncthing_secret = True)
         
-        with open(secrets_file_path, "r") as f:
-            secrets = toml.load(f)
+        if os.path.exists(secrets_file_path):
+            with open(secrets_file_path, "r") as f:
+                secrets = toml.load(f)
+        else:
+            secrets = {}
         
         if to_update == "syncthing_server":
             server_command_field = "syncthing_server_command"
@@ -275,7 +279,7 @@ class Web3MCserverLogic:
             # Generate a random string of 20 characters
             api_key = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(20))
             # Use the random string as the API key in the default command
-            default_command = f"{self.bin_path} --home ./../syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
+            default_command = f"{self.bin_path}/syncthing/syncthing --home ./../syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
             
             playitcli_toml_config = self.playitcli_toml_config_syncthing_server2
         else:
@@ -354,7 +358,7 @@ class Web3MCserverLogic:
     def delete_files_inside_server_folder(self):
         if os.path.exists(self.server_path):
             try:
-                for root, dirs, files in os.walk(self.server_path):
+                for root, dirs, files in os.walk(self.server_path, topdown=False):
                     for file in files:
                         if not file.startswith('.'):
                             os.remove(os.path.join(root, file))
@@ -365,7 +369,6 @@ class Web3MCserverLogic:
                 print(f"Failed to delete. Reason: {e}")
         else:
             print(f"[DEBUG] {self.server_path} does not exist")
-
 
     def observer_is_triggered_and_server_is_not_running(self):
         pass

@@ -5,3 +5,4 @@ if __name__ == "__main__":
     web3mcserver = Web3MCserverLogic()
     ui_cli = Cli_interface(web3mcserver)
     ui_cli.start()
+

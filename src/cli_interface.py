@@ -1,6 +1,7 @@
 from src.web3MCserver_logic import Web3MCserverLogic
 from .utils.interpreter import Interpreter
 from .utils.download_dependencies import download_dependencies
+import os
 
 class Cli_interface:
     def __init__(self, web3mcserver):
@@ -21,7 +22,7 @@ class Cli_interface:
                 print("Invalid input. Please enter 'y' or 'n'.")
 
     def process_of_making_new_playitcli_secret(self):
-        if not self.web3mcserver.secrets_file_empty():
+        if not self.web3mcserver.file_empty(os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_syncthing_playitcli)):
             print("[WARNING] secrets file not empty, to continue they have to be overridden")
             print(["[INFO] control the number of tunnels and agents in your account as it is limited, it is recommended to delete all existing agents and tunnels before creating a new server with this tool: https://playit.gg/account/overview"])
             if not self.ask_question("continue? the existing secrets will be overridden"):
@@ -43,7 +44,7 @@ class Cli_interface:
         self.web3mcserver.set_exit_function()
 
         # this should not go here
-        if not self.web3mcserver.secret_file_exists():
+        if not self.web3mcserver.file_exists(os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_syncthing_playitcli)):
             print("[INFO] secret_syncthing_playitcli.txt doesn't exist\ncreating...")
             self.web3mcserver.write_secret_playitcli_file(syncthing_secret = True)
 
@@ -52,7 +53,7 @@ class Cli_interface:
 
         if self.web3mcserver.common_config_file_manager.is_new_node_and_update_common_config_file(): # todo implement
             if self.ask_question("Do you want to create a new distributed server?"):
-                if not self.web3mcserver.secrets_file_empty():
+                if not self.web3mcserver.file_empty(os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_syncthing_playitcli)):
                     if not self.ask_question("secrets file not empty, use current secret?"):
                         self.process_of_making_new_playitcli_secret()
                 else:
@@ -68,7 +69,7 @@ class Cli_interface:
                 self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
                 self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = True)
             else:
-                if self.web3mcserver.secrets_file_empty():
+                if not self.web3mcserver.file_empty(os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_syncthing_playitcli)):
                     if self.web3mcserver.files_exist_in_server_folder():
                         if self.ask_question("Files have been found in server folder, they need to be deleted to continue. Proceed?"):
                             self.web3mcserver.delete_files_inside_server_folder()
@@ -79,6 +80,8 @@ class Cli_interface:
                     # If these two cause an exception, then remote syncthing probs not online, you should update common config to say that no one is host and keep running them every 30 seconds until a peer comes online
                     remote_syncthing_ID = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
                     self.web3mcserver.syncthing_manager.connect_to_syncthing_peer(remote_syncthing_ID)
+
+                    exit()
 
                     self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread()
                     self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)

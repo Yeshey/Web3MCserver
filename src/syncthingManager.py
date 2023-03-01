@@ -54,11 +54,11 @@ class SyncthingManager:
         return syncthingDeviceID
 
     def get_api_key(self):
-        config_file_path = self.web3mcserverLogic.common_config_file_path
-        if not os.path.isfile(config_file_path):
-            raise FileNotFoundError(f"Common config file not found: {config_file_path}")
+        secrets_file_path = os.path.join(self.web3mcserverLogic.secrets_path, self.web3mcserverLogic.secrets_file_name)
+        if not os.path.isfile(secrets_file_path):
+            raise FileNotFoundError(f"Common config file not found: {secrets_file_path}")
 
-        with open(config_file_path, "r") as f:
+        with open(secrets_file_path, "r") as f:
             config = toml.load(f)
 
         syncthing_server_command = config.get("syncthing_server_command")
