@@ -1,5 +1,7 @@
 import webbrowser
 import subprocess
+import os
+import toml
 
 class SyncthingManager:
     def __init__(self, web3mcserverLogic):
@@ -51,8 +53,30 @@ class SyncthingManager:
             raise RuntimeError('Unable to get Syncthing device ID')
         return syncthingDeviceID
 
+    def get_api_key(self):
+        config_file_path = self.web3mcserverLogic.common_config_file_path
+        if not os.path.isfile(config_file_path):
+            raise FileNotFoundError(f"Common config file not found: {config_file_path}")
+
+        with open(config_file_path, "r") as f:
+            config = toml.load(f)
+
+        syncthing_server_command = config.get("syncthing_server_command")
+        if not syncthing_server_command:
+            raise ValueError("syncthing_server_command not found in common config file.")
+
+        api_key_arg = [arg for arg in syncthing_server_command.split() if arg.startswith("--gui-apikey=")]
+        if not api_key_arg:
+            raise ValueError("--gui-apikey argument not found in syncthing_server_command.")
+
+        api_key = api_key_arg[0].split("=")[-1]
+        return api_key
+
+
     def get_remote_syncthing_ID(self):
         remoteSyncthingID = self.web3mcserverLogic.get_syncthing_server_address()
+        syncthingApiKey = self.get_api_key()
+        print(f"[DEBUG] API KEY: {syncthingApiKey}, remoteSyncthingID: {remoteSyncthingID}")
         pass
 
     def connect_to_syncthing_peer(self, syncthing_details_to_connect):
