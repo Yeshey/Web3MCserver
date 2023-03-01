@@ -1,25 +1,11 @@
 agent_name = "web3MC"
-#agent_type = "my-type"
-#secret_key = "<secret>"
 secret_path = "./secrets/secret_syncthing_playitcli.txt"
 command = "./bin/nixos/syncthing/syncthing"
-command_args = ["--home", "./syncthing_config", "--gui-apikey=JbzbY7RMxxffL43AGNpnKjExhH3zxyt5", "--no-default-folder", "--no-browser" , "--gui-address=0.0.0.0:23840"] # 9e0a3886-8b6d-403a-9755-1d67987eb440=192.168.1.20:25565
-
-#[env_overrides]
-#ENV1 = "value1"
-#ENV2 = "value2"
-
+command_args = [ "--home", "./syncthing_config", "--gui-apikey=JbzbY7RMxxffL43AGNpnKjExhH3zxyt5", "--no-default-folder", "--no-browser", "--gui-address=0.0.0.0:23840",]
 [[tunnels]]
 name = "YesheyTunnel"
 proto = "tcp"
 port_count = 1
 local = 23840
-
-#[[tunnels]]
-#id = "0bb170d8-a949-49a5-a747-5ecac885c441"
-#name = "ssh-tunnel"
-#proto = "tcp"
-#port_count = 1
-#local = 9999
-
 special_lan = true
+

@@ -11,8 +11,8 @@ class SyncthingManager:
         # todo: to make it more secure you should add password and user. But it seems like you'd need to stop syncthing and run some commands and start again
         # https://docs.syncthing.net/users/faq.html#how-do-i-reset-the-gui-password
         
-        #t = threading.Thread(target=self.launch_syncthing)
-        #t.start()
+        # build toml playit config file for syncthing with the secrets syncthing command, create the syncthing secrets command if doesn't exist
+        self.web3mcserverLogic.update_playit_config_command_from_secrets(to_update = "syncthing_server")
 
         for path in self.web3mcserverLogic.execute([self.web3mcserverLogic.bin_path + "/playit-cli", 
             "launch", 

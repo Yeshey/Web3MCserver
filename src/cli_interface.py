@@ -44,7 +44,7 @@ class Cli_interface:
 
         # this should not go here
         if not self.web3mcserver.secret_file_exists():
-            print("secret_syncthing_playitcli.txt doesn't exist\ncreating...")
+            print("[INFO] secret_syncthing_playitcli.txt doesn't exist\ncreating...")
             self.web3mcserver.write_secret_playitcli_file(syncthing_secret = True)
 
         #self.web3mcserver.common_config_file_manager.update_common_config_file()

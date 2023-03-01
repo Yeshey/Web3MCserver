@@ -25,6 +25,7 @@ class Web3MCserverLogic:
     minecraft_server_url = "https://piston-data.mojang.com/v1/objects/c9df48efed58511cdd0213c56b9013a7b5c9ac1f/server.jar"
     playitcli_toml_config_main_server = "./../playit-cli_config/main_server_config.toml"
     playitcli_toml_config_syncthing_server = "./playit-cli_config/syncthing_server_config.toml"
+    playitcli_toml_config_syncthing_server2 = "./../playit-cli_config/syncthing_server_config.toml"
     syncthing_config = "./../syncthing_config"
     common_config_file_path = "./../common_config_file/common_conf.toml"
 
@@ -255,6 +256,58 @@ class Web3MCserverLogic:
                 return f.read()
         else:
             return ""
+
+    def update_playit_config_command_from_secrets(self, to_update):
+        if to_update != "syncthing_server" and to_update != "main_server":
+            raise ValueError("Invalid 'to_update' parameter.")
+        
+        secrets_file_path = os.path.join(self.secrets_path, self.secrets_file_name)
+        if not self.secret_file_exists():
+            print("[INFO] secret_syncthing_playitcli.txt doesn't exist\ncreating...")
+            self.write_secret_playitcli_file(syncthing_secret = True)
+        
+        with open(secrets_file_path, "r") as f:
+            secrets = toml.load(f)
+        
+        if to_update == "syncthing_server":
+            server_command_field = "syncthing_server_command"
+            server_command = secrets.get(server_command_field, "")
+            default_command = "./bin/nixos/syncthing/syncthing --home ./syncthing_config --gui-apikey=JbzbY7RMxxffL43AGNpnKjExhH3zxyt5 --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
+            playitcli_toml_config = self.playitcli_toml_config_syncthing_server2
+        else:
+            server_command_field = "main_server_command"
+            server_command = secrets.get(server_command_field, "")
+            default_command = "java -Xmx1024M -Xms1024M -jar ./server.jar nogui"
+            playitcli_toml_config = self.playitcli_toml_config_main_server
+        
+        if not server_command:
+            server_command = default_command
+            secrets[server_command_field] = default_command
+            with open(secrets_file_path, "w") as f:
+                toml.dump(secrets, f)
+        
+        command_parts = server_command.split()
+        command = command_parts[0]
+        command_args = command_parts[1:]
+        
+        if not os.path.isfile(playitcli_toml_config):
+            raise FileNotFoundError(f"PlayIt CLI TOML config file not found: {playitcli_toml_config}")
+        
+        with open(playitcli_toml_config, "r") as f:
+            playitcli_config = toml.load(f)
+        
+        playitcli_config["command"] = command
+        
+        if "command_args" in playitcli_config:
+            playitcli_config["command_args"].clear()
+        else:
+            playitcli_config["command_args"] = []
+        
+        playitcli_config["command_args"].extend(command_args)
+        
+        with open(playitcli_toml_config, "w") as f:
+            toml.dump(playitcli_config, f)
+
 
 # ============== Secrets File Management ==============
 
