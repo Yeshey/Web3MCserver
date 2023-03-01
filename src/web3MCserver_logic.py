@@ -13,6 +13,8 @@ import atexit
 import signal
 import speedtest
 import psutil
+import random
+import string
 
 class Web3MCserverLogic:
     # Define the directory path
@@ -274,7 +276,12 @@ class Web3MCserverLogic:
         if to_update == "syncthing_server":
             server_command_field = "syncthing_server_command"
             server_command = secrets.get(server_command_field, "")
-            default_command = "./bin/nixos/syncthing/syncthing --home ./syncthing_config --gui-apikey=JbzbY7RMxxffL43AGNpnKjExhH3zxyt5 --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
+
+            # Generate a random string of 20 characters
+            api_key = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(20))
+            # Use the random string as the API key in the default command
+            default_command = f"./bin/nixos/syncthing/syncthing --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
+            
             playitcli_toml_config = self.playitcli_toml_config_syncthing_server2
         else:
             server_command_field = "main_server_command"
@@ -287,6 +294,20 @@ class Web3MCserverLogic:
             secrets[server_command_field] = default_command
             with open(secrets_file_path, "w") as f:
                 toml.dump(secrets, f)
+
+        # Extract the port number from the --gui-address argument
+        if to_update == "syncthing_server":
+            gui_address_arg = [arg for arg in server_command.split() if arg.startswith("--gui-address=")]
+            if gui_address_arg:
+                port_number = gui_address_arg[0].split(":")[-1]
+                # Update the local field of the first tunnel in the playitcli_toml_config file
+                playitcli_toml_config = self.playitcli_toml_config_syncthing_server2
+                with open(playitcli_toml_config, "r") as f:
+                    playitcli_config = toml.load(f)
+                if "tunnels" in playitcli_config:
+                    playitcli_config["tunnels"][0]["local"] = int(port_number)
+                with open(playitcli_toml_config, "w") as f:
+                    toml.dump(playitcli_config, f)
         
         command_parts = server_command.split()
         command = command_parts[0]
