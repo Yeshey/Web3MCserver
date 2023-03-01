@@ -2,6 +2,7 @@ from src.web3MCserver_logic import Web3MCserverLogic
 from .utils.interpreter import Interpreter
 from .utils.download_dependencies import download_dependencies
 import os
+import time
 
 class Cli_interface:
     def __init__(self, web3mcserver):
@@ -76,8 +77,12 @@ class Cli_interface:
                         else:
                             print("[INFO] Exiting...")
                             return
+                    
+                    print("[INFO] Checking remote syncthing server to connect to...")
+                    while not self.web3mcserver.syncthing_manager.remote_host_active():
+                        print("[WARNING] No remote machine Online, nowhere to pull server from, checking every 30 seconds...")
+                        time.sleep(30)
 
-                    # If these two cause an exception, then remote syncthing probs not online, you should update common config to say that no one is host and keep running them every 30 seconds until a peer comes online
                     remote_syncthing_ID = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
                     self.web3mcserver.syncthing_manager.connect_to_syncthing_peer(remote_syncthing_ID)
 

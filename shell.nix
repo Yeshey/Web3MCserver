@@ -12,6 +12,7 @@ let
     notify-py
     psutil
     speedtest-cli
+    requests
     # pandas
     # beautifulsoup4
     # requests

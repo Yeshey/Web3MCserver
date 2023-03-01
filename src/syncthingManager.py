@@ -2,6 +2,7 @@ import webbrowser
 import subprocess
 import os
 import toml
+import requests
 
 class SyncthingManager:
     def __init__(self, web3mcserverLogic):
@@ -78,6 +79,15 @@ class SyncthingManager:
         syncthingApiKey = self.get_api_key()
         print(f"[DEBUG] API KEY: {syncthingApiKey}, remoteSyncthingAddress: {remoteSyncthingAddress}")
         pass
+
+    def remote_host_active(self):
+        remoteSyncthingAddress = self.web3mcserverLogic.get_syncthing_server_address()
+        try:
+            response = requests.get(f"{remoteSyncthingAddress}/rest/system/ping", timeout=5)
+            return response.status_code == 200
+        except requests.exceptions.RequestException:
+            return False
+
 
     def connect_to_syncthing_peer(self, syncthing_details_to_connect):
         pass
