@@ -256,13 +256,11 @@ class Web3MCserverLogic:
         else:
             return ""
 
-# ============== Secrets File Management ==============
-
     def update_playit_config_command_from_secrets(self, to_update):
         if to_update != "syncthing_server" and to_update != "main_server":
             raise ValueError("Invalid 'to_update' parameter.")
         
-        secrets_file_path = self.common_config_file_path
+        secrets_file_path = os.path.join(self.secrets_path, self.secrets_file_name)
         if not self.secret_file_exists():
             print("[INFO] secret_syncthing_playitcli.txt doesn't exist\ncreating...")
             self.write_secret_playitcli_file(syncthing_secret = True)
@@ -327,6 +325,8 @@ class Web3MCserverLogic:
         
         with open(playitcli_toml_config, "w") as f:
             toml.dump(playitcli_config, f)
+
+# ============== Secrets File Management ==============
 
     def test_machine(self):
         print("[DEBUG] Calculating Machine performance...")

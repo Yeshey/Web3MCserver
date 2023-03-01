@@ -74,9 +74,9 @@ class SyncthingManager:
 
 
     def get_remote_syncthing_ID(self):
-        remoteSyncthingID = self.web3mcserverLogic.get_syncthing_server_address()
+        remoteSyncthingAddress = self.web3mcserverLogic.get_syncthing_server_address()
         syncthingApiKey = self.get_api_key()
-        print(f"[DEBUG] API KEY: {syncthingApiKey}, remoteSyncthingID: {remoteSyncthingID}")
+        print(f"[DEBUG] API KEY: {syncthingApiKey}, remoteSyncthingAddress: {remoteSyncthingAddress}")
         pass
 
     def connect_to_syncthing_peer(self, syncthing_details_to_connect):
