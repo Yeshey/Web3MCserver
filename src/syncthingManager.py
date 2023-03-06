@@ -82,8 +82,10 @@ class SyncthingManager:
 
     def remote_host_active(self):
         remoteSyncthingAddress = self.web3mcserverLogic.get_syncthing_server_address()
+        secret = self.get_api_key() # Replace with your actual secret key
+        headers = {'X-API-Key': secret}
         try:
-            response = requests.get(f"{remoteSyncthingAddress}/rest/system/ping", timeout=5)
+            response = requests.get(f"{remoteSyncthingAddress}/rest/system/ping", headers=headers, timeout=30)
             return response.status_code == 200
         except requests.exceptions.RequestException:
             return False
