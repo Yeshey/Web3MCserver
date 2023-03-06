@@ -242,7 +242,7 @@ class Web3MCserverLogic:
         if not os.path.exists(self.secrets_path):
             os.makedirs(self.secrets_path)
 
-        if self.file_exists(os.path.join(self.web3mcserver.secrets_path, to_save)):
+        if self.file_exists(os.path.join(self.secrets_path, to_save)):
             mode = 'w'  # override existing file
         else:
             mode = 'x'  # create new file
