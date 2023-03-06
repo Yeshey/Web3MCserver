@@ -202,14 +202,15 @@ class Web3MCserverLogic:
             with open(os.path.join(self.secrets_path, self.secrets_file_name), 'r') as f:
                 data = toml.load(f)
 
-        if syncthing_address and 'syncthing_server_address' not in data:
+        if syncthing_address:
             data['syncthing_server_address'] = syncthing_address
 
-        if main_server_address and 'main_server_address' not in data:
+        if main_server_address:
             data['main_server_address'] = main_server_address
 
         with open(os.path.join(self.secrets_path, self.secrets_file_name), 'w') as f:
             toml.dump(data, f)
+
 
     def get_main_server_address(self):
         # Read the secrets file
