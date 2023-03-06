@@ -279,7 +279,7 @@ class Web3MCserverLogic:
             # Generate a random string of 20 characters
             api_key = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(20))
             # Use the random string as the API key in the default command
-            default_command = f"{self.bin_path}/syncthing/syncthing --home ./../syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
+            default_command = f"./bin/linux/syncthing/syncthing --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
             
             playitcli_toml_config = self.playitcli_toml_config_syncthing_server2
         else:
