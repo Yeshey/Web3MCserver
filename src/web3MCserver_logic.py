@@ -335,18 +335,26 @@ class Web3MCserverLogic:
 
     def test_machine(self):
         print("[DEBUG] Calculating Machine performance...")
-        # Get internet speed score
-        st = speedtest.Speedtest()
-        download_speed = st.download() / 10**6  # convert to Mbps
-        upload_speed = st.upload() / 10**6  # convert to Mbps
-        internet_score = ((download_speed + upload_speed) / 2) / 100 * 75
-        
-        # Get hardware score
-        cpu_usage = psutil.cpu_percent()
-        ram_usage = psutil.virtual_memory().percent
-        disk_usage = psutil.disk_usage('/').percent
-        hardware_score = (100 - cpu_usage - ram_usage - disk_usage) / 100 * 25
-        
+        try:
+            # Get internet speed score
+            st = speedtest.Speedtest()
+            download_speed = st.download() / 10**6  # convert to Mbps
+            upload_speed = st.upload() / 10**6  # convert to Mbps
+            internet_score = ((download_speed + upload_speed) / 2) / 100 * 75
+        except speedtest.SpeedtestException:
+            internet_score = 0
+            print("[WARNING] Unable to measure internet speed")
+            
+        try:
+            # Get hardware score
+            cpu_usage = psutil.cpu_percent()
+            ram_usage = psutil.virtual_memory().percent
+            disk_usage = psutil.disk_usage('/').percent
+            hardware_score = (100 - cpu_usage - ram_usage - disk_usage) / 100 * 25
+        except Exception as e:
+            hardware_score = 0
+            print(f"[WARNING] Unable to measure hardware performance: {e}")
+            
         # Calculate total score with 75% weight for internet score and 25% weight for hardware score
         total_score = internet_score * 0.75 + hardware_score * 0.25
         
