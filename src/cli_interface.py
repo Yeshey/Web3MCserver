@@ -79,7 +79,7 @@ class Cli_interface:
                             return
                     
                     print("[INFO] Checking remote syncthing server to connect to...")
-                    while not self.web3mcserver.syncthing_manager.remote_host_active():
+                    while not self.web3mcserver.syncthing_manager.syncthing_active(self.web3mcserverLogic.get_syncthing_server_address()):
                         print("[WARNING] No remote machine online, nowhere to pull server from, checking every 30 seconds...")
                         time.sleep(30)
 

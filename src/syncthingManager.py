@@ -1,3 +1,5 @@
+from email import header
+import signal
 import webbrowser
 import subprocess
 import os
@@ -73,6 +75,21 @@ class SyncthingManager:
         api_key = api_key_arg[0].split("=")[-1]
         return api_key
 
+    def terminate_syncthing(self, syncthing_address, syncthing_process):
+        try:
+            syncthingApiKey = self.get_api_key() # same key for everyone in the cluster
+            headers = {"X-API-Key": syncthingApiKey}
+            url = f"{syncthing_address}rest/system/shutdown"
+            response = requests.post(url, headers=headers)
+            print(f"[DEBUG] {response.text}")
+        except:
+            try:
+                print("[DEBUG] Couldn't kill syncthing, trying again...")
+                os.killpg(os.getpgid(self.syncthing_process.pid), signal.SIGTERM)
+            except:
+                print(f"[DEBUG] Failed to kill syncthing, kill it manually. Address: {syncthing_address}")
+                self.syncthing_process.terminate() # doesn't seem to do anything?
+                self.syncthing_process.kill() # doesn't seem to do anything?
 
     def get_remote_syncthing_ID(self):
         remoteSyncthingAddress = self.web3mcserverLogic.get_syncthing_server_address()
@@ -86,12 +103,12 @@ class SyncthingManager:
         print(f"[DEBUG] API KEY: {syncthingApiKey}, remoteSyncthingAddress: {remoteSyncthingAddress}, remoteSyncthingID: {my_id}")
         return my_id
 
-    def remote_host_active(self):
-        remoteSyncthingAddress = self.web3mcserverLogic.get_syncthing_server_address()
+    def syncthing_active(self, syncthing_address):
+        #remoteSyncthingAddress = self.web3mcserverLogic.get_syncthing_server_address()
         secret = self.get_api_key() # Replace with your actual secret key
         headers = {'X-API-Key': secret}
         try:
-            response = requests.get(f"{remoteSyncthingAddress}/rest/system/ping", headers=headers, timeout=30)
+            response = requests.get(f"{syncthing_address}/rest/system/ping", headers=headers, timeout=30)
             return response.status_code == 200
         except requests.exceptions.RequestException:
             return False

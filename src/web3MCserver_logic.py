@@ -80,20 +80,15 @@ class Web3MCserverLogic:
         self.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = False)
         self.syncthing_manager.wait_for_sync_to_finish()
 
-        # Kill all related processes
-        if self.syncthing_process != None:
+        # killing remaining processes
+        if self.syncthing_process is not None or self.syncthing_manager.syncthing_active(self.local_syncthing_address):
             print("[DEBUG] Killing syncthing")
-            # https://stackoverflow.com/questions/4789837/how-to-terminate-a-python-subprocess-launched-with-shell-true/4791612#4791612
-            print(self.syncthing_process)
-            try:
-                os.killpg(os.getpgid(self.syncthing_process), signal.SIGTERM)
-            except:
-                print("[DEBUG] Error, PID not found? Syncthing should exit with broken pipe")
+            self.syncthing_manager.terminate_syncthing(self.local_syncthing_address, self.syncthing_process)
 
     def i_will_be_host_now(self, save_main_erver_address_in_secrets = False):
         # Send system notification saying that thes PC will be host now
         print("Becoming Host")
-        #self.web3mcserverLogic
+
         self.syncthing_manager.wait_for_sync_to_finish() # todo, check https://man.archlinux.org/man/community/syncthing/syncthing-rest-api.7.en
 
         # Send desktop notification
@@ -140,7 +135,7 @@ class Web3MCserverLogic:
         # https://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
         popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=cwd, universal_newlines=True)
         print(F"[DEBUG] PID: {popen.pid}")
-        self.syncthing_process = popen.pid
+        self.syncthing_process = popen
 
         for stdout_line in iter(popen.stdout.readline, ""):
             if "Error: Broken pipe" in stdout_line:
