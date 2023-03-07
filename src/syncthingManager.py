@@ -77,8 +77,14 @@ class SyncthingManager:
     def get_remote_syncthing_ID(self):
         remoteSyncthingAddress = self.web3mcserverLogic.get_syncthing_server_address()
         syncthingApiKey = self.get_api_key()
-        print(f"[DEBUG] API KEY: {syncthingApiKey}, remoteSyncthingAddress: {remoteSyncthingAddress}")
-        pass
+        headers = {"X-API-Key": syncthingApiKey}
+        url = f"{remoteSyncthingAddress}/rest/system/status"
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        response_json = response.json()
+        my_id = response_json["myID"]
+        print(f"[DEBUG] API KEY: {syncthingApiKey}, remoteSyncthingAddress: {remoteSyncthingAddress}, remoteSyncthingID: {my_id}")
+        return my_id
 
     def remote_host_active(self):
         remoteSyncthingAddress = self.web3mcserverLogic.get_syncthing_server_address()
@@ -90,8 +96,7 @@ class SyncthingManager:
         except requests.exceptions.RequestException:
             return False
 
-
-    def connect_to_syncthing_peer(self, syncthing_details_to_connect):
+    def connect_to_syncthing_peer(self, ID):
         pass
 
     def exist_tunnels_with_this_secret(self):

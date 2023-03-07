@@ -93,6 +93,7 @@ class Web3MCserverLogic:
     def i_will_be_host_now(self, save_main_erver_address_in_secrets = False):
         # Send system notification saying that thes PC will be host now
         print("Becoming Host")
+        #self.web3mcserverLogic
         self.syncthing_manager.wait_for_sync_to_finish() # todo, check https://man.archlinux.org/man/community/syncthing/syncthing-rest-api.7.en
 
         # Send desktop notification
@@ -140,6 +141,7 @@ class Web3MCserverLogic:
         popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=cwd, universal_newlines=True)
         print(F"[DEBUG] PID: {popen.pid}")
         self.syncthing_process = popen.pid
+
         for stdout_line in iter(popen.stdout.readline, ""):
             if "Error: Broken pipe" in stdout_line:
                 popen.stdout.close()    

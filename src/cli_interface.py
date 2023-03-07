@@ -80,11 +80,11 @@ class Cli_interface:
                     
                     print("[INFO] Checking remote syncthing server to connect to...")
                     while not self.web3mcserver.syncthing_manager.remote_host_active():
-                        print("[WARNING] No remote machine Online, nowhere to pull server from, checking every 30 seconds...")
+                        print("[WARNING] No remote machine online, nowhere to pull server from, checking every 30 seconds...")
                         time.sleep(30)
 
-                    remote_syncthing_ID = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
-                    self.web3mcserver.syncthing_manager.connect_to_syncthing_peer(remote_syncthing_ID)
+                    syncthing_details_to_connect = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
+                    self.web3mcserver.syncthing_manager.connect_to_syncthing_peer(syncthing_details_to_connect)
 
                     exit()
 
