@@ -85,11 +85,11 @@ class SyncthingManager:
         except:
             try:
                 print("[DEBUG] Couldn't kill syncthing, trying again...")
-                os.killpg(os.getpgid(self.syncthing_process.pid), signal.SIGTERM)
+                os.killpg(os.getpgid(syncthing_process.pid), signal.SIGTERM)
             except:
                 print(f"[DEBUG] Failed to kill syncthing, kill it manually. Address: {syncthing_address}")
-                self.syncthing_process.terminate() # doesn't seem to do anything?
-                self.syncthing_process.kill() # doesn't seem to do anything?
+                syncthing_process.terminate() # doesn't seem to do anything?
+                syncthing_process.kill() # doesn't seem to do anything?
 
     def get_remote_syncthing_ID(self):
         remoteSyncthingAddress = self.web3mcserverLogic.get_syncthing_server_address()
