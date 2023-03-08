@@ -48,281 +48,58 @@ class SyncthingManager:
 
     def add_folders_to_sync(self):
     # The following works, and see this website (https://docs.syncthing.net/v1.22.1/rest/config.html)
-        '''
-        > curl -X PUT -H "X-API-Key: CRQeRBtNS1mQQg3B1WEa" -H "Content-Type: application/json" -d '[
-            {
-            "id": "my_folder",
-            "path": "/path/to/my/folder",
-            "type": "sendreceive",
-            "devices": [
-                {
-                "deviceID": "QPC5HG7-AHK2PHJ-V7OPBG5-HPTVDVC-MDIY272-4UZ3NHG-BSTQEQG-K32YMAH",
-                "introducer": true
-                }
-            ]
-            }
-        ]' http://127.0.0.1:23840/rest/config/folders
-        '''
-
-        # and this is the command you want:
-        '''
-curl -X PUT -H "X-API-Key: CRQeRBtNS1mQQg3B1WEa" -H "Content-Type: application/json" -d '[\
-  {\
-    "id": "common_config_file",\
-    "label": "common_config_file",\
-    "filesystemType": "basic",\
-    "path": "/mnt/DataDisk/PersonalFiles/2023/Projects/Programming/Web3MCserver/common_config_file/",\
-    "type": "sendreceive",\
-    "devices": [\
-      {\
-        "deviceID": "3E23V4H-WL5NFEJ-XX3BLYY-ARUPG4Y-RHBC2MG-3V4QZFX-BMAGTCV-Y6MQCAU",\
-        "introducedBy": "",\
-        "encryptionPassword": ""\
-      }\
-    ],\
-    "rescanIntervalS": 3600,\
-    "fsWatcherEnabled": true,\
-    "fsWatcherDelayS": 10,\
-    "ignorePerms": false,\
-    "autoNormalize": true,\
-    "minDiskFree": {\
-      "value": 1,\
-      "unit": "%"\
-    },\
-    "versioning": {\
-      "type": "staggered",\
-      "params": {\
-        "maxAge": "1728000"\
-      },\
-      "cleanupIntervalS": 3600,\
-      "fsPath": "",\
-      "fsType": "basic"\
-    },\
-    "copiers": 0,\
-    "pullerMaxPendingKiB": 0,\
-    "hashers": 0,\
-    "order": "random",\
-    "ignoreDelete": false,\
-    "scanProgressIntervalS": 0,\
-    "pullerPauseS": 0,\
-    "maxConflicts": 10,\
-    "disableSparseFiles": false,\
-    "disableTempIndexes": false,\
-    "paused": false,\
-    "weakHashThresholdPct": 25,\
-    "markerName": ".stfolder",\
-    "copyOwnershipFromParent": false,\
-    "modTimeWindowS": 0,\
-    "maxConcurrentWrites": 2,\
-    "disableFsync": false,\
-    "blockPullOrder": "standard",\
-    "copyRangeMethod": "standard",\
-    "caseSensitiveFS": false,\
-    "junctionsAsDirs": false,\
-    "syncOwnership": false,\
-    "sendOwnership": false,\
-    "syncXattrs": false,\
-    "sendXattrs": false,\
-    "xattrFilter": {\
-      "entries": [],\
-      "maxSingleEntrySize": 1024,\
-      "maxTotalSize": 4096\
-    }\
-  },\
-  {\
-    "id": "server",\
-    "label": "server",\
-    "filesystemType": "basic",\
-    "path": "/mnt/DataDisk/PersonalFiles/2023/Projects/Programming/Web3MCserver/server/",\
-    "type": "sendreceive",\
-    "devices": [\
-      {\
-        "deviceID": "3E23V4H-WL5NFEJ-XX3BLYY-ARUPG4Y-RHBC2MG-3V4QZFX-BMAGTCV-Y6MQCAU",\
-        "introducedBy": "",\
-        "encryptionPassword": ""\
-      }\
-    ],\
-    "rescanIntervalS": 3600,\
-    "fsWatcherEnabled": true,\
-    "fsWatcherDelayS": 10,\
-    "ignorePerms": false,\
-    "autoNormalize": true,\
-    "minDiskFree": {\
-      "value": 1,\
-      "unit": "%"\
-    },\
-    "versioning": {\
-      "type": "staggered",\
-      "params": {\
-        "maxAge": "1728000"\
-      },\
-      "cleanupIntervalS": 3600,\
-      "fsPath": "",\
-      "fsType": "basic"\
-    },\
-    "copiers": 0,\
-    "pullerMaxPendingKiB": 0,\
-    "hashers": 0,\
-    "order": "random",\
-    "ignoreDelete": false,\
-    "scanProgressIntervalS": 0,\
-    "pullerPauseS": 0,\
-    "maxConflicts": 10,\
-    "disableSparseFiles": false,\
-    "disableTempIndexes": false,\
-    "paused": false,\
-    "weakHashThresholdPct": 25,\
-    "markerName": ".stfolder",\
-    "copyOwnershipFromParent": false,\
-    "modTimeWindowS": 0,\
-    "maxConcurrentWrites": 2,\
-    "disableFsync": false,\
-    "blockPullOrder": "standard",\
-    "copyRangeMethod": "standard",\
-    "caseSensitiveFS": false,\
-    "junctionsAsDirs": false,\
-    "syncOwnership": false,\
-    "sendOwnership": false,\
-    "syncXattrs": false,\
-    "sendXattrs": false,\
-    "xattrFilter": {\
-      "entries": [],\
-      "maxSingleEntrySize": 1024,\
-      "maxTotalSize": 4096\
-    }\
-  }\
-]' http://127.0.0.1:23840/rest/config/folders\
-        '''
 
         url = f'{self.web3mcserverLogic.local_syncthing_address}rest/config/folders'
         headers = {'X-API-Key': self.get_api_key()}
-        data = [
+
+        # folders synced with no conflicts allowed, and staggered versioning
+        data = [ 
             {
-                "id": "common_config_file",
-                "label": "common_config_file",
-                "filesystemType": "basic",
-                "path": f"{self.web3mcserverLogic.bin_path}/../common_config_file/",
-                "type": "sendreceive",
-                "devices": [
-                {
-                    "deviceID": f"{self.get_my_syncthing_ID()}",
-                    "introducedBy": "",
-                    "encryptionPassword": ""
-                }
-                ],
-                "rescanIntervalS": 3600,
-                "fsWatcherEnabled": True,
-                "fsWatcherDelayS": 10,
-                "ignorePerms": False,
-                "autoNormalize": True,
-                "minDiskFree": {
-                "value": 1,
-                "unit": "%"
-                },
-                "versioning": {
-                "type": "staggered",
-                "params": {
-                    "maxAge": "1728000"
-                },
-                "cleanupIntervalS": 3600,
-                "fsPath": "",
-                "fsType": "basic"
-                },
-                "copiers": 0,
-                "pullerMaxPendingKiB": 0,
-                "hashers": 0,
-                "order": "random",
-                "ignoreDelete": False,
-                "scanProgressIntervalS": 0,
-                "pullerPauseS": 0,
-                "maxConflicts": 0,
-                "disableSparseFiles": False,
-                "disableTempIndexes": False,
-                "paused": False,
-                "weakHashThresholdPct": 25,
-                "markerName": ".stfolder",
-                "copyOwnershipFromParent": False,
-                "modTimeWindowS": 0,
-                "maxConcurrentWrites": 2,
-                "disableFsync": False,
-                "blockPullOrder": "standard",
-                "copyRangeMethod": "standard",
-                "caseSensitiveFS": False,
-                "junctionsAsDirs": False,
-                "syncOwnership": False,
-                "sendOwnership": False,
-                "syncXattrs": False,
-                "sendXattrs": False,
-                "xattrFilter": {
-                "entries": [],
-                "maxSingleEntrySize": 1024,
-                "maxTotalSize": 4096
-                }
-            },
-            {
-                "id": "server",
-                "label": "server",
-                "filesystemType": "basic",
-                "path": f"{self.web3mcserverLogic.bin_path}/../server/",
-                "type": "sendreceive",
-                "devices": [
-                {
-                    "deviceID": f"{self.get_my_syncthing_ID()}",
-                    "introducedBy": "",
-                    "encryptionPassword": ""
-                }
-                ],
-                "rescanIntervalS": 3600,
-                "fsWatcherEnabled": True,
-                "fsWatcherDelayS": 10,
-                "ignorePerms": False,
-                "autoNormalize": True,
-                "minDiskFree": {
-                "value": 1,
-                "unit": "%"
-                },
-                "versioning": {
-                "type": "staggered",
-                "params": {
-                    "maxAge": "1728000"
-                },
-                "cleanupIntervalS": 3600,
-                "fsPath": "",
-                "fsType": "basic"
-                },
-                "copiers": 0,
-                "pullerMaxPendingKiB": 0,
-                "hashers": 0,
-                "order": "random",
-                "ignoreDelete": False,
-                "scanProgressIntervalS": 0,
-                "pullerPauseS": 0,
-                "maxConflicts": 0,
-                "disableSparseFiles": False,
-                "disableTempIndexes": False,
-                "paused": False,
-                "weakHashThresholdPct": 25,
-                "markerName": ".stfolder",
-                "copyOwnershipFromParent": False,
-                "modTimeWindowS": 0,
-                "maxConcurrentWrites": 2,
-                "disableFsync": False,
-                "blockPullOrder": "standard",
-                "copyRangeMethod": "standard",
-                "caseSensitiveFS": False,
-                "junctionsAsDirs": False,
-                "syncOwnership": False,
-                "sendOwnership": False,
-                "syncXattrs": False,
-                "sendXattrs": False,
-                "xattrFilter": {
-                "entries": [],
-                "maxSingleEntrySize": 1024,
-                "maxTotalSize": 4096
-                }
-            }
-        ] 
-        response = requests.post(url, headers=headers, json=data)
+                "id": "common_config_file", 
+                "label": "common_config_file", 
+                "filesystemType": "basic", 
+                "path": f"{self.web3mcserverLogic.bin_path}/../../common_config_file/", 
+                "type": "sendreceive",  
+                "rescanIntervalS": 3600, 
+                "minDiskFree": { 
+                    "value": 1, 
+                    "unit": "%" 
+                }, 
+                "versioning": { 
+                    "type": "staggered", 
+                    "params": { 
+                        "maxAge": "1728000" 
+                    }, 
+                    "cleanupIntervalS": 3600, 
+                    "fsPath": "", 
+                    "fsType": "basic" 
+                }, 
+                "maxConflicts": 0, 
+            }, 
+            { 
+                "id": "server", 
+                "label": "server", 
+                "filesystemType": "basic", 
+                "path": f"{self.web3mcserverLogic.bin_path}/../../server/", 
+                "type": "sendreceive", 
+                "rescanIntervalS": 3600, 
+                "minDiskFree": { 
+                    "value": 1, 
+                    "unit": "%" 
+                }, 
+                "versioning": { 
+                    "type": "staggered", 
+                    "params": { 
+                        "maxAge": "1728000" 
+                    }, 
+                    "cleanupIntervalS": 3600, 
+                    "fsPath": "", 
+                    "fsType": "basic" 
+                }, 
+                "maxConflicts": 0, 
+            } 
+        ]
+        response = requests.put(url, headers=headers, json=data)
         print(response)
 
     def get_my_syncthing_ID(self):
