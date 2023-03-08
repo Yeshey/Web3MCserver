@@ -47,7 +47,7 @@ class SyncthingManager:
             self.web3mcserver.write_secret_addresses_toml_file(syncthing_address="http://" + address_of_first_tunnel + ":" + port_of_first_tunnel)
 
         else:
-            for path in self.web3mcserver.execute([command],
+            for path in self.web3mcserver.execute(command,
                 cwd="./../"):
                 print(path, end="")
                 if 'Access the GUI via the following URL:' in path:
@@ -75,6 +75,13 @@ class SyncthingManager:
                 "filesystemType": "basic", 
                 "path": f"{self.web3mcserver.bin_path}/../../common_config_file/", 
                 "type": "sendreceive",  
+                "devices": [
+                {
+                    "deviceID": self.get_my_syncthing_ID(),
+                    "introducedBy": "",
+                    "encryptionPassword": ""
+                }
+                ],
                 "rescanIntervalS": 3600, 
                 "minDiskFree": { 
                     "value": 1, 
@@ -171,7 +178,7 @@ class SyncthingManager:
         response.raise_for_status()
         response_json = response.json()
         my_id = response_json["myID"]
-        print(f"[DEBUG] API KEY: {syncthingApiKey}, remoteSyncthingAddress: {remoteSyncthingAddress}, remoteSyncthingID: {my_id}")
+        #print(f"[DEBUG] API KEY: {syncthingApiKey}, remoteSyncthingAddress: {remoteSyncthingAddress}, remoteSyncthingID: {my_id}")
         return my_id
 
     def syncthing_active(self, syncthing_address, timeout = 30):
@@ -185,7 +192,29 @@ class SyncthingManager:
             return False
 
     def connect_to_syncthing_peer(self, ID):
-        pass
+
+        url = f'{self.web3mcserver.local_syncthing_address}rest/config/devices'
+        headers = {'X-API-Key': self.get_api_key()}
+
+        print(f"URL: {url}, HEADERS: {headers}")
+
+        # folders synced with no conflicts allowed, and staggered versioning
+        data = {
+            "deviceID": f"{ID}",
+            #"name": "manjaro-LaptopBOYY",
+            "introducer": True,
+            "skipIntroductionRemovals": False,
+            "introducedBy": "",
+            "allowedNetworks": [],
+            "autoAcceptFolders": False,
+            "maxSendKbps": 0,
+            "maxRecvKbps": 0,
+            "ignoredFolders": []
+        }
+        response = requests.post(url, headers=headers, json=data)
+        
+        # make it share the folders witht his device
+        
 
     def exist_tunnels_with_this_secret(self):
         pass

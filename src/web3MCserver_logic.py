@@ -43,6 +43,10 @@ class Web3MCserverLogic:
         self.syncthing_process = None # needs to be a list so it is a muttable object
         self.local_syncthing_address = None
 
+        self.server_folder_path = os.path.abspath("./server/")
+        print(self.server_folder_path)
+
+
         # ======= Figuring out witch platform I'm running on ======= #
         base_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(base_path)
@@ -108,7 +112,7 @@ class Web3MCserverLogic:
         for path in self.execute([self.bin_path + "/playit-cli", 
             "launch", 
             self.playitcli_toml_config_main_server],
-            cwd="./../server/"):
+            cwd=self.server_folder_path):
 
             if save_main_erver_address_in_secrets:
                 if not address_added and 'Preparing spawn area:' in path:
@@ -133,6 +137,7 @@ class Web3MCserverLogic:
 
     def execute(self, cmd, cwd = ""):
         # https://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
+        print(f"[DEBUG] CWD: {cwd}")
         popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=cwd, universal_newlines=True)
         print(F"[DEBUG] PID: {popen.pid}")
         self.syncthing_process = popen
@@ -328,7 +333,7 @@ class Web3MCserverLogic:
         with open(playitcli_toml_config, "w") as f:
             toml.dump(playitcli_config, f)
 
-        return server_command
+        return command_parts
 
 # ============== Secrets File Management ==============
 
