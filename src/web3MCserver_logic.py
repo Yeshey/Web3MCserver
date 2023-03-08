@@ -81,7 +81,7 @@ class Web3MCserverLogic:
         self.syncthing_manager.wait_for_sync_to_finish()
 
         # killing remaining processes
-        if self.syncthing_process is not None or self.syncthing_manager.syncthing_active(self.local_syncthing_address):
+        if self.syncthing_manager.syncthing_active(self.local_syncthing_address):
             print("[DEBUG] Killing syncthing")
             self.syncthing_manager.terminate_syncthing(self.local_syncthing_address, self.syncthing_process)
 
