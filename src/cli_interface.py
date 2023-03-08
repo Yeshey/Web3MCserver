@@ -67,6 +67,7 @@ class Cli_interface:
                 else:
                     self.instructions_on_how_to_set_their_own_server()
                 self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(save_syncthing_server_address_in_secrets = True) # needs to generate right xml config
+                self.web3mcserver.syncthing_manager.add_folders_to_sync()
                 self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
                 self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = True)
             else:
@@ -79,7 +80,7 @@ class Cli_interface:
                             return
                     
                     print("[INFO] Checking remote syncthing server to connect to...")
-                    while not self.web3mcserver.syncthing_manager.syncthing_active(self.web3mcserverLogic.get_syncthing_server_address()):
+                    while not self.web3mcserver.syncthing_manager.syncthing_active(self.web3mcserver.get_syncthing_server_address()):
                         print("[WARNING] No remote machine online, nowhere to pull server from, checking every 30 seconds...")
                         time.sleep(30)
 
