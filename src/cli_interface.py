@@ -66,7 +66,7 @@ class Cli_interface:
                         self.instructions_on_how_to_set_their_own_server()
                 else:
                     self.instructions_on_how_to_set_their_own_server()
-                self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(save_syncthing_server_address_in_secrets = True) # needs to generate right xml config
+                self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(with_playitgg = True)
                 self.web3mcserver.syncthing_manager.add_folders_to_sync()
                 self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
                 self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = True)
@@ -78,16 +78,20 @@ class Cli_interface:
                         else:
                             print("[INFO] Exiting...")
                             return
-                    
+
                     print("[INFO] Checking remote syncthing server to connect to...")
                     while not self.web3mcserver.syncthing_manager.syncthing_active(self.web3mcserver.get_syncthing_server_address()):
                         print("[WARNING] No remote machine online, nowhere to pull server from, checking every 30 seconds...")
                         time.sleep(30)
 
+                    exit()
+
+                    self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(with_playitgg = False)
+
                     syncthing_details_to_connect = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
                     self.web3mcserver.syncthing_manager.connect_to_syncthing_peer(syncthing_details_to_connect)
 
-                    exit()
+                    
 
                     self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread()
                     self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)

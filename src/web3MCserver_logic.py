@@ -328,6 +328,8 @@ class Web3MCserverLogic:
         with open(playitcli_toml_config, "w") as f:
             toml.dump(playitcli_config, f)
 
+        return server_command
+
 # ============== Secrets File Management ==============
 
     def test_machine(self):
