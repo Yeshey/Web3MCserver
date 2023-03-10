@@ -90,6 +90,7 @@ class Cli_interface:
                         time.sleep(30)
 
                     self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(with_playitgg = False)
+                    self.web3mcserver.syncthing_manager.add_folders_to_sync()
 
                     syncthing_details_to_connect = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
                     self.web3mcserver.syncthing_manager.connect_to_syncthing_peer(syncthing_details_to_connect)
