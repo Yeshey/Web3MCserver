@@ -5,6 +5,8 @@ import subprocess
 import os
 import toml
 import requests
+import threading
+import time
 
 class SyncthingManager:
     def __init__(self, web3mcserver):
@@ -91,6 +93,26 @@ class SyncthingManager:
         }
         response = requests.put(url, headers=headers, json=data)
         print(response)
+
+        t = threading.Thread(target=self.check_devices)
+        t.daemon = True # so this thread ends automatically when main thread ends
+        t.start()
+
+    def check_devices(self):
+        url = f'{self.web3mcserver.local_syncthing_address}rest/cluster/pending/devices'
+        headers = {'X-API-Key': self.get_api_key()}
+        devices = {}
+        while True:
+            try:
+                response = requests.get(url, headers=headers)
+                response.raise_for_status()
+                data = response.json()
+                if data != devices:
+                    print("[DEBUG] New Device wants to connect!")
+                    devices = data
+            except requests.exceptions.RequestException as e:
+                print(f"Error: {e}")
+            time.sleep(60) # Check every minute
 
     def add_folders_to_sync(self):
     # The following works, and see this website (https://docs.syncthing.net/v1.22.1/rest/config.html)
