@@ -6,7 +6,7 @@ import time
 import os
 import distro
 import platform
-import urllib.request
+import requests
 import toml
 from notifypy import Notify
 import subprocess
@@ -23,14 +23,13 @@ class Web3MCserverLogic:
     secrets_file_name = "secret_addresses.toml"
     secret_syncthing_playitcli = "secret_syncthing_playitcli.txt"
     secret_main_playitcli = "secret_main_playitcli.txt"
-    server_path = "./../server/"
+    server_path = "./../sync/server/"
     minecraft_server_file_name = "server.jar"
     minecraft_server_url = "https://piston-data.mojang.com/v1/objects/c9df48efed58511cdd0213c56b9013a7b5c9ac1f/server.jar"
-    playitcli_toml_config_main_server = "./../playit-cli_config/main_server_config.toml"
     playitcli_toml_config_syncthing_server = "./playit-cli_config/syncthing_server_config.toml"
     playitcli_toml_config_syncthing_server2 = "./../playit-cli_config/syncthing_server_config.toml"
     syncthing_config = "./../syncthing_config"
-    common_config_file_path = "./../common_config_file/common_conf.toml"
+    common_config_file_path = "./../sync/common_conf.toml"
 
     def __init__(self):
 
@@ -43,8 +42,10 @@ class Web3MCserverLogic:
         self.syncthing_process = None # needs to be a list so it is a muttable object
         self.local_syncthing_address = None
 
-        self.server_folder_path = os.path.abspath("./server/")
-        print(self.server_folder_path)
+        self.server_folder_path = os.path.abspath("./sync/server/")
+        self.playitcli_toml_config_main_server = os.path.abspath("./playit-cli_config/main_server_config.toml")
+        self.sync_folder_path = os.path.abspath("./sync/")
+        #print(f"[DEBUG] {self.playitcli_toml_config_main_server}")
 
 
         # ======= Figuring out witch platform I'm running on ======= #
@@ -115,17 +116,15 @@ class Web3MCserverLogic:
             cwd=self.server_folder_path):
 
             if save_main_erver_address_in_secrets:
-                if not address_added and 'Preparing spawn area:' in path:
+                if not address_added:
                     address_added = True
                     tunnels_list = self.get_existing_tunnels(self.get_secrets_playitcli_file(self.secret_main_playitcli))
+                    print(f"[DEBUG] Tunnels_list: {tunnels_list}")
                     port_of_first_tunnel = tunnels_list.split()[4]
                     address_of_first_tunnel = tunnels_list.split()[3]
                     print(f"[DEBUG] You can access the minecraft server with: http://{address_of_first_tunnel} or if that doesn't work: http://{address_of_first_tunnel}:{port_of_first_tunnel}")
-                    self.write_secret_addresses_toml_file(main_server_address=address_of_first_tunnel)
+                    self.write_secret_addresses_toml_file(main_server_address=f"{address_of_first_tunnel}:{port_of_first_tunnel}")
             print(path, end="")
-
-        if save_main_erver_address_in_secrets:
-            pass
 
     def get_existing_tunnels(self, secret_to_use):
         tunnels_list = subprocess.check_output([self.bin_path + "/playit-cli", 
@@ -177,9 +176,16 @@ class Web3MCserverLogic:
     def download_minecraft_server(self):
         # Download the server file if it doesn't exist
         if not os.path.exists(self.server_path + self.minecraft_server_file_name):
-            print("Downloading Minecraft server...")
-            urllib.request.urlretrieve(self.minecraft_server_url, self.server_path + self.minecraft_server_file_name)
-            print("Minecraft server downloaded.")
+
+            try:
+                resp = requests.get(self.minecraft_server_url).content
+                with open(self.server_path + self.minecraft_server_file_name, "wb") as f:
+                    f.write(resp)
+                print("image is saved")
+            except Exception as e:
+                raise e
+
+            
         else:
             print("Minecraft server already downloaded.")
 
@@ -360,7 +366,7 @@ class Web3MCserverLogic:
             print(f"[WARNING] Unable to measure hardware performance: {e}")
             
         # Calculate total score with 75% weight for internet score and 25% weight for hardware score
-        total_score = internet_score * 0.75 + hardware_score * 0.25
+        total_score = internet_score * 0.55 + hardware_score * 0.45
         
         # Ensure score is between 0 and 100
         total_score = max(0, min(total_score, 100))

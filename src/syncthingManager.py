@@ -70,10 +70,10 @@ class SyncthingManager:
         # folders synced with no conflicts allowed, and staggered versioning
         data = [ 
             {
-                "id": "common_config_file", 
-                "label": "common_config_file", 
+                "id": "sync", 
+                "label": "sync", 
                 "filesystemType": "basic", 
-                "path": f"{self.web3mcserver.bin_path}/../../common_config_file/", 
+                "path": f"{self.web3mcserver.sync_folder_path}", 
                 "type": "sendreceive",  
                 "devices": [
                 {
@@ -97,29 +97,7 @@ class SyncthingManager:
                     "fsType": "basic" 
                 }, 
                 "maxConflicts": 0, 
-            }, 
-            { 
-                "id": "server", 
-                "label": "server", 
-                "filesystemType": "basic", 
-                "path": f"{self.web3mcserver.bin_path}/../../server/", 
-                "type": "sendreceive", 
-                "rescanIntervalS": 3600, 
-                "minDiskFree": { 
-                    "value": 1, 
-                    "unit": "%" 
-                }, 
-                "versioning": { 
-                    "type": "staggered", 
-                    "params": { 
-                        "maxAge": "1728000" 
-                    }, 
-                    "cleanupIntervalS": 3600, 
-                    "fsPath": "", 
-                    "fsType": "basic" 
-                }, 
-                "maxConflicts": 0, 
-            } 
+            }
         ]
         response = requests.put(url, headers=headers, json=data)
         print(response)
