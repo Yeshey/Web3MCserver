@@ -63,6 +63,15 @@ class Web3MCserverLogic:
 
         print("BIN PATH" + self.bin_path)
 
+    def create_directories_from_path(self, path):
+        # Split the path into its component directories
+        directories = os.path.split(path)
+        # Iterate over the directories and check/create each one
+        for i in range(len(directories)):
+            directory = os.path.join(*directories[:i+1])
+            if not os.path.exists(directory):
+                os.mkdir(directory)
+
     def put_observer_for_changes(self):
         if self.observer_is_triggered_and_server_is_not_running():
             if self.common_config_file_manager.my_priority_position_in_common_config_file() == 0:

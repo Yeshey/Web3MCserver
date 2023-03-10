@@ -44,10 +44,13 @@ class Cli_interface:
         # Set Exit function
         self.web3mcserver.set_exit_function()
 
-        # this should not go here
+        # -------- Create Missing Files & Folders -------- #
+        self.web3mcserver.create_directories_from_path(self.web3mcserver.server_folder_path)
+        # todo check all the missing folders etc...
         if not self.web3mcserver.file_exists(os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_syncthing_playitcli)):
             print("[INFO] secret_syncthing_playitcli.txt doesn't exist\ncreating...")
             self.web3mcserver.write_secret_playitcli_file(syncthing_secret = True)
+        # -------- Create Missing Files & Folders -------- #
 
         #self.web3mcserver.common_config_file_manager.update_common_config_file()
         #exit()
