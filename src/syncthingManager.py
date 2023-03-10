@@ -56,10 +56,41 @@ class SyncthingManager:
                     print("[DEBUG] Syncthing running, continuing...")
                     break
 
-        #subprocess.run([self.web3mcserver.bin_path + "/syncthing/syncthing", "--home", self.web3mcserver.syncthing_config])
-
-    #def launch_syncthing(self):
-    #    subprocess.run([self.web3mcserver.bin_path + "/playit-cli", "launch", self.web3mcserver.playitcli_toml_config_syncthing_server], cwd="./../")    
+        # Set default folder (to auto accept that folder)
+        url = f'{self.web3mcserver.local_syncthing_address}rest/config/defaults/folder'
+        headers = {'X-API-Key': self.get_api_key()}
+        # folders synced with no conflicts allowed, and staggered versioning
+        data = {
+            "id": "sync", 
+            "label": "sync", 
+            "filesystemType": "basic", 
+            "path": f"{self.web3mcserver.sync_folder_path}", 
+            "type": "sendreceive",  
+            "devices": [
+            {
+                "deviceID": self.get_my_syncthing_ID(),
+                "introducedBy": "",
+                "encryptionPassword": ""
+            }
+            ],
+            "rescanIntervalS": 3600, 
+            "minDiskFree": { 
+                "value": 1, 
+                "unit": "%" 
+            }, 
+            "versioning": { 
+                "type": "staggered", 
+                "params": { 
+                    "maxAge": "1728000" 
+                }, 
+                "cleanupIntervalS": 3600, 
+                "fsPath": "", 
+                "fsType": "basic" 
+            }, 
+            "maxConflicts": 0, 
+        }
+        response = requests.put(url, headers=headers, json=data)
+        print(response)
 
     def add_folders_to_sync(self):
     # The following works, and see this website (https://docs.syncthing.net/v1.22.1/rest/config.html)
@@ -184,7 +215,7 @@ class SyncthingManager:
             "skipIntroductionRemovals": False,
             "introducedBy": "",
             "allowedNetworks": [],
-            "autoAcceptFolders": False,
+            "autoAcceptFolders": True,
             "maxSendKbps": 0,
             "maxRecvKbps": 0,
             "ignoredFolders": []
