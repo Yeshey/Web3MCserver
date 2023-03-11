@@ -20,7 +20,7 @@ class SyncthingManager:
         
         # build toml playit config file for syncthing with the secrets syncthing command, create the syncthing secrets command if doesn't exist
         # also returns the command to run
-        command = self.web3mcserver.update_playit_config_command_from_secrets(to_update = "syncthing_server")
+        command = self.web3mcserver.update_playit_syncthing_config_command_from_secrets()
 
         if with_playitgg:
             try:
@@ -174,7 +174,7 @@ class SyncthingManager:
         return syncthingDeviceID
 
     def get_api_key(self):
-        secrets_file_path = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secrets_file_name)
+        secrets_file_path = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name)
         if not os.path.isfile(secrets_file_path):
             raise FileNotFoundError(f"Common config file not found: {secrets_file_path}")
 

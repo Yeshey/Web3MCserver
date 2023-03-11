@@ -20,7 +20,7 @@ import string
 class Web3MCserverLogic:
     # Define the directory path
     secrets_path = "./../secrets/"
-    secrets_file_name = "secret_addresses.toml"
+    secret_addresses_file_name = "secret_addresses.toml"
     secret_syncthing_playitcli = "secret_syncthing_playitcli.txt"
     secret_main_playitcli = "secret_main_playitcli.txt"
     server_path = "./../sync/server/"
@@ -216,8 +216,8 @@ class Web3MCserverLogic:
             os.makedirs(self.secrets_path)
 
         data = {}
-        if os.path.isfile(os.path.join(self.secrets_path, self.secrets_file_name)):
-            with open(os.path.join(self.secrets_path, self.secrets_file_name), 'r') as f:
+        if os.path.isfile(os.path.join(self.secrets_path, self.secret_addresses_file_name)):
+            with open(os.path.join(self.secrets_path, self.secret_addresses_file_name), 'r') as f:
                 data = toml.load(f)
 
         if syncthing_address:
@@ -226,13 +226,13 @@ class Web3MCserverLogic:
         if main_server_address:
             data['main_server_address'] = main_server_address
 
-        with open(os.path.join(self.secrets_path, self.secrets_file_name), 'w') as f:
+        with open(os.path.join(self.secrets_path, self.secret_addresses_file_name), 'w') as f:
             toml.dump(data, f)
 
 
     def get_main_server_address(self):
         # Read the secrets file
-        with open(os.path.join(self.secrets_path, self.secrets_file_name), 'r') as f:
+        with open(os.path.join(self.secrets_path, self.secret_addresses_file_name), 'r') as f:
             secrets_data = toml.load(f)
 
         # Check if main server address exists in secrets file
@@ -243,7 +243,7 @@ class Web3MCserverLogic:
 
     def get_syncthing_server_address(self):
         # Read the secrets file
-        with open(os.path.join(self.secrets_path, self.secrets_file_name), 'r') as f:
+        with open(os.path.join(self.secrets_path, self.secret_addresses_file_name), 'r') as f:
             secrets_data = toml.load(f)
 
         # Check if main server address exists in secrets file
@@ -276,11 +276,9 @@ class Web3MCserverLogic:
         else:
             return ""
 
-    def update_playit_config_command_from_secrets(self, to_update):
-        if to_update != "syncthing_server" and to_update != "main_server":
-            raise ValueError("Invalid 'to_update' parameter.")
+    def update_playit_syncthing_config_command_from_secrets(self):
         
-        secrets_file_path = os.path.join(self.secrets_path, self.secrets_file_name)
+        secrets_file_path = os.path.join(self.secrets_path, self.secret_addresses_file_name)
         #if not self.file_exists(secrets_file_path):
         #    print(f"[INFO] {secrets_file_path} doesn't exist\ncreating...")
         #    self.write_secret_playitcli_file(syncthing_secret = True)
@@ -291,24 +289,19 @@ class Web3MCserverLogic:
         else:
             secrets = {}
         
-        if to_update == "syncthing_server":
-            server_command_field = "syncthing_server_command"
-            server_command = secrets.get(server_command_field, "")
 
-            # Generate a random string of 20 characters
-            api_key = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(20))
-            # Use the random string as the API key in the default command
-            if platform.system() == 'Windows':
-                default_command = f"./bin/windows/syncthing/syncthing.exe --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
-            else:
-                default_command = f"./bin/linux/syncthing/syncthing --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
-            
-            playitcli_toml_config = self.playitcli_toml_config_syncthing_server2
+        server_command_field = "syncthing_server_command"
+        server_command = secrets.get(server_command_field, "")
+
+        # Generate a random string of 20 characters
+        api_key = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(20))
+        # Use the random string as the API key in the default command
+        if platform.system() == 'Windows':
+            default_command = f"./bin/windows/syncthing/syncthing.exe --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
         else:
-            server_command_field = "main_server_command"
-            server_command = secrets.get(server_command_field, "")
-            default_command = "java -Xmx1024M -Xms1024M -jar ./server.jar nogui"
-            playitcli_toml_config = self.playitcli_toml_config_main_server
+            default_command = f"./bin/linux/syncthing/syncthing --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
+        
+        playitcli_toml_config = self.playitcli_toml_config_syncthing_server2
         
         if not server_command:
             server_command = default_command
@@ -317,18 +310,17 @@ class Web3MCserverLogic:
                 toml.dump(secrets, f)
 
         # Extract the port number from the --gui-address argument
-        if to_update == "syncthing_server":
-            gui_address_arg = [arg for arg in server_command.split() if arg.startswith("--gui-address=")]
-            if gui_address_arg:
-                port_number = gui_address_arg[0].split(":")[-1]
-                # Update the local field of the first tunnel in the playitcli_toml_config file
-                playitcli_toml_config = self.playitcli_toml_config_syncthing_server2
-                with open(playitcli_toml_config, "r") as f:
-                    playitcli_config = toml.load(f)
-                if "tunnels" in playitcli_config:
-                    playitcli_config["tunnels"][0]["local"] = int(port_number)
-                with open(playitcli_toml_config, "w") as f:
-                    toml.dump(playitcli_config, f)
+        gui_address_arg = [arg for arg in server_command.split() if arg.startswith("--gui-address=")]
+        if gui_address_arg:
+            port_number = gui_address_arg[0].split(":")[-1]
+            # Update the local field of the first tunnel in the playitcli_toml_config file
+            playitcli_toml_config = self.playitcli_toml_config_syncthing_server2
+            with open(playitcli_toml_config, "r") as f:
+                playitcli_config = toml.load(f)
+            if "tunnels" in playitcli_config:
+                playitcli_config["tunnels"][0]["local"] = int(port_number)
+            with open(playitcli_toml_config, "w") as f:
+                toml.dump(playitcli_config, f)
         
         command_parts = server_command.split()
         command = command_parts[0]
