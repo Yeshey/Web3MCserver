@@ -313,8 +313,8 @@ class Web3MCserverLogic:
         else:
             if server_command.split()[0] != default_command.split()[0]: # you're in windows running this script that's set for linux?
                 server_command_words = server_command.split()
-                new_command = f"{default_command.split()[0]} {' '.join(server_command_words[1:])}"
-                secrets[server_command_field] = new_command
+                server_command = f"{default_command.split()[0]} {' '.join(server_command_words[1:])}"
+                secrets[server_command_field] = server_command
                 with open(secrets_file_path, "w") as f:
                     toml.dump(secrets, f)
 
