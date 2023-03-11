@@ -20,7 +20,7 @@ import string
 class Web3MCserverLogic:
     # Define the directory path
     secrets_path = "./../secrets/"
-    secrets_file_name = "secret_addresses.toml"
+    secret_addresses_file_name = "secret_addresses.toml"
     secret_syncthing_playitcli = "secret_syncthing_playitcli.txt"
     secret_main_playitcli = "secret_main_playitcli.txt"
     server_path = "./../sync/server/"
@@ -216,8 +216,8 @@ class Web3MCserverLogic:
             os.makedirs(self.secrets_path)
 
         data = {}
-        if os.path.isfile(os.path.join(self.secrets_path, self.secrets_file_name)):
-            with open(os.path.join(self.secrets_path, self.secrets_file_name), 'r') as f:
+        if os.path.isfile(os.path.join(self.secrets_path, self.secret_addresses_file_name)):
+            with open(os.path.join(self.secrets_path, self.secret_addresses_file_name), 'r') as f:
                 data = toml.load(f)
 
         if syncthing_address:
@@ -226,13 +226,13 @@ class Web3MCserverLogic:
         if main_server_address:
             data['main_server_address'] = main_server_address
 
-        with open(os.path.join(self.secrets_path, self.secrets_file_name), 'w') as f:
+        with open(os.path.join(self.secrets_path, self.secret_addresses_file_name), 'w') as f:
             toml.dump(data, f)
 
 
     def get_main_server_address(self):
         # Read the secrets file
-        with open(os.path.join(self.secrets_path, self.secrets_file_name), 'r') as f:
+        with open(os.path.join(self.secrets_path, self.secret_addresses_file_name), 'r') as f:
             secrets_data = toml.load(f)
 
         # Check if main server address exists in secrets file
@@ -243,7 +243,7 @@ class Web3MCserverLogic:
 
     def get_syncthing_server_address(self):
         # Read the secrets file
-        with open(os.path.join(self.secrets_path, self.secrets_file_name), 'r') as f:
+        with open(os.path.join(self.secrets_path, self.secret_addresses_file_name), 'r') as f:
             secrets_data = toml.load(f)
 
         # Check if main server address exists in secrets file
@@ -280,7 +280,7 @@ class Web3MCserverLogic:
         if to_update != "syncthing_server" and to_update != "main_server":
             raise ValueError("Invalid 'to_update' parameter.")
         
-        secrets_file_path = os.path.join(self.secrets_path, self.secrets_file_name)
+        secrets_file_path = os.path.join(self.secrets_path, self.secret_addresses_file_name)
         #if not self.file_exists(secrets_file_path):
         #    print(f"[INFO] {secrets_file_path} doesn't exist\ncreating...")
         #    self.write_secret_playitcli_file(syncthing_secret = True)
