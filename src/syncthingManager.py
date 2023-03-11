@@ -114,31 +114,35 @@ class SyncthingManager:
                     print("[DEBUG] New Device wants to connect!")
                     ID_of_peer_that_wants_to_connect = list(data.keys())[0]
                     self.connect_to_syncthing_peer(ID_of_peer_that_wants_to_connect)
+                    self.add_folders_to_sync([ID_of_peer_that_wants_to_connect])
             except requests.exceptions.RequestException as e:
                 print(f"Error: {e}")
             time.sleep(60) # Check every minute
 
-    def add_folders_to_sync(self):
+    def add_folders_to_sync(self, ids=[]):
     # The following works, and see this website (https://docs.syncthing.net/v1.22.1/rest/config.html)
 
         url = f'{self.web3mcserver.local_syncthing_address}rest/config/folders'
         headers = {'X-API-Key': self.get_api_key()}
 
+        devices = [{"deviceID": self.get_my_syncthing_ID(), "introducedBy": "", "encryptionPassword": ""}]
+        # Check if the devices section is already populated
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200 and len(response.json()) > 0:
+            existing_devices = response.json()[0]['devices']
+            devices = existing_devices if existing_devices else devices
+        for device_id in ids:
+            devices.append({"deviceID": device_id, "introducedBy": "", "encryptionPassword": ""})
+
         # folders synced with no conflicts allowed, and staggered versioning
-        data = [ 
+        data = [
             {
-                "id": "sync", 
-                "label": "sync", 
-                "filesystemType": "basic", 
-                "path": f"{self.web3mcserver.sync_folder_path}", 
-                "type": "sendreceive",  
-                "devices": [
-                {
-                    "deviceID": self.get_my_syncthing_ID(),
-                    "introducedBy": "",
-                    "encryptionPassword": ""
-                }
-                ],
+                "id": "sync",
+                "label": "sync",
+                "filesystemType": "basic",
+                "path": f"{self.web3mcserver.sync_folder_path}",
+                "type": "sendreceive",
+                "devices": devices,
                 "rescanIntervalS": 3600, 
                 "minDiskFree": { 
                     "value": 1, 
@@ -239,13 +243,14 @@ class SyncthingManager:
             "skipIntroductionRemovals": False,
             "introducedBy": "",
             "allowedNetworks": [],
-            "autoAcceptFolders": True,
+            "autoAcceptFolders": False,
             "maxSendKbps": 0,
             "maxRecvKbps": 0,
             "ignoredFolders": []
         }
         response = requests.post(url, headers=headers, json=data)
         print(f"[DEBUG] connect_to_syncthing_peer: URL: {url}, HEADERS: {headers}, response: {response}")
+        self.add_folders_to_sync([ID]) # so my folder shares itself with the new guy
         
         # make it share the folders witht his device
         
