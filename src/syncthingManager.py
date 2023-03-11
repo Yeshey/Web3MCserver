@@ -22,14 +22,14 @@ class SyncthingManager:
         # also returns the command to run
         command = self.web3mcserver.update_playit_config_command_from_secrets(to_update = "syncthing_server")
 
-        print(command)
-
         if with_playitgg:
             try:
-                if self.web3mcserver.syncthing_manager.syncthing_active(self.web3mcserver.get_syncthing_server_address(), timeout=3):
+                local_address = self.web3mcserver.get_syncthing_server_address()
+                if self.web3mcserver.syncthing_manager.syncthing_active(local_address, timeout=3):
                     raise Exception("Shouldn't start while syncthing server is running!")
             except:
                 print("Syncthing server address doesn't exist yet.")
+
             for path in self.web3mcserver.execute([self.web3mcserver.bin_path + "/playit-cli", 
                 "launch", 
                 self.web3mcserver.playitcli_toml_config_syncthing_server],
@@ -49,6 +49,8 @@ class SyncthingManager:
             print(f"[DEBUG] You can access syncthing with: {syncthing_url}")
             webbrowser.open(syncthing_url, new=0, autoraise=True)
 
+            self.web3mcserver.write_secret_addresses_toml_file(syncthing_address="http://" + address_of_first_tunnel + ":" + port_of_first_tunnel)
+
         else:
             for path in self.web3mcserver.execute(command,
                 cwd="./../"):
@@ -58,8 +60,6 @@ class SyncthingManager:
                 if 'INFO: My name is' in path: # allow it to continue when it sees this string in the output
                     print("[DEBUG] Syncthing running, continuing...")
                     break
-
-        self.web3mcserver.write_secret_addresses_toml_file(syncthing_address="http://" + address_of_first_tunnel + ":" + port_of_first_tunnel)
 
         # Set default folder (to auto accept that folder)
         url = f'{self.web3mcserver.local_syncthing_address}rest/config/defaults/folder'
@@ -95,24 +95,25 @@ class SyncthingManager:
             "maxConflicts": 0, 
         }
         response = requests.put(url, headers=headers, json=data)
-        print(response)
+        print(f"[DEBUG] Set default folder: {response}")
 
         t = threading.Thread(target=self.check_devices)
         t.daemon = True # so this thread ends automatically when main thread ends
         t.start()
 
     def check_devices(self):
-        url = f'{self.web3mcserver.local_syncthing_address}rest/cluster/pending/devices'
-        headers = {'X-API-Key': self.get_api_key()}
-        devices = {}
         while True:
+            url = f'{self.web3mcserver.local_syncthing_address}rest/cluster/pending/devices'
+            headers = {'X-API-Key': self.get_api_key()}
+            devices = {}
             try:
                 response = requests.get(url, headers=headers)
                 response.raise_for_status()
                 data = response.json()
                 if data != devices:
                     print("[DEBUG] New Device wants to connect!")
-                    devices = data
+                    ID_of_peer_that_wants_to_connect = list(data.keys())[0]
+                    self.connect_to_syncthing_peer(ID_of_peer_that_wants_to_connect)
             except requests.exceptions.RequestException as e:
                 print(f"Error: {e}")
             time.sleep(60) # Check every minute
@@ -156,7 +157,7 @@ class SyncthingManager:
             }
         ]
         response = requests.put(url, headers=headers, json=data)
-        print(response)
+        print(f"[DEBUG] add_folders_to_sync: {response}")
 
     def get_my_syncthing_ID(self):
         syncthingDeviceID = subprocess.check_output([self.web3mcserver.bin_path + "/syncthing/syncthing", 
@@ -230,8 +231,6 @@ class SyncthingManager:
         url = f'{self.web3mcserver.local_syncthing_address}rest/config/devices'
         headers = {'X-API-Key': self.get_api_key()}
 
-        print(f"URL: {url}, HEADERS: {headers}")
-
         # folders synced with no conflicts allowed, and staggered versioning
         data = {
             "deviceID": f"{ID}",
@@ -246,6 +245,7 @@ class SyncthingManager:
             "ignoredFolders": []
         }
         response = requests.post(url, headers=headers, json=data)
+        print(f"[DEBUG] connect_to_syncthing_peer: URL: {url}, HEADERS: {headers}, response: {response}")
         
         # make it share the folders witht his device
         
