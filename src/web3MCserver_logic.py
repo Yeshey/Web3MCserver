@@ -146,6 +146,7 @@ class Web3MCserverLogic:
     def execute(self, cmd, cwd = ""):
         # https://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
         print(f"[DEBUG] CWD: {cwd}")
+        print("cmd")
         popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=cwd, universal_newlines=True)
         print(F"[DEBUG] PID: {popen.pid}")
         self.syncthing_process = popen
@@ -297,7 +298,10 @@ class Web3MCserverLogic:
             # Generate a random string of 20 characters
             api_key = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(20))
             # Use the random string as the API key in the default command
-            default_command = f"./bin/linux/syncthing/syncthing --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
+            if platform.system() == 'Windows':
+                default_command = f"./bin/windows/syncthing/syncthing.exe --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
+            else:
+                default_command = f"./bin/linux/syncthing/syncthing --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
             
             playitcli_toml_config = self.playitcli_toml_config_syncthing_server2
         else:

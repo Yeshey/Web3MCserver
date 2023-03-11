@@ -25,8 +25,11 @@ class SyncthingManager:
         print(command)
 
         if with_playitgg:
-            if self.web3mcserver.syncthing_manager.syncthing_active(self.web3mcserver.get_syncthing_server_address(), timeout=3):
-                raise Exception("Shouldn't start while syncthing server is running!")
+            try:
+                if self.web3mcserver.syncthing_manager.syncthing_active(self.web3mcserver.get_syncthing_server_address(), timeout=3):
+                    raise Exception("Shouldn't start while syncthing server is running!")
+            except:
+                print("Syncthing server address doesn't exist yet.")
             for path in self.web3mcserver.execute([self.web3mcserver.bin_path + "/playit-cli", 
                 "launch", 
                 self.web3mcserver.playitcli_toml_config_syncthing_server],
@@ -45,8 +48,6 @@ class SyncthingManager:
             syncthing_url = f"http://{address_of_first_tunnel}:{port_of_first_tunnel}"
             print(f"[DEBUG] You can access syncthing with: {syncthing_url}")
             webbrowser.open(syncthing_url, new=0, autoraise=True)
-            
-            self.web3mcserver.write_secret_addresses_toml_file(syncthing_address="http://" + address_of_first_tunnel + ":" + port_of_first_tunnel)
 
         else:
             for path in self.web3mcserver.execute(command,
@@ -57,6 +58,8 @@ class SyncthingManager:
                 if 'INFO: My name is' in path: # allow it to continue when it sees this string in the output
                     print("[DEBUG] Syncthing running, continuing...")
                     break
+
+        self.web3mcserver.write_secret_addresses_toml_file(syncthing_address="http://" + address_of_first_tunnel + ":" + port_of_first_tunnel)
 
         # Set default folder (to auto accept that folder)
         url = f'{self.web3mcserver.local_syncthing_address}rest/config/defaults/folder'

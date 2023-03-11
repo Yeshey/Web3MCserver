@@ -6,11 +6,11 @@ import tarfile
 import distro
 
 DOWNLOAD_PATHS = {
-    'Windows': ('./bin/windows', [
+    'Windows': (os.path.abspath("./bin/windows"), [
         ('https://github.com/syncthing/syncthing/releases/download/v1.23.1/syncthing-windows-amd64-v1.23.1.zip', 'syncthing.zip'),
         ('https://github.com/playit-cloud/playit-agent/releases/download/v1.0.0-rc2/playit-cli.exe', 'playit-cli.exe')
     ]),
-    'Linux': ('./bin/linux', [
+    'Linux': (os.path.abspath("./bin/linux"), [
         ('https://github.com/syncthing/syncthing/releases/download/v1.23.1/syncthing-linux-amd64-v1.23.1.tar.gz', 'syncthing.tar.gz'),
         ('https://github.com/playit-cloud/playit-agent/releases/download/v1.0.0-rc2/playit-cli', 'playit-cli')
     ]),
@@ -36,6 +36,7 @@ def download_dependencies():
         print('[download_dependencies.py]: Syncthing folder already exists. Skipping download and extraction.')
     else:
         for url, filename in files:
+            extracted_path = None
             file_path = os.path.join(download_path, filename)
             if os.path.exists(file_path):
                 print(f'[download_dependencies.py]: File {filename} already exists. Skipping download.')
@@ -45,14 +46,18 @@ def download_dependencies():
 
             if filename.endswith('.zip'):
                 with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                    extracted_path = zip_ref.namelist()[0] # get the first file/folder inside the zip
                     zip_ref.extractall(download_path)
                 os.remove(file_path)
             elif filename.endswith('.tar.gz'):
                 with tarfile.open(file_path, 'r:gz') as tar_ref:
-                    extracted_path = tar_ref.getnames()[0]
+                    extracted_path = tar_ref.getnames()[0] # get the first file/folder inside the tar.gz
                     tar_ref.extractall(download_path)
                 os.remove(file_path)
-                os.rename(os.path.join(download_path, extracted_path), syncthing_path)
+                
+            if extracted_path is not None:
+                extracted_path = os.path.join(download_path, extracted_path)
+                os.rename(extracted_path, syncthing_path)
 
 #if __name__ == '__main__':
 #    main()
