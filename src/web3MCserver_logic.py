@@ -292,6 +292,9 @@ class Web3MCserverLogic:
 
         server_command_field = "syncthing_server_command"
         server_command = secrets.get(server_command_field, "")
+        
+        playitcli_toml_config = self.playitcli_toml_config_syncthing_server2
+        
 
         # Generate a random string of 20 characters
         api_key = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(20))
@@ -300,14 +303,21 @@ class Web3MCserverLogic:
             default_command = f"./bin/windows/syncthing/syncthing.exe --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
         else:
             default_command = f"./bin/linux/syncthing/syncthing --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
-        
-        playitcli_toml_config = self.playitcli_toml_config_syncthing_server2
-        
+
+        # there was no command there, we need to create a new key
         if not server_command:
             server_command = default_command
             secrets[server_command_field] = default_command
             with open(secrets_file_path, "w") as f:
                 toml.dump(secrets, f)
+        else:
+            if server_command.split()[0] != default_command.split()[0]: # you're in windows running this script that's set for linux?
+                server_command_words = server_command.split()
+                new_command = f"{default_command.split()[0]} {' '.join(server_command_words[1:])}"
+                secrets[server_command_field] = new_command
+                with open(secrets_file_path, "w") as f:
+                    toml.dump(secrets, f)
+
 
         # Extract the port number from the --gui-address argument
         gui_address_arg = [arg for arg in server_command.split() if arg.startswith("--gui-address=")]
