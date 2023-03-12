@@ -1,5 +1,7 @@
 import os
 import string
+import threading
+import time
 import toml
 import random
 
@@ -54,7 +56,14 @@ class CommonConfigFileManager:
             toml.dump(config, f)
 
     def update_common_config_file_periodically(self):
-        pass
+        def run_update():
+            while True:
+                time.sleep(7200)  # sleep for 2 hours
+                self.update_common_config_file(recalculate_server_run_priority=True, Is_Host=self.web3mcserver.isHost)
+        
+        thread = threading.Thread(target=run_update)
+        thread.daemon = True # so this thread ends automatically when main thread ends
+        thread.start()
 
     def my_priority_position_in_common_config_file(self):
         pass

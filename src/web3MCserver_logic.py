@@ -40,6 +40,7 @@ class Web3MCserverLogic:
 
         self.syncthing_process = None # needs to be a list so it is a muttable object
         self.local_syncthing_address = None
+        self.isHost = False
 
         self.server_folder_path = os.path.abspath("./sync/server/")
         self.playitcli_toml_config_main_server = os.path.abspath("./playit-cli_config/main_server_config.toml")
@@ -102,6 +103,7 @@ class Web3MCserverLogic:
 
     def shutting_down_now(self):
         print ('[DEBUG] Terminating...')
+        self.isHost = False
         self.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = False)
 
         # killing remaining processes
@@ -117,6 +119,7 @@ class Web3MCserverLogic:
     def i_will_be_host_now(self, save_main_erver_address_in_secrets = False):
         # Send system notification saying that thes PC will be host now
         print("Becoming Host")
+        self.isHost = True
 
         self.syncthing_manager.wait_for_sync_to_finish() # todo, check https://man.archlinux.org/man/community/syncthing/syncthing-rest-api.7.en
 

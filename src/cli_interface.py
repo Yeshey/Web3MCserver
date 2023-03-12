@@ -53,6 +53,9 @@ class Cli_interface:
             self.web3mcserver.write_secret_playitcli_file(syncthing_secret = True)
         # -------- Create Missing Files & Folders -------- #
 
+        # Update Configuration file every 2 hours
+        self.web3mcserver.common_config_file_manager.update_common_config_file_periodically()
+
         #self.web3mcserver.common_config_file_manager.update_common_config_file()
         #exit()
 
@@ -76,7 +79,6 @@ class Cli_interface:
                     self.instructions_on_how_to_set_their_own_server()
                 self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(with_playitgg = True)
                 self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
-                # Thread that updates configuration file every 2 hours
                 self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = True)
             else:
                 if not self.web3mcserver.file_empty(os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_syncthing_playitcli)):
@@ -97,7 +99,7 @@ class Cli_interface:
                     syncthing_details_to_connect = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
                     self.web3mcserver.syncthing_manager.connect_to_syncthing_peer(syncthing_details_to_connect)
 
-                    # 2 threads, one to update the configuration file every 2 hours, one that is an observer that checks for changes in the confijguration file
+                    # make observer that checks for changes in the confijguration file
                     
                     while True:
                         self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
