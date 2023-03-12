@@ -72,7 +72,6 @@ class Cli_interface:
                 else:
                     self.instructions_on_how_to_set_their_own_server()
                 self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(with_playitgg = True)
-                self.web3mcserver.syncthing_manager.add_folders_to_sync()
                 self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
                 self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = True)
             else:
@@ -90,7 +89,6 @@ class Cli_interface:
                         time.sleep(30)
 
                     self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(with_playitgg = False)
-                    self.web3mcserver.syncthing_manager.add_folders_to_sync()
 
                     syncthing_details_to_connect = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
                     self.web3mcserver.syncthing_manager.connect_to_syncthing_peer(syncthing_details_to_connect)
