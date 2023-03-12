@@ -99,7 +99,13 @@ class Cli_interface:
                     syncthing_details_to_connect = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
                     self.web3mcserver.syncthing_manager.connect_to_syncthing_peer(syncthing_details_to_connect)
 
-                    # make observer that checks for changes in the confijguration file
+                    # Next steps:
+                    # Make the update common config file also check for errors, like multiple hosts or if the host machine isn't connected.
+                    # you should use the endpoint here: curl -X GET -H "X-API-Key: tOGFgTtkLAo7BNlrC6jT" http://released-frames.at.ply.gg:61664/rest/system/connections
+                    # to check witch peers are online.
+                    # make observer that checks for changes in the confijguration file, if changes are detected then, you should check if we're going to get new host,
+                    # if yes, check witch machine is going to be the host.
+                    # If I'm not going to be the host, do nothing, else, gotta kill and restart syncthing with playitcli
                     
                     while True:
                         self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
