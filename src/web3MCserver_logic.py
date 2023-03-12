@@ -29,7 +29,6 @@ class Web3MCserverLogic:
     playitcli_toml_config_syncthing_server = "./playit-cli_config/syncthing_server_config.toml"
     playitcli_toml_config_syncthing_server2 = "./../playit-cli_config/syncthing_server_config.toml"
     syncthing_config = "./../syncthing_config"
-    common_config_file_path = "./../sync/common_conf.toml"
 
     def __init__(self):
 
@@ -45,6 +44,7 @@ class Web3MCserverLogic:
         self.server_folder_path = os.path.abspath("./sync/server/")
         self.playitcli_toml_config_main_server = os.path.abspath("./playit-cli_config/main_server_config.toml")
         self.sync_folder_path = os.path.abspath("./sync/")
+        self.common_config_file_path = os.path.abspath("./sync/common_conf.toml")
         #print(f"[DEBUG] {self.playitcli_toml_config_main_server}")
 
 
@@ -128,7 +128,6 @@ class Web3MCserverLogic:
         except Exception:
             server_address = "/First time running, please check secrets/secret_addresses.toml/"
         notification.message = f"server address: {server_address}"
-
         notification.send()
 
         # Start the server

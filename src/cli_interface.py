@@ -10,7 +10,8 @@ class Cli_interface:
         # constructor logic here
 
     def instructions_on_how_to_set_their_own_server(self):
-        print("[INFO] Put your executable in ./server folder and change the command to run the program in ./playit-cli_config/config.toml")
+        print("[INFO] Put your executable in ./sync/server folder and change the command to run the program in ./playit-cli_config/main_server_config.toml")
+        print("[INFO] You just need to change the fields \"command\" and \"command_args\"")
 
     def ask_question(self, question):
         while True:
@@ -56,6 +57,7 @@ class Cli_interface:
         #exit()
 
         if self.web3mcserver.common_config_file_manager.is_new_node(): # todo implement
+            print("[INFO] New Node!")
             if self.ask_question("Do you want to create a new distributed server?"):
                 if not self.web3mcserver.file_empty(os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_syncthing_playitcli)):
                     if not self.ask_question("secrets file not empty, use current secret?"):
@@ -64,20 +66,22 @@ class Cli_interface:
                     self.process_of_making_new_playitcli_secret()
                 if not self.web3mcserver.files_exist_in_server_folder():
                     if self.ask_question("Do you want a Minecraft server? (1.19.3)"):
-                        print("Downloading Minecraft server...")
+                        print("[INFO] Downloading Minecraft server...")
                         self.web3mcserver.download_minecraft_server()
-                        print("Minecraft server downloaded.")
+                        print("[INFO] Minecraft server downloaded.")
                     else:
                         self.instructions_on_how_to_set_their_own_server()
                 else:
+                    print("[INFO] Files exist in server folder, make sure the following steps were taken for it to work:")
                     self.instructions_on_how_to_set_their_own_server()
                 self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(with_playitgg = True)
                 self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
+                # Thread that updates configuration file every 2 hours
                 self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = True)
             else:
                 if not self.web3mcserver.file_empty(os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_syncthing_playitcli)):
                     if self.web3mcserver.files_exist_in_server_folder():
-                        if self.ask_question("Files have been found in server folder, they need to be deleted to continue. Proceed?"):
+                        if self.ask_question("[WARNING] Files have been found in server folder, they need to be deleted to continue. Proceed?"):
                             self.web3mcserver.delete_files_inside_server_folder()
                         else:
                             print("[INFO] Exiting...")
@@ -93,12 +97,15 @@ class Cli_interface:
                     syncthing_details_to_connect = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
                     self.web3mcserver.syncthing_manager.connect_to_syncthing_peer(syncthing_details_to_connect)
 
+                    # 2 threads, one to update the configuration file every 2 hours, one that is an observer that checks for changes in the confijguration file
+                    
                     while True:
                         self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
                         time.sleep(30)
                 else:
                     print("Add the secrets file")
         else:
+            print("[INFO] Not New Node")
             if not self.web3mcserver.syncthing_manager.exist_tunnels_with_this_secret():
                 print("no secrets file found or this account has no tunnels active, exiting")
                 return

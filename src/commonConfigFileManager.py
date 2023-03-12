@@ -5,26 +5,26 @@ import random
 
 class CommonConfigFileManager:
     def __init__(self, web3mcserverLogic):
-        self.web3mcserverLogic = web3mcserverLogic
+        self.web3mcserver = web3mcserverLogic
 
     def update_common_config_file(self, recalculate_server_run_priority, Is_Host = None):
         # recalculate_server_run_priority: True or false
         # Is_Host = None, True False, if nothing given, keep as it was.
 
         # Check if the folder exists, create it if necessary
-        folder_path = os.path.dirname(self.web3mcserverLogic.common_config_file_path)
+        folder_path = os.path.dirname(self.web3mcserver.common_config_file_path)
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         
         # Check if the file exists, load it if necessary
-        if os.path.exists(self.web3mcserverLogic.common_config_file_path):
-            with open(self.web3mcserverLogic.common_config_file_path, 'r') as f:
+        if os.path.exists(self.web3mcserver.common_config_file_path):
+            with open(self.web3mcserver.common_config_file_path, 'r') as f:
                 config = toml.load(f)
         else:
             config = {}
 
         try:
-            syncthingDeviceID = self.web3mcserverLogic.syncthing_manager.get_my_syncthing_ID()
+            syncthingDeviceID = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
         except RuntimeError as e:
             print("[DEBUG] Syncthing config doesn't exist yet: ", e)
             return
@@ -36,7 +36,7 @@ class CommonConfigFileManager:
                 machine_exists = True
                 # Update the existing machine's information
                 if recalculate_server_run_priority:
-                    machine['server_run_priority'] = self.web3mcserverLogic.test_machine()
+                    machine['server_run_priority'] = self.web3mcserver.test_machine()
                 machine['Is_Host'] = Is_Host if Is_Host is not None else machine['Is_Host']
                 break
 
@@ -45,12 +45,12 @@ class CommonConfigFileManager:
             new_machine = {
                 'ID': syncthingDeviceID,
                 'Is_Host': Is_Host if Is_Host is not None else False,
-                'server_run_priority': self.web3mcserverLogic.test_machine()
+                'server_run_priority': self.web3mcserver.test_machine()
             }
             config.setdefault('machines', []).append(new_machine)
 
         # Save the updated config to file
-        with open(self.web3mcserverLogic.common_config_file_path, 'w') as f:
+        with open(self.web3mcserver.common_config_file_path, 'w') as f:
             toml.dump(config, f)
 
     def update_common_config_file_periodically(self):
@@ -69,4 +69,22 @@ class CommonConfigFileManager:
         pass
 
     def is_new_node(self):
+        try:
+            ID = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
+        except:
+            return True
+
+        print(self.web3mcserver.common_config_file_path)
+
+        if not os.path.exists(self.web3mcserver.common_config_file_path):
+            with open(self.web3mcserver.common_config_file_path, 'w') as f:
+                f.write('')
+
+        with open(self.web3mcserver.common_config_file_path) as f:
+            machines = toml.load(f).get("machines", [])
+
+        for machine in machines:
+            if machine.get("ID") == ID:
+                return False
+
         return True
