@@ -265,4 +265,17 @@ class SyncthingManager:
         pass
 
     def wait_for_sync_to_finish(self):
-        pass
+        url = f'{self.web3mcserver.local_syncthing_address}rest/db/completion'
+        headers = {'X-API-Key': self.get_api_key()}
+
+        time.sleep(3)
+        while True:
+            response = requests.get(url, headers=headers)
+            data = response.json()
+            completion = data.get('completion')
+            if completion == 100:
+                break
+            else:
+                time.sleep(3)
+                
+        print("[DEBUG] Sync compleate!")

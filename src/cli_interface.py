@@ -63,7 +63,7 @@ class Cli_interface:
                 else:
                     self.process_of_making_new_playitcli_secret()
                 if not self.web3mcserver.files_exist_in_server_folder():
-                    if self.ask_question("Do you want a Minecraft server?"):
+                    if self.ask_question("Do you want a Minecraft server? (1.19.3)"):
                         print("Downloading Minecraft server...")
                         self.web3mcserver.download_minecraft_server()
                         print("Minecraft server downloaded.")
