@@ -106,6 +106,17 @@ class Cli_interface:
                     # make observer that checks for changes in the confijguration file, if changes are detected then, you should check if we're going to get new host,
                     # if yes, check witch machine is going to be the host.
                     # If I'm not going to be the host, do nothing, else, gotta kill and restart syncthing with playitcli
+                    '''
+	1. Make update common config file as soon as it starts check if tge syncthing ID of the syncthing server is the same as it's saying is the host in the configuration file if there is even any isHost in the configuration file. Fix the configuration file if need be
+
+In the thread that's observing the common config file:
+If there is a change, check if there is no host OR if we get no response from server, if yes tehn:
+    Check from online peers and server_priority who'll be the new host. (If it is me, then the thread should end and I should catch it with a join in the main code to then kill off syncthing and do everything again.)  
+If I AM HOST NOW - Call function to kill syncthing and minecraft servers if needed and call i_am_host and other appropriate functions (the I_am_host method should make also a thread that checks if he should keep being host or not, if not, it should call this function with the parameter not-host.
+
+If it isn't me the new host, then timeout 30 * the place in the queuthat I am, if server isn't active by the end of the countdown I am gonna be host now 
+
+                    '''
                     
                     while True:
                         self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
