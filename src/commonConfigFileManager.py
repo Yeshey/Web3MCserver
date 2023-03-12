@@ -31,6 +31,15 @@ class CommonConfigFileManager:
             print("[DEBUG] Syncthing config doesn't exist yet: ", e)
             return
 
+        # clean up the ones that are not host and claim they are () on second thought, we don't even need the isHost right? we can just check...
+        for machine in config.get('machines', []):
+            if machine.get('Is_Host') == True:
+                try:
+                    if self.web3mcserver.syncthing_mnager.get_remote_syncthing_ID() != machine.get('ID'):
+                        machine['Is_Host'] = False
+                except: # not online
+                    machine['Is_Host'] = False
+
         # Check if a machine with the same ID already exists in the config
         machine_exists = False
         for machine in config.get('machines', []):
@@ -56,6 +65,7 @@ class CommonConfigFileManager:
             toml.dump(config, f)
 
     def update_common_config_file_periodically(self):
+        # should skip if in the process of choosing new host
         def run_update():
             while True:
                 time.sleep(7200)  # sleep for 2 hours

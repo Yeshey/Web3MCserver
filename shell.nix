@@ -13,6 +13,7 @@ let
     psutil
     speedtest-cli
     requests
+    watchdog
     # pandas
     # beautifulsoup4
     # requests

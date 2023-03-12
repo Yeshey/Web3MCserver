@@ -16,6 +16,8 @@ import speedtest
 import psutil
 import random
 import string
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 class Web3MCserverLogic:
     # Define the directory path
@@ -421,11 +423,24 @@ class Web3MCserverLogic:
         else:
             print(f"[DEBUG] {self.server_path} does not exist")
 
-    def observer_is_triggered_and_server_is_not_running(self):
-        pass
-
     def there_are_active_tunnels(self):
         pass
 
     class FatalError(Exception):
         pass
+
+    def observer_of_common_conf_file_thread(self):
+        event_handler = CommonConfigFileHandler()
+        observer = Observer()
+        observer.schedule(event_handler, path=self.web3mcserver.common_config_file_path)
+        observer.start()
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            observer.stop()
+        observer.join()
+
+class CommonConfigFileHandler(FileSystemEventHandler):
+    def on_modified(self, event):
+        print("File changed")
