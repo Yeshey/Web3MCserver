@@ -78,6 +78,7 @@ class CommonConfigFileManager:
         pass
 
     def is_new_node(self):
+        return True
         try:
             ID = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
         except:
