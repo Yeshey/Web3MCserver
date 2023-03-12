@@ -55,7 +55,7 @@ class Cli_interface:
         #self.web3mcserver.common_config_file_manager.update_common_config_file()
         #exit()
 
-        if self.web3mcserver.common_config_file_manager.is_new_node_and_update_common_config_file(): # todo implement
+        if self.web3mcserver.common_config_file_manager.is_new_node(): # todo implement
             if self.ask_question("Do you want to create a new distributed server?"):
                 if not self.web3mcserver.file_empty(os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_syncthing_playitcli)):
                     if not self.ask_question("secrets file not empty, use current secret?"):

@@ -89,15 +89,30 @@ class Web3MCserverLogic:
     def set_exit_function(self):
         atexit.register(self.shutting_down_now)
 
+    def file_has_field(self, file, field):
+        # Load the TOML file into a dictionary
+        with open(file, 'r') as f:
+            secrets = toml.load(f)
+
+        # Check if the "syncthing_server_command" field is present in the dictionary
+        if field in secrets:
+            return True
+        else:
+            return False
+
     def shutting_down_now(self):
         print ('[DEBUG] Terminating...')
         self.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = False)
-        self.syncthing_manager.wait_for_sync_to_finish()
 
         # killing remaining processes
-        if self.syncthing_manager.syncthing_active(self.local_syncthing_address):
-            print("[DEBUG] Killing syncthing")
-            self.syncthing_manager.terminate_syncthing(self.local_syncthing_address, self.syncthing_process)
+        if self.file_has_field(file = os.path.join(self.secrets_path, self.secret_addresses_file_name), field = "syncthing_server_command"):
+            if self.syncthing_manager.syncthing_active(self.local_syncthing_address):
+                print("[DEBUG] waiting to finish sync")
+                self.syncthing_manager.wait_for_sync_to_finish()
+                print("[DEBUG] Killing syncthing")
+                self.syncthing_manager.terminate_syncthing(self.local_syncthing_address, self.syncthing_process)
+        else:
+            print("Syncthing server address doesn't exist yet!")
 
     def i_will_be_host_now(self, save_main_erver_address_in_secrets = False):
         # Send system notification saying that thes PC will be host now

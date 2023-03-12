@@ -17,20 +17,18 @@ class SyncthingManager:
 
         # todo: to make it more secure you should add password and user. But it seems like you'd need to stop syncthing and run some commands and start again
         # https://docs.syncthing.net/users/faq.html#how-do-i-reset-the-gui-password
-        
-        self.add_folders_to_sync()
 
         # build toml playit config file for syncthing with the secrets syncthing command, create the syncthing secrets command if doesn't exist
         # also returns the command to run
         command = self.web3mcserver.update_playit_syncthing_config_command_from_secrets()
 
         if with_playitgg:
-            try:
+            if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
                 local_address = self.web3mcserver.get_syncthing_server_address()
                 if self.web3mcserver.syncthing_manager.syncthing_active(local_address, timeout=3):
                     raise Exception("Shouldn't start while syncthing server is running!")
-            except:
-                print("Syncthing server address doesn't exist yet.")
+            else:
+                print("Syncthing server address doesn't exist yet.")    
 
             for path in self.web3mcserver.execute([self.web3mcserver.bin_path + "/playit-cli", 
                 "launch", 
@@ -98,6 +96,9 @@ class SyncthingManager:
         }
         response = requests.put(url, headers=headers, json=data)
         print(f"[DEBUG] Set default folder: {response}")
+
+        # Add the sync folder
+        self.add_folders_to_sync()
 
         t = threading.Thread(target=self.check_devices)
         t.daemon = True # so this thread ends automatically when main thread ends
