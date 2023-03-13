@@ -24,8 +24,8 @@ class SyncthingManager:
 
         if with_playitgg:
             if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
-                local_address = self.web3mcserver.get_syncthing_server_address()
-                if self.web3mcserver.syncthing_manager.syncthing_active(local_address, timeout=3):
+                remote_address = self.web3mcserver.get_syncthing_server_address()
+                if self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=3):
                     raise Exception("Shouldn't start while syncthing server is running!")
             else:
                 print("Syncthing server address doesn't exist yet.")    
@@ -204,8 +204,12 @@ class SyncthingManager:
             print(f"[DEBUG] {response.text}")
         except:
             try:
-                print("[DEBUG] Couldn't kill syncthing, trying again...")
-                os.killpg(os.getpgid(syncthing_process.pid), signal.SIGTERM)
+                print(syncthing_process.pid)
+                print(os.getpid())
+                #if os.getpid() != syncthing_process.pid and syncthing_process is not None:
+                #    os.killpg(os.getpgid(syncthing_process.pid), signal.SIGTERM)
+                #else:
+                raise Exception("No pid?")
             except:
                 print(f"[DEBUG] Failed to kill syncthing, kill it manually. Address: {syncthing_address}")
                 syncthing_process.terminate() # doesn't seem to do anything?
@@ -223,15 +227,22 @@ class SyncthingManager:
         #print(f"[DEBUG] API KEY: {syncthingApiKey}, remoteSyncthingAddress: {remoteSyncthingAddress}, remoteSyncthingID: {my_id}")
         return my_id
 
-    def syncthing_active(self, syncthing_address, timeout = 30):
+    def syncthing_active(self, syncthing_address, timeout = 10):
         #remoteSyncthingAddress = self.web3mcserver.get_syncthing_server_address()
         secret = self.get_api_key() # Replace with your actual secret key
         headers = {'X-API-Key': secret}
-        try:
-            response = requests.get(f"{syncthing_address}/rest/system/ping", headers=headers, timeout=timeout)
-            return response.status_code == 200
-        except requests.exceptions.RequestException:
-            return False
+
+        for i in range(3):
+            try:
+                response = requests.get(f"{syncthing_address}/rest/system/ping", headers=headers, timeout=timeout)
+                if response.status_code == 200:
+                    return True
+            except requests.exceptions.RequestException:
+                print("[DEBUG] no remote syncthing detected, trying twice more")
+            
+            time.sleep(3)
+
+        return False
 
     def connect_to_syncthing_peer(self, ID):
 
@@ -271,7 +282,6 @@ class SyncthingManager:
         url = f'{self.web3mcserver.local_syncthing_address}rest/db/completion'
         headers = {'X-API-Key': self.get_api_key()}
 
-        time.sleep(3)
         while True:
             response = requests.get(url, headers=headers)
             data = response.json()

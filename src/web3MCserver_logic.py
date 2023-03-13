@@ -1,4 +1,7 @@
+from asyncio import Lock
 from enum import Flag
+from multiprocessing import RLock
+import threading
 from .playitCliManager import PlayitCliManager
 from .syncthingManager import SyncthingManager
 from .commonConfigFileManager import CommonConfigFileManager
@@ -429,18 +432,46 @@ class Web3MCserverLogic:
     class FatalError(Exception):
         pass
 
-    def observer_of_common_conf_file_thread(self):
-        event_handler = CommonConfigFileHandler()
+    def observer_of_common_conf_file(self):
+        event = threading.Event()
+        event_handler = CommonConfigFileHandler(event, self)
         observer = Observer()
-        observer.schedule(event_handler, path=self.web3mcserver.common_config_file_path)
+        observer.schedule(event_handler, path=self.common_config_file_path, recursive=False)
         observer.start()
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            observer.stop()
+
+        event.wait()  # Wait for event to be set
+        event.clear()  # Reset event
+        print("Continuing main thread execution...")
+        # Add your code here to continue main thread execution
+
+        observer.stop()
         observer.join()
 
 class CommonConfigFileHandler(FileSystemEventHandler):
+    def __init__(self, event, web3mcserver):
+        self.event = event
+        self.web3mcserver = web3mcserver
+        self.last_modified_time = time.time() - 5
+        self.lock = RLock()
+
     def on_modified(self, event):
-        print("File changed")
+        # prevent event bombardment
+        with self.lock:
+            current_time = time.time()
+            if current_time - self.last_modified_time < 5: # only one event every 5 seconds permited
+                print("[DEBUG] File changed too soon, skipping")
+                return
+        self.last_modified_time = time.time()
+
+        print("[DEBUG] File changed")
+        field = "syncthing_server_command"
+        if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = field):
+            remote_address = self.web3mcserver.get_syncthing_server_address()
+            if not self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=3):
+                self.event.set() # stops the observer and continues main thread code
+            else:
+                print("[DEBUG] No new Host needed")
+        else:
+            raise Exception(f"Where is the field {field}?")
+
+        

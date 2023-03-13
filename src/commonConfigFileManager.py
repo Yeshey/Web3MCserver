@@ -13,6 +13,8 @@ class CommonConfigFileManager:
         # recalculate_server_run_priority: True or false
         # Is_Host = None, True False, if nothing given, keep as it was.
 
+        self.web3mcserver.isHost = Is_Host if Is_Host is not None else self.web3mcserver.isHost
+
         # Check if the folder exists, create it if necessary
         folder_path = os.path.dirname(self.web3mcserver.common_config_file_path)
         if not os.path.exists(folder_path):
@@ -76,9 +78,6 @@ class CommonConfigFileManager:
         thread.start()
 
     def my_priority_position_in_common_config_file(self):
-        pass
-
-    def new_node_and_update_common_config_file(self):
         pass
 
     def mark_other_machines_as_not_online(self):
