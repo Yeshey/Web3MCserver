@@ -9,7 +9,7 @@ class CommonConfigFileManager:
     def __init__(self, web3mcserverLogic):
         self.web3mcserver = web3mcserverLogic
 
-    def update_common_config_file(self, recalculate_server_run_priority, Is_Host = None):
+    def update_common_config_file(self, recalculate_server_run_priority, Is_Host = None): # todo, make thread safe?
         # recalculate_server_run_priority: True or false
         # Is_Host = None, True False, if nothing given, keep as it was.
 
@@ -76,6 +76,25 @@ class CommonConfigFileManager:
         thread = threading.Thread(target=run_update)
         thread.daemon = True # so this thread ends automatically when main thread ends
         thread.start()
+
+    def my_order_in_server_host_priority(self):
+        # Get my ID
+        my_id = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
+        online_peers = self.web3mcserver.syncthing_manager.online_peers()
+        print(f"[DEBUG] Online peers: {online_peers}")
+        
+        # Load the config file
+        with open(self.web3mcserver.common_config_file_path) as f:
+            config = toml.load(f)
+            
+        # Find the online host with highest priority
+        host = max(config["machines"], key=lambda m: m["server_run_priority"] if m["ID"] in online_peers else float("-inf"))
+        
+        # Determine own order in server host priority
+        if host["ID"] == my_id:
+            return 0
+        else:
+            return sum(1 for m in config["machines"] if m["server_run_priority"] > host["server_run_priority"] and m["ID"] in online_peers)
 
     def my_priority_position_in_common_config_file(self):
         pass

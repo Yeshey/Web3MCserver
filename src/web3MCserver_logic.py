@@ -53,6 +53,9 @@ class Web3MCserverLogic:
         self.common_config_file_path = os.path.abspath("./sync/common_conf.toml")
         #print(f"[DEBUG] {self.playitcli_toml_config_main_server}")
 
+        self.my_lock = threading.Lock()
+        with self.my_lock:
+            self.terminating = False
 
         # ======= Figuring out witch platform I'm running on ======= #
         base_path = os.path.dirname(os.path.abspath(__file__))
@@ -107,6 +110,8 @@ class Web3MCserverLogic:
             return False
 
     def shutting_down_now(self):
+        with self.my_lock:
+            self.terminating = True
         print ('[DEBUG] Terminating...')
         self.isHost = False
         self.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = False)
@@ -380,7 +385,7 @@ class Web3MCserverLogic:
 
 # ============== Secrets File Management ==============
 
-    def test_machine(self):
+    def test_machine(self): # todo, if device is on battery, then it should do from -100 to 0 instead
         print("[DEBUG] Calculating Machine performance...")
         try:
             # Get internet speed score
@@ -454,7 +459,7 @@ class CommonConfigFileHandler(FileSystemEventHandler):
         self.last_modified_time = time.time() - 5
         self.lock = RLock()
 
-    def on_modified(self, event):
+    def on_modified(self, event): # todo, there should be a way so that when there is an exception here, the whole program stops
         # prevent event bombardment
         with self.lock:
             current_time = time.time()
@@ -462,13 +467,25 @@ class CommonConfigFileHandler(FileSystemEventHandler):
                 print("[DEBUG] File changed too soon, skipping")
                 return
         self.last_modified_time = time.time()
+        
+        if self.web3mcserver.terminating:
+            print("[DEBUG] File changed, but terminating, skipping")
+            return
 
         print("[DEBUG] File changed")
         field = "syncthing_server_command"
         if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = field):
             remote_address = self.web3mcserver.get_syncthing_server_address()
+            print(self.web3mcserver.common_config_file_manager.my_order_in_server_host_priority())
+            
             if not self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=3):
-                self.event.set() # stops the observer and continues main thread code
+                print(self.web3mcserver.common_config_file_manager.my_order_in_server_host_priority())
+                #if self.web3mcserver.common_config_file_manager.my_order_in_server_host_priority():
+
+                if self.terminating:
+                    print("[DEBUG] File changed, but terminating, skipping")
+                    return
+                #    self.event.set() # stops the observer and continues main thread code
             else:
                 print("[DEBUG] No new Host needed")
         else:

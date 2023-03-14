@@ -7,6 +7,7 @@ import toml
 import requests
 import threading
 import time
+import urllib.request
 
 class SyncthingManager:
     def __init__(self, web3mcserver):
@@ -226,8 +227,21 @@ class SyncthingManager:
         my_id = response_json["myID"]
         #print(f"[DEBUG] API KEY: {syncthingApiKey}, remoteSyncthingAddress: {remoteSyncthingAddress}, remoteSyncthingID: {my_id}")
         return my_id
+        
+    def internet_on(self):
+        try:
+            urllib.request.urlopen("http://google.com") #Python 3.x
+            return True
+        except:
+            try:
+                urllib.request.urlopen("https://www.bing.com") #Python 3.x
+                return True
+            except:
+                return False
 
     def syncthing_active(self, syncthing_address, timeout = 10):
+        if not self.internet_on():
+            raise Exception("No internet!")
         #remoteSyncthingAddress = self.web3mcserver.get_syncthing_server_address()
         secret = self.get_api_key() # Replace with your actual secret key
         headers = {'X-API-Key': secret}
@@ -238,7 +252,7 @@ class SyncthingManager:
                 if response.status_code == 200:
                     return True
             except requests.exceptions.RequestException:
-                print("[DEBUG] no remote syncthing detected, trying twice more")
+                print(f"[DEBUG] no remote syncthing detected, trying {3-i} more")
             
             time.sleep(3)
 
@@ -268,6 +282,17 @@ class SyncthingManager:
         
         # make it share the folders witht his device
         
+    def online_peers(self):
+        url = f'{self.web3mcserver.local_syncthing_address}rest/system/connections'
+        headers = {'X-API-Key': self.get_api_key()}
+        response = requests.get(url, headers=headers)
+
+        if response.status_code != 200:
+            raise Exception(f'Failed to get connections: {response.content}')
+
+        connections = response.json().get('connections', {})
+        online_ids = [id for id, conn in connections.items() if conn.get('connected')]
+        return online_ids
 
     def exist_tunnels_with_this_secret(self):
         pass

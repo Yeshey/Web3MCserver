@@ -29,6 +29,7 @@ Distributed Minecraft server to run always on the available PC
 
 - [Pin nixpkgs](https://nix.dev/tutorials/towards-reproducibility-pinning-nixpkgs#pinning-nixpkgs)
 - Check a working playit-gg tunnel configuration from the website:
+- Compile executables (look for Cpython)
 
 | Address              | communications-de.craft.ply.gg  |
 | -------------------- | ------------------------------- |
