@@ -56,6 +56,7 @@ class Web3MCserverLogic:
         self.my_lock = threading.Lock()
         with self.my_lock:
             self.terminating = False
+            self.peerDisconnected = None
 
         # ======= Figuring out witch platform I'm running on ======= #
         base_path = os.path.dirname(os.path.abspath(__file__))

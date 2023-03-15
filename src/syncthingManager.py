@@ -1,4 +1,5 @@
 from email import header
+import re
 import signal
 import webbrowser
 import subprocess
@@ -15,7 +16,25 @@ class SyncthingManager:
 
     def run_syncthing(self, command, cwd):
         #subprocess.run(command, cwd=cwd)
-        subprocess.Popen(command, cwd=cwd, preexec_fn=os.setpgrp)
+        #subprocess.Popen(command, cwd=cwd, preexec_fn=os.setpgrp)
+        for path in self.web3mcserver.execute([self.web3mcserver.bin_path + "/playit-cli", 
+                        "launch", 
+                        self.web3mcserver.playitcli_toml_config_syncthing_server],
+                        cwd="./../"):
+            print(path, end="")
+            if 'Access the GUI via the following URL:' in path:
+                self.web3mcserver.local_syncthing_address = path.split()[-1]
+            if "INFO: Connection to" in path and "closed: closed by remote" in path:
+                # extract the ID of the remote machine using string manipulation
+                pattern = r'Connection to (\w+-\w+-\w+-\w+-\w+-\w+-\w+-\w+)'
+                match = re.search(pattern, path)
+                if match:
+                    id = match.group(1)
+                    self.web3mcserver.peerDisconnected = id
+                    print(f"[DEBUG] Online peer disconnected, its ID: {id}")
+                else:
+                    raise Exception("ID not found in input string")
+
 
     def launch_syncthing_in_separate_thread(self, with_playitgg):
         print("[DEBUG] Starting Syncthing server in tunnel...")
@@ -41,9 +60,10 @@ class SyncthingManager:
                 self.web3mcserver.playitcli_toml_config_syncthing_server], 
                 "./../"))
             t.start()
-            self.web3mcserver.local_syncthing_address = "http://127.0.0.1:23840/" # find better way for this too
+            #self.web3mcserver.local_syncthing_address = "http://127.0.0.1:23840/" # find better way for this too
 
-            time.sleep(10) # give syncthing time to start (find a better way)
+            while self.web3mcserver.local_syncthing_address == None:
+                time.sleep(1) # give syncthing time to start (find a better way)
 
             '''for path in self.web3mcserver.execute([self.web3mcserver.bin_path + "/playit-cli", 
                 "launch", 
@@ -67,6 +87,15 @@ class SyncthingManager:
             self.web3mcserver.write_secret_addresses_toml_file(syncthing_address="http://" + address_of_first_tunnel + ":" + port_of_first_tunnel)
 
         else:
+            # tmp trying another way
+            t = threading.Thread(target=self.run_syncthing, args=(command, "./../"))
+            t.start()
+            #self.web3mcserver.local_syncthing_address = "http://127.0.0.1:23840/" # find better way for this too
+
+            while self.web3mcserver.local_syncthing_address == None:
+                time.sleep(1) # give syncthing time to start (find a better way)
+
+
             '''for path in self.web3mcserver.execute(command,
                 cwd="./../"):
                 print(path, end="")
@@ -75,15 +104,6 @@ class SyncthingManager:
                 if 'INFO: My name is' in path: # allow it to continue when it sees this string in the output
                     print("[DEBUG] Syncthing running, continuing...")
                     break'''
-            # tmp trying another way
-            t = threading.Thread(target=self.run_syncthing, args=([self.web3mcserver.bin_path + "/playit-cli", 
-                "launch", 
-                self.web3mcserver.playitcli_toml_config_syncthing_server], 
-                "./../"))
-            t.start()
-            self.web3mcserver.local_syncthing_address = "http://127.0.0.1:23840/" # find better way for this too
-
-            time.sleep(10) # give syncthing time to start (find a better way)
 
         # Set default folder (to auto accept that folder)
         url = f'{self.web3mcserver.local_syncthing_address}rest/config/defaults/folder'
@@ -334,6 +354,7 @@ class SyncthingManager:
         response = requests.post(urlScan, headers=headers) # cause it to rescan
         print(f"[DEBUG] {response}")
 
+        time.sleep(100)
         while True:
             response = requests.get(url, headers=headers)
             data = response.json()
