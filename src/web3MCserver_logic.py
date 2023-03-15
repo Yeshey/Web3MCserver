@@ -476,16 +476,28 @@ class CommonConfigFileHandler(FileSystemEventHandler):
         field = "syncthing_server_command"
         if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = field):
             remote_address = self.web3mcserver.get_syncthing_server_address()
+
             print(self.web3mcserver.common_config_file_manager.my_order_in_server_host_priority())
             
             if not self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=3):
-                print(self.web3mcserver.common_config_file_manager.my_order_in_server_host_priority())
-                #if self.web3mcserver.common_config_file_manager.my_order_in_server_host_priority():
+                num_in_queue = self.web3mcserver.common_config_file_manager.my_order_in_server_host_priority()
+                interval_time = 30
+
+                if num_in_queue == 0:
+                    self.event.set()
+                    return
+
+                for _ in range(num_in_queue):
+                    time.sleep(interval_time)
+                    if self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=3):
+                        print("[DEBUG] server running already, oki")
+                        return
 
                 if self.terminating:
                     print("[DEBUG] File changed, but terminating, skipping")
                     return
-                #    self.event.set() # stops the observer and continues main thread code
+
+                self.event.set() # stops the observer and continues main thread code
             else:
                 print("[DEBUG] No new Host needed")
         else:
