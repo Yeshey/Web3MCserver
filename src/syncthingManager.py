@@ -41,7 +41,9 @@ class SyncthingManager:
                 self.web3mcserver.playitcli_toml_config_syncthing_server], 
                 "./../"))
             t.start()
-            self.web3mcserver.local_syncthing_address = "http://127.0.0.1:23840/"
+            self.web3mcserver.local_syncthing_address = "http://127.0.0.1:23840/" # find better way for this too
+
+            time.sleep(10) # give syncthing time to start (find a better way)
 
             '''for path in self.web3mcserver.execute([self.web3mcserver.bin_path + "/playit-cli", 
                 "launch", 
@@ -65,14 +67,23 @@ class SyncthingManager:
             self.web3mcserver.write_secret_addresses_toml_file(syncthing_address="http://" + address_of_first_tunnel + ":" + port_of_first_tunnel)
 
         else:
-            for path in self.web3mcserver.execute(command,
+            '''for path in self.web3mcserver.execute(command,
                 cwd="./../"):
                 print(path, end="")
                 if 'Access the GUI via the following URL:' in path:
                     self.web3mcserver.local_syncthing_address = path.split()[-1]
                 if 'INFO: My name is' in path: # allow it to continue when it sees this string in the output
                     print("[DEBUG] Syncthing running, continuing...")
-                    break
+                    break'''
+            # tmp trying another way
+            t = threading.Thread(target=self.run_syncthing, args=([self.web3mcserver.bin_path + "/playit-cli", 
+                "launch", 
+                self.web3mcserver.playitcli_toml_config_syncthing_server], 
+                "./../"))
+            t.start()
+            self.web3mcserver.local_syncthing_address = "http://127.0.0.1:23840/" # find better way for this too
+
+            time.sleep(10) # give syncthing time to start (find a better way)
 
         # Set default folder (to auto accept that folder)
         url = f'{self.web3mcserver.local_syncthing_address}rest/config/defaults/folder'
@@ -316,8 +327,12 @@ class SyncthingManager:
         pass
 
     def wait_for_sync_to_finish(self):
+        urlScan = f'{self.web3mcserver.local_syncthing_address}rest/db/scan\?folder\=sync'
         url = f'{self.web3mcserver.local_syncthing_address}rest/db/completion'
         headers = {'X-API-Key': self.get_api_key()}
+
+        response = requests.post(urlScan, headers=headers) # cause it to rescan
+        print(f"[DEBUG] {response}")
 
         while True:
             response = requests.get(url, headers=headers)
