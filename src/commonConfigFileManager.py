@@ -71,7 +71,7 @@ class CommonConfigFileManager:
         def run_update():
             while True:
                 time.sleep(7200)  # sleep for 2 hours
-                self.update_common_config_file(recalculate_server_run_priority=True, Is_Host=self.web3mcserver.isHost)
+                self.update_common_config_file(recalculate_server_run_priority=True, Is_Host=None)
         
         thread = threading.Thread(target=run_update)
         thread.daemon = True # so this thread ends automatically when main thread ends

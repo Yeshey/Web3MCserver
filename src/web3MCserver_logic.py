@@ -185,7 +185,7 @@ class Web3MCserverLogic:
                 if return_code:
                     raise subprocess.CalledProcessError(return_code, cmd)
             yield stdout_line 
-        popen.stdout.close()    
+        popen.stdout.close()
         return_code = popen.wait()
         if return_code:
             raise subprocess.CalledProcessError(return_code, cmd)

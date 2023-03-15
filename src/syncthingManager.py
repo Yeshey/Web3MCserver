@@ -13,6 +13,10 @@ class SyncthingManager:
     def __init__(self, web3mcserver):
         self.web3mcserver = web3mcserver
 
+    def run_syncthing(self, command, cwd):
+        #subprocess.run(command, cwd=cwd)
+        subprocess.Popen(command, cwd=cwd, preexec_fn=os.setpgrp)
+
     def launch_syncthing_in_separate_thread(self, with_playitgg):
         print("[DEBUG] Starting Syncthing server in tunnel...")
 
@@ -26,12 +30,20 @@ class SyncthingManager:
         if with_playitgg:
             if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
                 remote_address = self.web3mcserver.get_syncthing_server_address()
-                if self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=3):
+                if self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1):
                     raise Exception("Shouldn't start while syncthing server is running!")
             else:
                 print("Syncthing server address doesn't exist yet.")    
 
-            for path in self.web3mcserver.execute([self.web3mcserver.bin_path + "/playit-cli", 
+            # tmp trying another way
+            t = threading.Thread(target=self.run_syncthing, args=([self.web3mcserver.bin_path + "/playit-cli", 
+                "launch", 
+                self.web3mcserver.playitcli_toml_config_syncthing_server], 
+                "./../"))
+            t.start()
+            self.web3mcserver.local_syncthing_address = "http://127.0.0.1:23840/"
+
+            '''for path in self.web3mcserver.execute([self.web3mcserver.bin_path + "/playit-cli", 
                 "launch", 
                 self.web3mcserver.playitcli_toml_config_syncthing_server],
                 cwd="./../"):
@@ -40,7 +52,7 @@ class SyncthingManager:
                     self.web3mcserver.local_syncthing_address = path.split()[-1]
                 if 'INFO: My name is' in path: # allow it to continue when it sees this string in the output
                     print("[DEBUG] Syncthing running, continuing...")
-                    break
+                    break'''
             
             tunnels_list = self.web3mcserver.get_existing_tunnels(self.web3mcserver.get_secrets_playitcli_file(self.web3mcserver.secret_syncthing_playitcli))
             port_of_first_tunnel = tunnels_list.split()[4]
@@ -252,7 +264,7 @@ class SyncthingManager:
                 if response.status_code == 200:
                     return True
             except requests.exceptions.RequestException:
-                print(f"[DEBUG] no remote syncthing detected, trying {3-i} more")
+                print(f"[DEBUG] no syncthing detected, trying {3-i} more")
             
             time.sleep(3)
 
