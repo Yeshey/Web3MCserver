@@ -344,15 +344,6 @@ class SyncthingManager:
         online_ids = [id for id, conn in connections.items() if conn.get('connected')]
         return online_ids
 
-    def exist_tunnels_with_this_secret(self):
-        pass
-
-    def there_are_active_tunnels(self):
-        pass
-
-    def put_observer_for_changes(self):
-        pass
-
     def wait_for_sync_to_finish(self):
         urlScan = f'{self.web3mcserver.local_syncthing_address}rest/db/scan\?folder\=sync'
         url = f'{self.web3mcserver.local_syncthing_address}rest/db/completion'

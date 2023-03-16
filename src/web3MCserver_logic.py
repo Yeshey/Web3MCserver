@@ -437,12 +437,6 @@ class Web3MCserverLogic:
         else:
             print(f"[DEBUG] {self.server_path} does not exist")
 
-    def there_are_active_tunnels(self):
-        pass
-
-    class FatalError(Exception):
-        pass
-
     def observer_of_common_conf_file(self):
 
         while True:
@@ -520,56 +514,3 @@ class Web3MCserverLogic:
 
         observer.stop()
         observer.join()'''
-
-class CommonConfigFileHandler(FileSystemEventHandler):
-    def __init__(self, event, web3mcserver):
-        self.event = event
-        self.web3mcserver = web3mcserver
-        self.last_modified_time = time.time() - 5
-        self.lock = RLock()
-
-    def on_modified(self, event): # todo, there should be a way so that when there is an exception here, the whole program stops
-        # prevent event bombardment
-        with self.lock:
-            current_time = time.time()
-            if current_time - self.last_modified_time < 5: # only one event every 5 seconds permited
-                print("[DEBUG] File changed too soon, skipping")
-                return
-        self.last_modified_time = time.time()
-        
-        if self.web3mcserver.terminating:
-            print("[DEBUG] File changed, but terminating, skipping")
-            return
-
-        print("[DEBUG] File changed")
-        field = "syncthing_server_command"
-        if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = field):
-            remote_address = self.web3mcserver.get_syncthing_server_address()
-
-            print(self.web3mcserver.common_config_file_manager.my_order_in_server_host_priority())
-            
-            if not self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=3):
-                num_in_queue = self.web3mcserver.common_config_file_manager.my_order_in_server_host_priority()
-                interval_time = 30
-
-                if num_in_queue == 0:
-                    self.event.set()
-                    return
-
-                for _ in range(num_in_queue):
-                    time.sleep(interval_time)
-                    if self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=3):
-                        print("[DEBUG] server running already, oki")
-                        return
-
-                if self.terminating:
-                    print("[DEBUG] File changed, but terminating, skipping")
-                    return
-
-                self.event.set() # stops the observer and continues main thread code
-            else:
-                print("[DEBUG] No new Host needed")
-        else:
-            raise Exception(f"Where is the field {field}?")
-
-        

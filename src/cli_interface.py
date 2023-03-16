@@ -1,5 +1,4 @@
 from src.web3MCserver_logic import Web3MCserverLogic
-from .utils.interpreter import Interpreter
 from .utils.download_dependencies import download_dependencies
 import os
 import time
