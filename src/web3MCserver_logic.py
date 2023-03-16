@@ -133,7 +133,7 @@ class Web3MCserverLogic:
 
     def i_will_be_host_now(self, save_main_erver_address_in_secrets = False):
         # Send system notification saying that thes PC will be host now
-        print("Becoming Host")
+        print("\n[DEBUG] Becoming Host\n")
         self.isHost = True
 
         self.syncthing_manager.wait_for_sync_to_finish() # todo, check https://man.archlinux.org/man/community/syncthing/syncthing-rest-api.7.en
@@ -463,7 +463,17 @@ class Web3MCserverLogic:
 
                 print(self.common_config_file_manager.my_order_in_server_host_priority())
                 
-                if not self.syncthing_manager.syncthing_active(remote_address, timeout=3):
+                remote_host_active = True
+                for _ in range(2):
+                    if self.syncthing_manager.syncthing_active(remote_address, timeout=3):
+                        remote_host_active = True
+                        time.sleep(7) # give him time to shutdown in the other side
+                    else:
+                        remote_host_active = False
+                        break
+
+                time.sleep(7)
+                if not remote_host_active:
                     num_in_queue = self.common_config_file_manager.my_order_in_server_host_priority()
                     interval_time = 30
 

@@ -24,7 +24,7 @@ class SyncthingManager:
             print(path, end="")
             if 'Access the GUI via the following URL:' in path:
                 self.web3mcserver.local_syncthing_address = path.split()[-1]
-            if "INFO: Connection to" in path and "closed: closed by remote" in path:
+            if "INFO: Connection to" in path and "closed:" in path:
                 # extract the ID of the remote machine using string manipulation
                 pattern = r'Connection to (\w+-\w+-\w+-\w+-\w+-\w+-\w+-\w+)'
                 match = re.search(pattern, path)
