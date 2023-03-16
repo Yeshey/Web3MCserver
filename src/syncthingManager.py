@@ -354,7 +354,6 @@ class SyncthingManager:
         response = requests.post(urlScan, headers=headers) # cause it to rescan
         print(f"[DEBUG] {response}")
 
-        time.sleep(100)
         while True:
             response = requests.get(url, headers=headers)
             data = response.json()
