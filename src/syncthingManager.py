@@ -40,7 +40,6 @@ class SyncthingManager:
 
 
     def launch_syncthing_in_separate_thread(self, with_playitgg):
-        print("[DEBUG] Starting Syncthing server in tunnel...")
 
         # todo: to make it more secure you should add password and user. But it seems like you'd need to stop syncthing and run some commands and start again
         # https://docs.syncthing.net/users/faq.html#how-do-i-reset-the-gui-password
@@ -50,6 +49,7 @@ class SyncthingManager:
         command = self.web3mcserver.update_playit_syncthing_config_command_from_secrets()
 
         if with_playitgg:
+            print("[DEBUG] Starting Syncthing server in tunnel...")
             if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
                 remote_address = self.web3mcserver.get_syncthing_server_address()
                 if self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1):
@@ -78,6 +78,7 @@ class SyncthingManager:
             self.web3mcserver.write_secret_addresses_toml_file(syncthing_address="http://" + address_of_first_tunnel + ":" + port_of_first_tunnel)
 
         else:
+            print("[DEBUG] Starting Syncthing locally...")
             # tmp trying another way
             t = threading.Thread(target=self.run_syncthing, args=(command, "./../"))
             t.start()
@@ -85,16 +86,6 @@ class SyncthingManager:
 
             while self.web3mcserver.local_syncthing_address == None:
                 time.sleep(1) # give syncthing time to start (find a better way)
-
-
-            '''for path in self.web3mcserver.execute(command,
-                cwd="./../"):
-                print(path, end="")
-                if 'Access the GUI via the following URL:' in path:
-                    self.web3mcserver.local_syncthing_address = path.split()[-1]
-                if 'INFO: My name is' in path: # allow it to continue when it sees this string in the output
-                    print("[DEBUG] Syncthing running, continuing...")
-                    break'''
 
         # Set default folder (to auto accept that folder)
         url = f'{self.web3mcserver.local_syncthing_address}rest/config/defaults/folder'
