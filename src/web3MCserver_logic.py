@@ -499,18 +499,3 @@ class Web3MCserverLogic:
                     print("[DEBUG] No new Host needed")
             else:
                 raise Exception(f"Where is the field {field}?")
-
-
-        '''event = threading.Event()
-        event_handler = CommonConfigFileHandler(event, self)
-        observer = Observer()
-        observer.schedule(event_handler, path=self.common_config_file_path, recursive=False)
-        observer.start()
-
-        event.wait()  # Wait for event to be set
-        event.clear()  # Reset event
-        print("Continuing main thread execution...")
-        # Add your code here to continue main thread execution
-
-        observer.stop()
-        observer.join()'''

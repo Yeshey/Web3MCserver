@@ -114,36 +114,7 @@ class Cli_interface:
                 self.running_loop(startAsHost=True, firstTime = True)
             else:
                 if not self.web3mcserver.file_empty(os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_syncthing_playitcli)):
-                    '''if self.web3mcserver.files_exist_in_server_folder():
-                        if self.ask_question("[WARNING] Files have been found in server folder, they need to be deleted to continue. Proceed?"):
-                            self.web3mcserver.delete_files_inside_server_folder()
-                        else:
-                            print("[INFO] Exiting...")
-                            return'''
-
-                    # Next steps:
-                    # Make the update common config file also check for errors, like multiple hosts or if the host machine isn't connected.
-                    # you should use the endpoint here: curl -X GET -H "X-API-Key: tOGFgTtkLAo7BNlrC6jT" http://released-frames.at.ply.gg:61664/rest/system/connections
-                    # to check witch peers are online.
-                    # make observer that checks for changes in the confijguration file, if changes are detected then, you should check if we're going to get new host,
-                    # if yes, check witch machine is going to be the host.
-                    # If I'm not going to be the host, do nothing, else, gotta kill and restart syncthing with playitcli
-                    '''
-
-
-In the thread that's observing the common config file:
-If there is a change, check if there is no host OR if we get no response from server, if yes tehn:
-    Check from online peers and server_priority who'll be the new host. (If it is me, then the thread should end and I should catch it with a join in the main code to then kill off syncthing and do everything again.)  
-If I AM HOST NOW - Call function to kill syncthing and minecraft servers if needed and call i_am_host and other appropriate functions (the I_am_host method should make also a thread that checks if he should keep being host or not, if not, it should call this function with the parameter not-host.
-
-If it isn't me the new host, then timeout 30 * the place in the queu that I am (every 30 seconds should still check, and if the host is active then it should just resume normal work), if server isn't active by the end of the countdown I am gonna be host now 
-
-Also add a tread while running when host that checks if the PlayitHost ip is still responding (it seems like it might dies sometimes?)
-
-                    '''
-
                     self.running_loop(startAsHost=False, firstTime = True)
-
                 else:
                     print("Add the secrets file")
         else:
