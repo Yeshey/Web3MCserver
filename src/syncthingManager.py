@@ -149,27 +149,30 @@ class SyncthingManager:
         # Add the sync folder
         self.add_folders_to_sync()
 
-        t = threading.Thread(target=self.check_devices)
-        t.daemon = True # so this thread ends automatically when main thread ends
-        t.start()
+        if self.web3mcserver.checkDevicesThreadRunning == False:
+            self.web3mcserver.checkDevicesThreadRunning = True
+            t = threading.Thread(target=self.check_devices)
+            t.daemon = True # so this thread ends automatically when main thread ends
+            t.start()
 
     def check_devices(self):
         while True:
-            url = f'{self.web3mcserver.local_syncthing_address}rest/cluster/pending/devices'
-            headers = {'X-API-Key': self.get_api_key()}
-            devices = {}
-            try:
-                response = requests.get(url, headers=headers)
-                response.raise_for_status()
-                data = response.json()
-                if data != devices:
-                    print("[DEBUG] New Device wants to connect!")
-                    ID_of_peer_that_wants_to_connect = list(data.keys())[0]
-                    self.connect_to_syncthing_peer(ID_of_peer_that_wants_to_connect)
-                    self.add_folders_to_sync([ID_of_peer_that_wants_to_connect])
-            except requests.exceptions.RequestException as e:
-                print(f"Error: {e}")
-            time.sleep(60) # Check every minute
+            if self.syncthing_active(self.web3mcserver.local_syncthing_address, timeout=3):
+                url = f'{self.web3mcserver.local_syncthing_address}rest/cluster/pending/devices'
+                headers = {'X-API-Key': self.get_api_key()}
+                devices = {}
+                try:
+                    response = requests.get(url, headers=headers)
+                    response.raise_for_status()
+                    data = response.json()
+                    if data != devices:
+                        print("[DEBUG] New Device wants to connect!")
+                        ID_of_peer_that_wants_to_connect = list(data.keys())[0]
+                        self.connect_to_syncthing_peer(ID_of_peer_that_wants_to_connect)
+                        self.add_folders_to_sync([ID_of_peer_that_wants_to_connect])
+                except requests.exceptions.RequestException as e:
+                    print(f"Error: {e}")
+                time.sleep(60) # Check every minute
 
     def add_folders_to_sync(self, ids=[]):
     # The following works, and see this website (https://docs.syncthing.net/v1.22.1/rest/config.html)

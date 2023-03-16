@@ -34,17 +34,20 @@ class CommonConfigFileManager:
             print("[DEBUG] Syncthing config doesn't exist yet: ", e)
             return
 
-        myID = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
-        hostID = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
-        # clean up the ones that are not host and claim they are () on second thought, we don't even need the isHost right? we can just check...
-        for machine in config.get('machines', []):
-            if machine.get('ID') == hostID:
-                if hostID == myID and Is_Host == False: # unless I'm the host but terminatting
-                    machine['Is_Host'] = False
+        try:
+            myID = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
+            hostID = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
+            # clean up the ones that are not host and claim they are () on second thought, we don't even need the isHost right? we can just check...
+            for machine in config.get('machines', []):
+                if machine.get('ID') == hostID:
+                    if hostID == myID and Is_Host == False: # unless I'm the host but terminatting
+                        machine['Is_Host'] = False
+                    else:
+                        machine['Is_Host'] = True
                 else:
-                    machine['Is_Host'] = True
-            else:
-                machine['Is_Host'] = False
+                    machine['Is_Host'] = False
+        except:
+            print("[DEBUG] not updating common config file about remote syncthing, because exception ocurred")
 
         # Check if a machine with the same ID already exists in the config
         machine_exists = False

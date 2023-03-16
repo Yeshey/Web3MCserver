@@ -45,6 +45,7 @@ class Web3MCserverLogic:
 
         self.syncthing_process = None # needs to be a list so it is a muttable object
         self.isHost = False
+        self.checkDevicesThreadRunning = False
 
         self.server_folder_path = os.path.abspath("./sync/server/")
         self.playitcli_toml_config_main_server = os.path.abspath("./playit-cli_config/main_server_config.toml")
@@ -477,7 +478,7 @@ class Web3MCserverLogic:
                     num_in_queue = self.common_config_file_manager.my_order_in_server_host_priority()
                     interval_time = 30
 
-                    print("[DEBUG] num_in_queue: {num_in_queue}")
+                    print(f"[DEBUG] num_in_queue: {num_in_queue}")
 
                     if num_in_queue == 0:
                         #self.event.set()
