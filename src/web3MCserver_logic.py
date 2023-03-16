@@ -44,7 +44,6 @@ class Web3MCserverLogic:
         self.playitcli_manager = PlayitCliManager(self)
 
         self.syncthing_process = None # needs to be a list so it is a muttable object
-        self.local_syncthing_address = None
         self.isHost = False
 
         self.server_folder_path = os.path.abspath("./sync/server/")
@@ -59,6 +58,9 @@ class Web3MCserverLogic:
         self.my_lock_peerDisconnected = threading.Lock()
         with self.my_lock_peerDisconnected:
             self.peerDisconnected = None
+        self.my_lock_local_syncthing_address = threading.Lock()
+        with self.my_lock_local_syncthing_address:
+            self.local_syncthing_address = None
 
         self.event_peerDisconnected = threading.Event()    
 
@@ -182,11 +184,6 @@ class Web3MCserverLogic:
         self.syncthing_process = popen
 
         for stdout_line in iter(popen.stdout.readline, ""):
-            if "Error: Broken pipe" in stdout_line:
-                popen.stdout.close()    
-                return_code = popen.wait()
-                if return_code:
-                    raise subprocess.CalledProcessError(return_code, cmd)
             yield stdout_line 
         popen.stdout.close()
         return_code = popen.wait()
@@ -463,19 +460,24 @@ class Web3MCserverLogic:
 
                 print(self.common_config_file_manager.my_order_in_server_host_priority())
                 
-                remote_host_active = True
+                remote_server_still_running = True
                 for _ in range(2):
-                    if self.syncthing_manager.syncthing_active(remote_address, timeout=3):
-                        remote_host_active = True
-                        time.sleep(7) # give him time to shutdown in the other side
+                    print("[DEBUG] HERE 2")
+                    if self.syncthing_manager.syncthing_active(remote_address, timeout=3) and self.syncthing_manager.get_remote_syncthing_ID() != self.syncthing_manager.get_my_syncthing_ID():
+                        remote_server_still_running = True
+                        time.sleep(3) # give him time to shutdown in the other side
+                        print(f"[DEBUG] {remote_server_still_running}")
                     else:
-                        remote_host_active = False
+                        remote_server_still_running = False
+                        print(f"[DEBUG] {remote_server_still_running}")
                         break
 
-                time.sleep(7)
-                if not remote_host_active:
+                print("[DEBUG] HERE 3")
+                if not remote_server_still_running:
                     num_in_queue = self.common_config_file_manager.my_order_in_server_host_priority()
                     interval_time = 30
+
+                    print("[DEBUG] num_in_queue: {num_in_queue}")
 
                     if num_in_queue == 0:
                         #self.event.set()

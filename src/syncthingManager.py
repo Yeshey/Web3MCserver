@@ -24,6 +24,8 @@ class SyncthingManager:
             print(path, end="")
             if 'Access the GUI via the following URL:' in path:
                 self.web3mcserver.local_syncthing_address = path.split()[-1]
+            if 'shutting down' in path:
+                break
             if "INFO: Connection to" in path and "closed:" in path:
                 # extract the ID of the remote machine using string manipulation
                 pattern = r'Connection to (\w+-\w+-\w+-\w+-\w+-\w+-\w+-\w+)'
@@ -261,6 +263,8 @@ class SyncthingManager:
                 print(f"[DEBUG] Failed to kill syncthing, kill it manually. Address: {syncthing_address}")
                 syncthing_process.terminate() # doesn't seem to do anything?
                 syncthing_process.kill() # doesn't seem to do anything?
+        with self.web3mcserver.my_lock_local_syncthing_address:
+            self.web3mcserver.local_syncthing_address = None
 
     def get_remote_syncthing_ID(self):
         remoteSyncthingAddress = self.web3mcserver.get_syncthing_server_address()
