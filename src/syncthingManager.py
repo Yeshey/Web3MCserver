@@ -149,15 +149,11 @@ class SyncthingManager:
         # Add the sync folder
         self.add_folders_to_sync()
 
-        if self.web3mcserver.checkDevicesThreadRunning == False:
-            self.web3mcserver.checkDevicesThreadRunning = True
-            t = threading.Thread(target=self.check_devices)
-            t.daemon = True # so this thread ends automatically when main thread ends
-            t.start()
-
     def check_devices(self):
         while True:
-            if self.syncthing_active(self.web3mcserver.local_syncthing_address, timeout=3):
+            if self.web3mcserver.terminating == True:
+                break
+            if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command") and self.syncthing_active(self.web3mcserver.local_syncthing_address, timeout=3):
                 url = f'{self.web3mcserver.local_syncthing_address}rest/cluster/pending/devices'
                 headers = {'X-API-Key': self.get_api_key()}
                 devices = {}
@@ -268,6 +264,7 @@ class SyncthingManager:
                 syncthing_process.kill() # doesn't seem to do anything?
         with self.web3mcserver.my_lock_local_syncthing_address:
             self.web3mcserver.local_syncthing_address = None
+            self.web3mcserver.syncthing_process = None
 
     def get_remote_syncthing_ID(self):
         remoteSyncthingAddress = self.web3mcserver.get_syncthing_server_address()
@@ -335,7 +332,7 @@ class SyncthingManager:
         
         # make it share the folders witht his device
         
-    def online_peers(self):
+    def online_peers_list(self):
         url = f'{self.web3mcserver.local_syncthing_address}rest/system/connections'
         headers = {'X-API-Key': self.get_api_key()}
         response = requests.get(url, headers=headers)
@@ -364,7 +361,7 @@ class SyncthingManager:
         response = requests.post(urlScan, headers=headers) # cause it to rescan
         print(f"[DEBUG] {response}")
 
-        while True:
+        for _ in range(20): # make it not take forever... there might be no peers online
             response = requests.get(url, headers=headers)
             data = response.json()
             completion = data.get('completion')

@@ -43,7 +43,7 @@ class Cli_interface:
 
     def running_loop(self, firstTime = False):
 
-        #self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = True, Is_Host = False)
+
 
         while True:
             self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = False)
@@ -59,7 +59,6 @@ class Cli_interface:
             print("[INFO] Setting up observer for common_conf_file changes...")
             self.web3mcserver.observer_of_common_conf_file() # only gets out of here when we are gonna be host
             self.web3mcserver.syncthing_manager.terminate_syncthing(self.web3mcserver.local_syncthing_address, self.web3mcserver.syncthing_process)
-            self.web3mcserver.syncthing_process = None
 
 #            try:
             self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(with_playitgg = True) # with_playitgg = False means it will be available to the world
@@ -68,7 +67,6 @@ class Cli_interface:
 #            except:
 #                print("[Warning] An exception has ocurred, continuing as cluster member but not becoming host...")
             self.web3mcserver.syncthing_manager.terminate_syncthing(self.web3mcserver.local_syncthing_address, self.web3mcserver.syncthing_process)
-            self.web3mcserver.syncthing_process = None
 
     def start(self):
         download_dependencies()
@@ -84,15 +82,15 @@ class Cli_interface:
             self.web3mcserver.write_secret_playitcli_file(syncthing_secret = True)
         # -------- Create Missing Files & Folders -------- #
 
-        # Update Configuration file with my performance every 2 hours
+        # Thread to Update Configuration file with my performance every 2 hours
         self.web3mcserver.common_config_file_manager.update_common_config_file_periodically()
 
-        #self.web3mcserver.common_config_file_manager.update_common_config_file()
-        #exit()
+        # Thread to auto accept nes devices for local running syncthing
+        self.web3mcserver.auto_accept_devices_syncthing()
 
         if self.web3mcserver.common_config_file_manager.is_new_node():
             print("[INFO] New Node!")
-            if self.ask_question("Do you want to create a new distributed server?"):
+            if self.ask_question("Do you want to create a new distributed server? (Otherwise you will be prompted to connect to an existing server cluster)"):
                 if not self.web3mcserver.file_empty(os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_syncthing_playitcli)):
                     if not self.ask_question("secrets file not empty, use current secret?"):
                         self.process_of_making_new_playitcli_secret()

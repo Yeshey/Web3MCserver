@@ -386,6 +386,11 @@ class Web3MCserverLogic:
 
 # ============== Secrets File Management ==============
 
+    def auto_accept_devices_syncthing(self):
+        t = threading.Thread(target=self.syncthing_manager.check_devices)
+        t.daemon = True # so this thread ends automatically when main thread ends
+        t.start()
+
     def test_machine(self): # todo, if device is on battery, then it should do from -100 to 0 instead
         print("[DEBUG] Calculating Machine performance...")
         try:

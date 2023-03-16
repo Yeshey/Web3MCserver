@@ -87,7 +87,7 @@ class CommonConfigFileManager:
     def my_order_in_server_host_priority(self):
         # Get my ID
         my_id = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
-        online_peers = self.web3mcserver.syncthing_manager.online_peers()
+        online_peers = self.web3mcserver.syncthing_manager.online_peers_list()
         print(f"[DEBUG] Online peers: {online_peers}")
         
         # Load the config file
