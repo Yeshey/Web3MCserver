@@ -129,7 +129,7 @@ class Web3MCserverLogic:
 
     def i_will_be_host_now(self, save_main_erver_address_in_secrets = False):
         # Send system notification saying that thes PC will be host now
-        print("Becoming Host")
+        print("\n[DEBUG] Becoming Host\n")
         self.isHost = True
 
         self.syncthing_manager.wait_for_sync_to_finish() # todo, check https://man.archlinux.org/man/community/syncthing/syncthing-rest-api.7.en
@@ -439,7 +439,55 @@ class Web3MCserverLogic:
         pass
 
     def observer_of_common_conf_file(self):
-        event = threading.Event()
+
+        while True:
+
+            self.event_peerDisconnected.wait()
+            self.event_peerDisconnected.clear()  # Reset event
+            print("Continuing main thread execution...")
+
+            id_that_disconnected = self.peerDisconnected
+            self.peerDisconnected = None
+
+
+            if self.terminating:
+                print("[DEBUG] Someone disconnected, but terminating, skipping")
+                continue
+
+            print("[DEBUG] Someone disconnected")
+            field = "syncthing_server_command"
+            if self.file_has_field(file = os.path.join(self.secrets_path, self.secret_addresses_file_name), field = field):
+                remote_address = self.get_syncthing_server_address()
+
+                print(self.common_config_file_manager.my_order_in_server_host_priority())
+                
+                if not self.syncthing_manager.syncthing_active(remote_address, timeout=3):
+                    num_in_queue = self.common_config_file_manager.my_order_in_server_host_priority()
+                    interval_time = 30
+
+                    if num_in_queue == 0:
+                        #self.event.set()
+                        print("[DEBUG] I should be host!!")
+                        break
+
+                    for _ in range(num_in_queue):
+                        time.sleep(interval_time)
+                        if self.syncthing_manager.syncthing_active(remote_address, timeout=3):
+                            print("[DEBUG] server running already, oki")
+                            continue
+
+                    if self.terminating:
+                        print("[DEBUG] File changed, but terminating, skipping")
+                        continue
+
+                    break
+                else:
+                    print("[DEBUG] No new Host needed")
+            else:
+                raise Exception(f"Where is the field {field}?")
+
+
+        '''event = threading.Event()
         event_handler = CommonConfigFileHandler(event, self)
         observer = Observer()
         observer.schedule(event_handler, path=self.common_config_file_path, recursive=False)
@@ -451,7 +499,7 @@ class Web3MCserverLogic:
         # Add your code here to continue main thread execution
 
         observer.stop()
-        observer.join()
+        observer.join()'''
 
 class CommonConfigFileHandler(FileSystemEventHandler):
     def __init__(self, event, web3mcserver):

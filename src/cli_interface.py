@@ -63,7 +63,9 @@ class Cli_interface:
 
             try:
                 self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(with_playitgg = True) # with_playitgg = False means it will be available to the world
+                print("\nHERE 1\n")
                 self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
+                print("\nHERE 2\n")
                 self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = False) # Should only get out of here when won't be/isn't host anymore (there is a better machine)
             except:
                 print("[Warning] An exception has ocurred, continuing as cluster member but not becoming host...")
