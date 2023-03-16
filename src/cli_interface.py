@@ -119,7 +119,7 @@ class Cli_interface:
                     print("Add the secrets file")
         else:
             print("[INFO] Not New Node")
-            if not self.web3mcserver.file_empty(os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_syncthing_playitcli)):
+            if self.web3mcserver.file_empty(os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_syncthing_playitcli)):
                 print("[ERROR] no secrets file found. Exiting")
                 print("[ERROR] With this kind of problems you can try to delete the sync folder /sync/, and delete the syncthing files in /syncthing_config/, and check the secret files are correct in /secrets/, and try to connect to the cluster again as a new node.")
                 return
