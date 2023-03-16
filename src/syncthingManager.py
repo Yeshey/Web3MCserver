@@ -361,13 +361,21 @@ class SyncthingManager:
         response = requests.post(urlScan, headers=headers) # cause it to rescan
         print(f"[DEBUG] {response}")
 
-        for _ in range(20): # make it not take forever... there might be no peers online
+        time_to_sleep = 3
+
+        i = 10
+        while i > 0: # make it not take forever... there might be no peers online
+            i -= 1
+            if not self.online_peers_list(): # list is empty
+                print(f"[DEBUG] No online peers, unable to garantee most recent version. Continuing in {i*time_to_sleep} seconds")
+            else:
+                i=10
             response = requests.get(url, headers=headers)
             data = response.json()
             completion = data.get('completion')
             if completion == 100:
                 break
             else:
-                time.sleep(3)
+                time.sleep(time_to_sleep)
                 
         print("[DEBUG] Sync compleate!")

@@ -41,11 +41,9 @@ class Cli_interface:
         self.web3mcserver.write_secret_playitcli_file(playit_secret = playit_main_secret, syncthing_secret = False)
         print("[INFO] writing hash secret to secret_main_playitcli.txt")
 
-    def running_loop(self, firstTime = False):
+    def running_loop(self, startAsHost, firstTime = False):
 
-
-
-        while True:
+        if not startAsHost:
             self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = False)
             self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(with_playitgg = False) # with_playitgg = False means it won't be available to the world
             if firstTime: # if it's first time we need to manually connect to the first peer
@@ -59,13 +57,20 @@ class Cli_interface:
             print("[INFO] Setting up observer for common_conf_file changes...")
             self.web3mcserver.observer_of_common_conf_file() # only gets out of here when we are gonna be host
             self.web3mcserver.syncthing_manager.terminate_syncthing(self.web3mcserver.local_syncthing_address, self.web3mcserver.syncthing_process)
-
+        while True:
 #            try:
             self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(with_playitgg = True) # with_playitgg = False means it will be available to the world
             self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
-            self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = False) # Should only get out of here when won't be/isn't host anymore (there is a better machine)
+            self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = True) # Should only get out of here when won't be/isn't host anymore (there is a better machine)
 #            except:
 #                print("[Warning] An exception has ocurred, continuing as cluster member but not becoming host...")
+            self.web3mcserver.syncthing_manager.terminate_syncthing(self.web3mcserver.local_syncthing_address, self.web3mcserver.syncthing_process)
+
+
+            self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = False)
+            self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(with_playitgg = False) # with_playitgg = False means it won't be available to the world
+            print("[INFO] Setting up observer for common_conf_file changes...")
+            self.web3mcserver.observer_of_common_conf_file() # only gets out of here when we are gonna be host
             self.web3mcserver.syncthing_manager.terminate_syncthing(self.web3mcserver.local_syncthing_address, self.web3mcserver.syncthing_process)
 
     def start(self):
@@ -106,9 +111,8 @@ class Cli_interface:
                 else:
                     print("[INFO] Files exist in server folder, make sure the following steps were taken for it to work:")
                     self.instructions_on_how_to_set_their_own_server()
-                self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(with_playitgg = True)
-                self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
-                self.web3mcserver.i_will_be_host_now(save_main_erver_address_in_secrets = True)
+
+                self.running_loop(startAsHost=True, firstTime = True)
             else:
                 if not self.web3mcserver.file_empty(os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_syncthing_playitcli)):
                     '''if self.web3mcserver.files_exist_in_server_folder():
@@ -139,10 +143,7 @@ Also add a tread while running when host that checks if the PlayitHost ip is sti
 
                     '''
 
-                    self.running_loop(firstTime = True)
-
-                    while True:
-                        time.sleep(86400)
+                    self.running_loop(startAsHost=False, firstTime = True)
 
                 else:
                     print("Add the secrets file")
@@ -153,10 +154,16 @@ Also add a tread while running when host that checks if the PlayitHost ip is sti
                 print("[ERROR] With this kind of problems you can try to delete the sync folder /sync/, and delete the syncthing files in /syncthing_config/, and check the secret files are correct in /secrets/, and try to connect to the cluster again as a new node.")
                 return
             else:
-                if not self.web3mcserver.syncthing_manager.there_are_active_tunnels():
-                    print("WARNING, no peers active or hosting, it is not possible to confirm that I have the latest version of the server.\nStarting anyways")
-                    self.web3mcserver.i_will_be_host_now()
+                if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
+                    remote_address = self.web3mcserver.get_syncthing_server_address()
+                    if self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1):
+                        self.running_loop(startAsHost=False, firstTime = False)
+                    else:
+                        if not self.web3mcserver.syncthing_manager.online_peers_list(): # list is empty
+                            print("[Warning] no peers active or hosting, it is not possible to confirm that I have the latest version of the server.\nStarting anyways...")
+                        else:
+                            self.web3mcserver.syncthing_manager.wait_for_sync_to_finish()
+                        self.running_loop(startAsHost=True, firstTime = False)
                 else:
-                    self.web3mcserver.common_config_file_manager.put_observer_for_changes()
-                    self.web3mcserver.common_config_file_manager.update_common_config_file_periodically()
+                    raise Exception("Syncthing server address field doesn't exist.")  
 
