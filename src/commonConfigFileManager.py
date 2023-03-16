@@ -104,7 +104,6 @@ class CommonConfigFileManager:
             return sum(1 for m in config["machines"] if m["server_run_priority"] > host["server_run_priority"] and m["ID"] in online_peers)
 
     def is_new_node(self):
-        return True
         try:
             ID = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
         except:

@@ -119,10 +119,19 @@ class Cli_interface:
                     print("Add the secrets file")
         else:
             print("[INFO] Not New Node")
-            if not self.web3mcserver.syncthing_manager.exist_tunnels_with_this_secret():
-                print("[ERROR] no secrets file found or this account has no tunnels active.")
+            if not self.web3mcserver.file_empty(os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_syncthing_playitcli)):
+                print("[ERROR] no secrets file found. Exiting")
                 print("[ERROR] With this kind of problems you can try to delete the sync folder /sync/, and delete the syncthing files in /syncthing_config/, and check the secret files are correct in /secrets/, and try to connect to the cluster again as a new node.")
                 return
+            try:
+                tunnels_list = self.web3mcserver.get_existing_tunnels(self.web3mcserver.get_secrets_playitcli_file(self.web3mcserver.secret_main_playitcli))
+                port_of_first_tunnel = tunnels_list.split()[4]
+                address_of_first_tunnel = tunnels_list.split()[3]
+            except:
+                print("[ERROR] this account has no tunnels active. Exiting")
+                print("[ERROR] With this kind of problems you can try to delete the sync folder /sync/, and delete the syncthing files in /syncthing_config/, and check the secret files are correct in /secrets/, and try to connect to the cluster again as a new node.")
+                return
+
             else:
                 if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
                     remote_address = self.web3mcserver.get_syncthing_server_address()

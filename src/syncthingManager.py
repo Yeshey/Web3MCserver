@@ -15,8 +15,6 @@ class SyncthingManager:
         self.web3mcserver = web3mcserver
 
     def run_syncthing(self, command, cwd):
-        #subprocess.run(command, cwd=cwd)
-        #subprocess.Popen(command, cwd=cwd, preexec_fn=os.setpgrp)
         for path in self.web3mcserver.execute([self.web3mcserver.bin_path + "/playit-cli", 
                         "launch", 
                         self.web3mcserver.playitcli_toml_config_syncthing_server],
@@ -65,21 +63,9 @@ class SyncthingManager:
                 self.web3mcserver.playitcli_toml_config_syncthing_server], 
                 "./../"))
             t.start()
-            #self.web3mcserver.local_syncthing_address = "http://127.0.0.1:23840/" # find better way for this too
 
             while self.web3mcserver.local_syncthing_address == None:
                 time.sleep(1) # give syncthing time to start (find a better way)
-
-            '''for path in self.web3mcserver.execute([self.web3mcserver.bin_path + "/playit-cli", 
-                "launch", 
-                self.web3mcserver.playitcli_toml_config_syncthing_server],
-                cwd="./../"):
-                print(path, end="")
-                if 'Access the GUI via the following URL:' in path:
-                    self.web3mcserver.local_syncthing_address = path.split()[-1]
-                if 'INFO: My name is' in path: # allow it to continue when it sees this string in the output
-                    print("[DEBUG] Syncthing running, continuing...")
-                    break'''
             
             tunnels_list = self.web3mcserver.get_existing_tunnels(self.web3mcserver.get_secrets_playitcli_file(self.web3mcserver.secret_syncthing_playitcli))
             port_of_first_tunnel = tunnels_list.split()[4]
@@ -254,9 +240,6 @@ class SyncthingManager:
             try:
                 print(syncthing_process.pid)
                 print(os.getpid())
-                #if os.getpid() != syncthing_process.pid and syncthing_process is not None:
-                #    os.killpg(os.getpgid(syncthing_process.pid), signal.SIGTERM)
-                #else:
                 raise Exception("No pid?")
             except:
                 print(f"[DEBUG] Failed to kill syncthing, kill it manually. Address: {syncthing_address}")
@@ -275,7 +258,6 @@ class SyncthingManager:
         response.raise_for_status()
         response_json = response.json()
         my_id = response_json["myID"]
-        #print(f"[DEBUG] API KEY: {syncthingApiKey}, remoteSyncthingAddress: {remoteSyncthingAddress}, remoteSyncthingID: {my_id}")
         return my_id
         
     def internet_on(self):
@@ -292,7 +274,6 @@ class SyncthingManager:
     def syncthing_active(self, syncthing_address, timeout = 10):
         if not self.internet_on():
             raise Exception("No internet!")
-        #remoteSyncthingAddress = self.web3mcserver.get_syncthing_server_address()
         secret = self.get_api_key() # Replace with your actual secret key
         headers = {'X-API-Key': secret}
 
