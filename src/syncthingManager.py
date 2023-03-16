@@ -338,13 +338,18 @@ class SyncthingManager:
         i = 10
         while i > 0: # make it not take forever... there might be no peers online
             i -= 1
-            if not self.online_peers_list(): # list is empty
-                print(f"[DEBUG] No online peers, unable to garantee most recent version. Continuing in {i*time_to_sleep} seconds")
-            else:
-                i=10
             response = requests.get(url, headers=headers, timeout=5)
             data = response.json()
             completion = data.get('completion')
+            if not self.online_peers_list(): # list is empty
+                print(f"[DEBUG] No online peers, unable to garantee most recent version")
+                if completion >= 98:
+                    print(f"[DEBUG] Sync compleation above 98%, continuing in {i*time_to_sleep} seconds")
+                else:
+                    i=10
+                    print(f"[DEBUG] Sync compleation below 98%, checking for new peers every {time_to_sleep} seconds")
+            else:
+                i=10
             if completion == 100:
                 break
             else:

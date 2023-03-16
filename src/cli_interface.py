@@ -138,10 +138,6 @@ class Cli_interface:
                     if self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1):
                         self.running_loop(startAsHost=False, firstTime = False)
                     else:
-                        if not self.web3mcserver.syncthing_manager.online_peers_list(): # list is empty
-                            print("[Warning] no peers active or hosting, it is not possible to confirm that I have the latest version of the server.\nStarting anyways...")
-                        else:
-                            self.web3mcserver.syncthing_manager.wait_for_sync_to_finish()
                         self.running_loop(startAsHost=True, firstTime = False)
                 else:
                     raise Exception("Syncthing server address field doesn't exist.")  
