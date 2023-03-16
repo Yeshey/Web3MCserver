@@ -30,10 +30,13 @@ class SyncthingManager:
                 match = re.search(pattern, path)
                 if match:
                     id = match.group(1)
-                    self.web3mcserver.peerDisconnected = id
+                    with self.web3mcserver.my_lock_peerDisconnected:
+                        self.web3mcserver.peerDisconnected = id
+                        self.web3mcserver.event_peerDisconnected.set()
                     print(f"[DEBUG] Online peer disconnected, its ID: {id}")
                 else:
                     raise Exception("ID not found in input string")
+
 
 
     def launch_syncthing_in_separate_thread(self, with_playitgg):

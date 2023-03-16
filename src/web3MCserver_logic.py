@@ -53,10 +53,14 @@ class Web3MCserverLogic:
         self.common_config_file_path = os.path.abspath("./sync/common_conf.toml")
         #print(f"[DEBUG] {self.playitcli_toml_config_main_server}")
 
-        self.my_lock = threading.Lock()
-        with self.my_lock:
+        self.my_lock_terminating = threading.Lock()
+        with self.my_lock_terminating:
             self.terminating = False
+        self.my_lock_peerDisconnected = threading.Lock()
+        with self.my_lock_peerDisconnected:
             self.peerDisconnected = None
+
+        self.event_peerDisconnected = threading.Event()    
 
         # ======= Figuring out witch platform I'm running on ======= #
         base_path = os.path.dirname(os.path.abspath(__file__))
@@ -111,7 +115,7 @@ class Web3MCserverLogic:
             return False
 
     def shutting_down_now(self):
-        with self.my_lock:
+        with self.my_lock_terminating:
             self.terminating = True
         print ('[DEBUG] Terminating...')
         self.isHost = False
@@ -129,7 +133,7 @@ class Web3MCserverLogic:
 
     def i_will_be_host_now(self, save_main_erver_address_in_secrets = False):
         # Send system notification saying that thes PC will be host now
-        print("\n[DEBUG] Becoming Host\n")
+        print("Becoming Host")
         self.isHost = True
 
         self.syncthing_manager.wait_for_sync_to_finish() # todo, check https://man.archlinux.org/man/community/syncthing/syncthing-rest-api.7.en
@@ -173,8 +177,6 @@ class Web3MCserverLogic:
 
     def execute(self, cmd, cwd = ""):
         # https://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
-        print(f"[DEBUG] CWD: {cwd}")
-        print("cmd")
         popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=cwd, universal_newlines=True)
         print(F"[DEBUG] PID: {popen.pid}")
         self.syncthing_process = popen
