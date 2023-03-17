@@ -451,7 +451,7 @@ class Web3MCserverLogic:
                 if self.going_to_restart == id_that_disconnected:
                     self.going_to_restart = None
                     print("[DEBUG] giving it 30 seconds before checking again")
-                    time.slepp(30)
+                    time.sleep(30)
 
             if self.terminating:
                 print("[DEBUG] Someone disconnected, but terminating, skipping")
