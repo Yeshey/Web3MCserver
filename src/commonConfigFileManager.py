@@ -99,6 +99,9 @@ class CommonConfigFileManager:
         server_priorities = [machine['server_run_priority'] for machine in config['machines'] if machine['ID'] in everyone_online]
         server_priorities.sort(reverse=True)
 
+        print(f"everyines ids: {everyone_online}")
+        print(f"my id: {my_id}")
+
         # Get my position in the priority list
         my_priority = config['machines'][config['machines'].index({'ID': my_id})]['server_run_priority']
         my_position = len([priority for priority in server_priorities if priority > my_priority])
