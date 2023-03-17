@@ -2,8 +2,6 @@ from src.web3MCserver_logic import Web3MCserverLogic
 from .utils.download_dependencies import download_dependencies
 import os
 import time
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 
 class Cli_interface:
     def __init__(self, web3mcserver):
