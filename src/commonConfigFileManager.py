@@ -44,8 +44,13 @@ class CommonConfigFileManager:
         else:
             print("[DEBUG] Syncthing server address field in file doesn't exist yet. Not updating common config file about remote syncthing")
         if updateSyncthingShenenigans:
+            try:
+                hostID = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
+            except:
+                print("[DEBUG] Exception getting remote ID, Not updating common config file about remote syncthing")
+                updateSyncthingShenenigans = False
+        if updateSyncthingShenenigans:
             myID = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
-            hostID = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
             # clean up the ones that are not host and claim they are () on second thought, we don't even need the isHost right? we can just check...
             for machine in config.get('machines', []):
                 if machine.get('ID') == hostID:
