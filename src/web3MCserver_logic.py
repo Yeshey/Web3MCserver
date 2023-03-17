@@ -199,16 +199,19 @@ class Web3MCserverLogic:
             print(path, end="")'''
 
     def terminate_minecraft(self):
-        if self.mc_process != None:
-            print(f"mc process pid: {self.mc_process.pid}")
-            print(f"python script pid: {os.getpid()}")
-            if os.getpid() != self.mc_process.pid:
-                os.kill(self.mc_process.pid, signal.SIGKILL)
-                print("Trying to kill")
-            else:
-                print("Pid of minecraft and Pid of this python script are the same, not killing!")
-            self.mc_process.terminate() # doesn't seem to do anything?
-            self.mc_process.kill() # doesn't seem to do anything?
+        try:
+            if self.mc_process != None:
+                print(f"mc process pid: {self.mc_process.pid}")
+                print(f"python script pid: {os.getpid()}")
+                if os.getpid() != self.mc_process.pid:
+                    os.kill(self.mc_process.pid, signal.SIGKILL)
+                    print("Trying to kill")
+                else:
+                    print("Pid of minecraft and Pid of this python script are the same, not killing!")
+                self.mc_process.terminate() # doesn't seem to do anything?
+                self.mc_process.kill() # doesn't seem to do anything?
+        except:
+            print("[DEBUG] Minecraft doesn't seem to be running")
 
         self.mc_process = None
         pass
