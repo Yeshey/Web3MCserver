@@ -1,4 +1,5 @@
 from asyncio import Lock
+from datetime import datetime, timedelta
 from enum import Flag
 from multiprocessing import RLock
 import threading
@@ -48,6 +49,8 @@ class Web3MCserverLogic:
         self.isHost = False
         self.checkDevicesThreadRunning = False
         self.going_to_restart = None
+        self.lastServerHostChange = None
+        self.youShouldStopBeingHost = False
 
         self.server_folder_path = os.path.abspath("./sync/server/")
         self.playitcli_toml_config_main_server = os.path.abspath("./playit-cli_config/main_server_config.toml")
@@ -81,6 +84,11 @@ class Web3MCserverLogic:
         # ======= ========================================== ======= #
 
         print("BIN PATH" + self.bin_path)
+
+    def _30_minutes_passed(self, last_time):
+        current_time = datetime.now()
+        time_difference = current_time - last_time
+        return time_difference >= timedelta(minutes=30)
 
     def create_directories_from_path(self, path):
         # Split the path into its component directories
@@ -140,6 +148,7 @@ class Web3MCserverLogic:
     def i_will_be_host_now(self):
         # Send system notification saying that thes PC will be host now
         print("\n[DEBUG] Becoming Host\n")
+        self.lastServerHostChange = datetime.now()
         self.isHost = True
 
         self.syncthing_manager.wait_for_sync_to_finish() # todo, check https://man.archlinux.org/man/community/syncthing/syncthing-rest-api.7.en
@@ -522,6 +531,13 @@ class Web3MCserverLogic:
                 sorted_priorities = self.common_config_file_manager.sorted_dic_of_ID_and_server_run_priority()
                 my_order = self.common_config_file_manager.my_order_in_server_host_priority(sorted_priorities)
                 
+                if self.isHost == True and self.youShouldStopBeingHost == True: # in case it should give up being the host in favor of someone better
+                    self.youShouldStopBeingHost = False
+                    if self._30_minutes_passed(self.lastServerHostChange):
+                        my_order = self.common_config_file_manager.my_order_in_server_host_priority(sorted_priorities)
+                        if my_order != 0:
+                            break
+
                 remote_server_still_running = True
                 for _ in range(2):
                     if (
@@ -578,3 +594,5 @@ class Web3MCserverLogic:
             else:
                 raise Exception(f"Where is the field {field}?")
         print("[DEBUG] broke out of observer_of_common_conf_file")
+        self.lastServerHostChange = datetime.now()
+        

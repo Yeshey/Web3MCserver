@@ -129,6 +129,17 @@ class SyncthingManager:
             time.sleep(120) # Check every 2 minutes
             if self.web3mcserver.terminating == True:
                 break
+
+            if self.web3mcserver.isHost == True:
+                if self.web3mcserver._30_minutes_passed(self.web3mcserver.lastServerHostChange):
+                    sorted_priorities = self.web3mcserver.common_config_file_manager.sorted_dic_of_ID_and_server_run_priority()
+                    my_order = self.web3mcserver.common_config_file_manager.my_order_in_server_host_priority(sorted_priorities)
+                    if my_order != 0:
+                        self.youShouldStopBeingHost = True
+                        self.web3mcserver.event_peerDisconnected.set() # let server go to someone better
+            
+
+            # Check if there are syncthing peers that want to connect
             if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command") and self.syncthing_active(self.web3mcserver.local_syncthing_address, timeout=3):
                 url = f'{self.web3mcserver.local_syncthing_address}rest/cluster/pending/devices'
                 headers = {'X-API-Key': self.get_api_key()}
