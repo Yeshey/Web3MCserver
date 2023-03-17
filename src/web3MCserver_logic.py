@@ -19,8 +19,8 @@ import speedtest
 import psutil
 import random
 import string
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+from mcstatus import MinecraftServer
+import socket
 
 class Web3MCserverLogic:
     # Define the directory path
@@ -437,6 +437,19 @@ class Web3MCserverLogic:
         else:
             print(f"[DEBUG] {self.server_path} does not exist")
 
+    def is_mc_server_online(server_address):
+        try:
+            # Split the server address into its hostname and port
+            host, port = server_address.split(":")
+            # Create a MinecraftServer object
+            server = MinecraftServer(host, int(port))
+            # Call the status() method to get the server's status
+            status = server.status()
+            return True
+        except (socket.timeout, ConnectionRefusedError):
+            # If the server is not responding or refused the connection, return False
+            return False
+
     def observer_of_common_conf_file(self):
         while True:
 
@@ -468,7 +481,11 @@ class Web3MCserverLogic:
                 remote_server_still_running = True
                 for _ in range(2):
                     print("[DEBUG] HERE 2")
-                    if self.syncthing_manager.syncthing_active(remote_address, timeout=1) and self.syncthing_manager.get_remote_syncthing_ID() != self.syncthing_manager.get_my_syncthing_ID():
+                    if (
+                            self.syncthing_manager.syncthing_active(remote_address, timeout=1) and 
+                            self.syncthing_manager.get_remote_syncthing_ID() != self.syncthing_manager.get_my_syncthing_ID() and 
+                            self.is_mc_server_online(self.get_main_server_address())
+                        ):
                         remote_server_still_running = True
                         time.sleep(3) # give him time to shutdown in the other side
                         print(f"[DEBUG] {remote_server_still_running}")
