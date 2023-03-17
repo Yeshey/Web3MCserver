@@ -46,6 +46,7 @@ class Web3MCserverLogic:
         self.syncthing_process = None # needs to be a list so it is a muttable object
         self.isHost = False
         self.checkDevicesThreadRunning = False
+        self.going_to_restart = None
 
         self.server_folder_path = os.path.abspath("./sync/server/")
         self.playitcli_toml_config_main_server = os.path.abspath("./playit-cli_config/main_server_config.toml")
@@ -437,7 +438,6 @@ class Web3MCserverLogic:
             print(f"[DEBUG] {self.server_path} does not exist")
 
     def observer_of_common_conf_file(self):
-
         while True:
 
             self.event_peerDisconnected.wait()
@@ -447,6 +447,11 @@ class Web3MCserverLogic:
             id_that_disconnected = self.peerDisconnected
             self.peerDisconnected = None
 
+            if self.going_to_restart is None:
+                if self.going_to_restart == id_that_disconnected:
+                    self.going_to_restart = None
+                    print("[DEBUG] giving it 30 seconds before checking again")
+                    time.slepp(30)
 
             if self.terminating:
                 print("[DEBUG] Someone disconnected, but terminating, skipping")
@@ -483,6 +488,8 @@ class Web3MCserverLogic:
                         print("[DEBUG] I should be host!!")
                         break
 
+                    self.going_to_restart = self.common_config_file_manager.machine_with_highest_priority()
+
                     for _ in range(num_in_queue):
                         time.sleep(interval_time)
                         if self.syncthing_manager.syncthing_active(remote_address, timeout=3):
@@ -498,3 +505,4 @@ class Web3MCserverLogic:
                     print("[DEBUG] No new Host needed")
             else:
                 raise Exception(f"Where is the field {field}?")
+        print("[DEBUG] broke out of observer_of_common_conf_file")

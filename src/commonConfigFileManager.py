@@ -38,7 +38,7 @@ class CommonConfigFileManager:
         updateSyncthingShenenigans = True
         if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
             remote_address = self.web3mcserver.get_syncthing_server_address()
-            if self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1):
+            if self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1) and self.web3mcserver.syncthing_manager.get_remote_syncthing_ID() != self.web3mcserver.syncthing_manager.get_my_syncthing_ID():
                 updateSyncthingShenenigans = True
                 print("[DEBUG] Shouldn't start while syncthing server is running! Not updating common config file about remote syncthing")
         else:
@@ -91,8 +91,7 @@ class CommonConfigFileManager:
         thread.daemon = True # so this thread ends automatically when main thread ends
         thread.start()
 
-    def my_order_in_server_host_priority(self):
-        # Get my ID
+    def sorted_dic_of_ID_and_server_run_priority(self):
         my_id = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
         online_peers = self.web3mcserver.syncthing_manager.online_peers_list()
         everyone_online = online_peers + [my_id]
@@ -110,12 +109,27 @@ class CommonConfigFileManager:
         
         # Sort priorities in descending order
         sorted_priorities = sorted(priorities.items(), key=lambda x: x[1], reverse=True)
+        return sorted_priorities
+
+    def my_order_in_server_host_priority(self):
+        # Get my ID
+        my_id = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
+        
+        # Sort priorities in descending order
+        sorted_priorities = self.sorted_dic_of_ID_and_server_run_priority()
         
         # Find my order in priority queue
-        my_priority = priorities[my_id]
+        my_priority = sorted_priorities[my_id]
         my_order = sum(1 for _, priority in sorted_priorities if priority > my_priority)
         
         return my_order
+
+    def machine_with_highest_priority(self):
+        # Get sorted priorities
+        sorted_priorities = self.sorted_dic_of_ID_and_server_run_priority()
+        
+        # Return the ID of the machine with the highest priority
+        return sorted_priorities[0][0]
 
     def is_new_node(self):
         try:
