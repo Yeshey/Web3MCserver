@@ -44,6 +44,7 @@ class Web3MCserverLogic:
         self.playitcli_manager = PlayitCliManager(self)
 
         self.syncthing_process = None # needs to be a list so it is a muttable object
+        self.mc_process = None
         self.isHost = False
         self.checkDevicesThreadRunning = False
         self.going_to_restart = None
@@ -124,7 +125,7 @@ class Web3MCserverLogic:
     def run_minecraft(self, command, cwd):
         address_added = False # Make it save the address
 
-        for path in self.execute(command,
+        for path in self.execute_mc(command,
                         cwd=cwd):
             print(path, end="")
             if not address_added:
@@ -167,7 +168,7 @@ class Web3MCserverLogic:
             except:
                 time.sleep(1)
 
-        time.sleep(10000)
+        self.observer_of_common_conf_file(iAmHost = True)
 
         '''# Start the server
         address_added = False # Make it save the address
@@ -187,6 +188,21 @@ class Web3MCserverLogic:
                 self.write_secret_addresses_toml_file(main_server_address=f"{address_of_first_tunnel}:{port_of_first_tunnel}")
             print(path, end="")'''
 
+    def terminate_minecraft(self):
+        if self.mc_process != None:
+            print(f"mc process pid: {self.mc_process.pid}")
+            print(f"python script pid: {os.getpid()}")
+            if os.getpid() != self.mc_process.pid:
+                os.kill(self.mc_process.pid, signal.SIGKILL)
+                print("Trying to kill")
+            else:
+                print("Pid of minecraft and Pid of this python script are the same, not killing!")
+            self.mc_process.terminate() # doesn't seem to do anything?
+            self.mc_process.kill() # doesn't seem to do anything?
+
+        self.mc_process = None
+        pass
+
     def get_existing_tunnels(self, secret_to_use):
         tunnels_list = subprocess.check_output([self.bin_path + "/playit-cli", 
             "--secret", 
@@ -198,8 +214,21 @@ class Web3MCserverLogic:
     def execute(self, cmd, cwd = ""):
         # https://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
         popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=cwd, universal_newlines=True)
-        print(F"[DEBUG] PID: {popen.pid}")
+        print(F"[DEBUG] Syncthing PID: {popen.pid}")
         self.syncthing_process = popen
+
+        for stdout_line in iter(popen.stdout.readline, ""):
+            yield stdout_line 
+        popen.stdout.close()
+        return_code = popen.wait()
+        if return_code:
+            raise subprocess.CalledProcessError(return_code, cmd)
+
+    def execute_mc(self, cmd, cwd = ""):
+        # https://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
+        popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, cwd=cwd, universal_newlines=True)
+        print(F"[DEBUG] Minecraft PID: {popen.pid}")
+        self.mc_process = popen
 
         for stdout_line in iter(popen.stdout.readline, ""):
             yield stdout_line 
@@ -466,9 +495,8 @@ class Web3MCserverLogic:
             # If the server is not responding or refused the connection, return False
             return False
 
-    def observer_of_common_conf_file(self):
+    def observer_of_common_conf_file(self, iAmHost = False):
         while True:
-
             self.event_peerDisconnected.wait()
             self.event_peerDisconnected.clear()  # Reset event
             print("Continuing main thread execution...")
@@ -496,7 +524,6 @@ class Web3MCserverLogic:
                 
                 remote_server_still_running = True
                 for _ in range(2):
-                    print("[DEBUG] HERE 2")
                     if (
                             self.syncthing_manager.syncthing_active(remote_address, timeout=1) and 
                             self.syncthing_manager.get_remote_syncthing_ID() != self.syncthing_manager.get_my_syncthing_ID() and 
@@ -504,22 +531,29 @@ class Web3MCserverLogic:
                         ):
                         remote_server_still_running = True
                         time.sleep(3) # give him time to shutdown in the other side
-                        print(f"[DEBUG] {remote_server_still_running}")
+                        print(f"[DEBUG] remote server still running: {remote_server_still_running}")
                     else:
                         remote_server_still_running = False
-                        print(f"[DEBUG] {remote_server_still_running}")
+                        print(f"[DEBUG] remote server still running: {remote_server_still_running}")
                         break
 
-                print("[DEBUG] HERE 3")
                 if not remote_server_still_running:
                     num_in_queue = my_order
                     interval_time = 30
 
-                    print(f"[DEBUG] num_in_queue: {num_in_queue}")
+                    if iAmHost == True:
+                        print(f"[DEBUG] remote server not responding, but I am host. I'm doing an awful job!!")    
+
+                    print(f"[DEBUG] my number in queue: {num_in_queue}")
 
                     if num_in_queue == 0:
-                        #self.event.set()
                         print("[DEBUG] I should be host!!")
+                        if iAmHost == True:
+                            print("[DEBUG] But I'm already host so...")
+                            continue
+                        break
+                    elif iAmHost == True:
+                        print("[DEBUG] Gonna become a normal observer then...")
                         break
 
                     self.going_to_restart = self.common_config_file_manager.machine_with_highest_priority(sorted_priorities)
@@ -530,11 +564,12 @@ class Web3MCserverLogic:
                         if self.syncthing_manager.syncthing_active(remote_address, timeout=3):
                             print("[DEBUG] server running already, oki")
                             not_gonna_be_host = True
+                            break
                     if not_gonna_be_host:
                         continue
 
                     if self.terminating:
-                        print("[DEBUG] File changed, but terminating, skipping")
+                        print("[DEBUG] someone disconnected, but terminating, skipping")
                         continue
 
                     break

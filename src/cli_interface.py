@@ -61,6 +61,7 @@ class Cli_interface:
             self.web3mcserver.i_will_be_host_now() # Should only get out of here when won't be/isn't host anymore (there is a better machine)
 #            except:
 #                print("[Warning] An exception has ocurred, continuing as cluster member but not becoming host...")
+            self.web3mcserver.terminate_minecraft()
             self.web3mcserver.syncthing_manager.terminate_syncthing(self.web3mcserver.local_syncthing_address, self.web3mcserver.syncthing_process)
 
 
