@@ -475,8 +475,8 @@ class Web3MCserverLogic:
             if self.file_has_field(file = os.path.join(self.secrets_path, self.secret_addresses_file_name), field = field):
                 remote_address = self.get_syncthing_server_address()
 
-                my_order = self.common_config_file_manager.my_order_in_server_host_priority()
-                self.going_to_restart = self.common_config_file_manager.machine_with_highest_priority()
+                sorted_priorities = self.common_config_file_manager.sorted_dic_of_ID_and_server_run_priority()
+                my_order = self.common_config_file_manager.my_order_in_server_host_priority(sorted_priorities)
                 
                 remote_server_still_running = True
                 for _ in range(2):
@@ -505,6 +505,8 @@ class Web3MCserverLogic:
                         #self.event.set()
                         print("[DEBUG] I should be host!!")
                         break
+
+                    self.going_to_restart = self.common_config_file_manager.machine_with_highest_priority(sorted_priorities)
                     
                     not_gonna_be_host = False
                     for _ in range(num_in_queue):

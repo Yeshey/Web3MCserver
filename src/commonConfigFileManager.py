@@ -116,12 +116,12 @@ class CommonConfigFileManager:
         sorted_priorities = dict(sorted(priorities.items(), key=lambda x: x[1], reverse=True))
         return sorted_priorities
 
-    def my_order_in_server_host_priority(self):
+    def my_order_in_server_host_priority(self, sorted_priorities):
         # Get my ID
         my_id = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
         
         # Sort priorities in descending order
-        sorted_priorities = self.sorted_dic_of_ID_and_server_run_priority()
+        #sorted_priorities = self.sorted_dic_of_ID_and_server_run_priority()
         
         # Find my order in priority queue
         my_priority = sorted_priorities.get(my_id)
@@ -129,9 +129,9 @@ class CommonConfigFileManager:
         
         return my_order
 
-    def machine_with_highest_priority(self):
+    def machine_with_highest_priority(self, sorted_priorities):
         # Get sorted priorities
-        sorted_priorities = self.sorted_dic_of_ID_and_server_run_priority()
+        #sorted_priorities = self.sorted_dic_of_ID_and_server_run_priority()
         
         print(f"[DEBUG] sorted_priorities: {sorted_priorities}")
 
