@@ -36,13 +36,16 @@ class CommonConfigFileManager:
 
         
         updateSyncthingShenenigans = True
-        if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
-            remote_address = self.web3mcserver.get_syncthing_server_address()
-            if self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1) and self.web3mcserver.syncthing_manager.get_remote_syncthing_ID() != self.web3mcserver.syncthing_manager.get_my_syncthing_ID():
-                updateSyncthingShenenigans = True
-                print("[DEBUG] Shouldn't start while syncthing server is running! Not updating common config file about remote syncthing")
-        else:
-            print("[DEBUG] Syncthing server address field in file doesn't exist yet. Not updating common config file about remote syncthing")
+        try:
+            if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
+                remote_address = self.web3mcserver.get_syncthing_server_address()
+                if self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1) and self.web3mcserver.syncthing_manager.get_remote_syncthing_ID() != self.web3mcserver.syncthing_manager.get_my_syncthing_ID():
+                    updateSyncthingShenenigans = True
+                    print("[DEBUG] Shouldn't start while syncthing server is running! Not updating common config file about remote syncthing")
+            else:
+                print("[DEBUG] Syncthing server address field in file doesn't exist yet. Not updating common config file about remote syncthing")
+        except:
+           updateSyncthingShenenigans = False 
         if updateSyncthingShenenigans:
             try:
                 hostID = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
