@@ -215,7 +215,7 @@ class Web3MCserverLogic:
         # Download the server file if it doesn't exist
         if not os.path.exists(self.server_path + self.minecraft_server_file_name):
             try:
-                resp = requests.get(self.minecraft_server_url, timeout=30).content
+                resp = requests.get(self.minecraft_server_url, timeout=60).content
                 with open(self.server_path + self.minecraft_server_file_name, "wb") as f:
                     f.write(resp)
                 print("image is saved")

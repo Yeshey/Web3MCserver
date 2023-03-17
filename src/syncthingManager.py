@@ -120,7 +120,7 @@ class SyncthingManager:
             }, 
             "maxConflicts": 0, 
         }
-        response = requests.put(url, headers=headers, json=data, timeout=5)
+        response = requests.put(url, headers=headers, json=data, timeout=60)
         print(f"[DEBUG] Set default folder: {response}")
 
         # Add the sync folder
@@ -136,7 +136,7 @@ class SyncthingManager:
                 headers = {'X-API-Key': self.get_api_key()}
                 devices = {}
                 try:
-                    response = requests.get(url, headers=headers, timeout=5)
+                    response = requests.get(url, headers=headers, timeout=60)
                     response.raise_for_status()
                     data = response.json()
                     if data != devices:
@@ -155,7 +155,7 @@ class SyncthingManager:
 
         devices = [{"deviceID": self.get_my_syncthing_ID(), "introducedBy": "", "encryptionPassword": ""}]
         # Check if the devices section is already populated
-        response = requests.get(url, headers=headers, timeout=5)
+        response = requests.get(url, headers=headers, timeout=60)
         if response.status_code == 200 and len(response.json()) > 0:
             existing_devices = response.json()[0]['devices']
             devices = existing_devices if existing_devices else devices
@@ -188,7 +188,7 @@ class SyncthingManager:
                 "maxConflicts": 0, 
             }
         ]
-        response = requests.put(url, headers=headers, json=data, timeout=5)
+        response = requests.put(url, headers=headers, json=data, timeout=60)
         print(f"[DEBUG] add_folders_to_sync: {response}")
 
     def get_my_syncthing_ID(self):
@@ -225,7 +225,7 @@ class SyncthingManager:
             syncthingApiKey = self.get_api_key() # same key for everyone in the cluster
             headers = {"X-API-Key": syncthingApiKey}
             url = f"{syncthing_address}rest/system/shutdown"
-            response = requests.post(url, headers=headers, timeout=5)
+            response = requests.post(url, headers=headers, timeout=60)
             print(f"[DEBUG] {response.text}")
         except:
             try:
@@ -245,7 +245,7 @@ class SyncthingManager:
         syncthingApiKey = self.get_api_key()
         headers = {"X-API-Key": syncthingApiKey}
         url = f"{remoteSyncthingAddress}/rest/system/status"
-        response = requests.get(url, headers=headers, timeout=5)
+        response = requests.get(url, headers=headers, timeout=60)
         response.raise_for_status()
         response_json = response.json()
         my_id = response_json["myID"]
@@ -262,7 +262,7 @@ class SyncthingManager:
             except:
                 return False
 
-    def syncthing_active(self, syncthing_address, timeout = 10):
+    def syncthing_active(self, syncthing_address, timeout = 60):
         if not self.internet_on():
             raise Exception("No internet!")
         secret = self.get_api_key() # Replace with your actual secret key
@@ -298,7 +298,7 @@ class SyncthingManager:
             "maxRecvKbps": 0,
             "ignoredFolders": []
         }
-        response = requests.post(url, headers=headers, json=data, timeout=5)
+        response = requests.post(url, headers=headers, json=data, timeout=60)
         print(f"[DEBUG] connect_to_syncthing_peer: URL: {url}, HEADERS: {headers}, response: {response}")
         self.add_folders_to_sync([ID]) # so my folder shares itself with the new guy
         
@@ -307,7 +307,7 @@ class SyncthingManager:
     def online_peers_list(self):
         url = f'{self.web3mcserver.local_syncthing_address}rest/system/connections'
         headers = {'X-API-Key': self.get_api_key()}
-        response = requests.get(url, headers=headers, timeout=5)
+        response = requests.get(url, headers=headers, timeout=60)
 
         if response.status_code != 200:
             raise Exception(f'Failed to get connections: {response.content}')
@@ -321,7 +321,7 @@ class SyncthingManager:
         url = f'{self.web3mcserver.local_syncthing_address}rest/db/completion'
         headers = {'X-API-Key': self.get_api_key()}
 
-        response = requests.post(urlScan, headers=headers, timeout=5) # cause it to rescan
+        response = requests.post(urlScan, headers=headers, timeout=60) # cause it to rescan
         print(f"[DEBUG] {response}")
 
         time_to_sleep = 3
@@ -329,7 +329,7 @@ class SyncthingManager:
         i = 10
         while i > 0: # make it not take forever... there might be no peers online
             i -= 1
-            response = requests.get(url, headers=headers, timeout=5)
+            response = requests.get(url, headers=headers, timeout=60)
             data = response.json()
             completion = data.get('completion')
             if not self.online_peers_list(): # list is empty

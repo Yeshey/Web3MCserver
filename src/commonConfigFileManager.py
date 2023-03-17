@@ -36,6 +36,13 @@ class CommonConfigFileManager:
 
         try:
             myID = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
+            if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
+                remote_address = self.web3mcserver.get_syncthing_server_address()
+                if not self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1):
+                    raise Exception("Shouldn't start while syncthing server is running!")
+            else:
+                raise Exception("Syncthing server address field in file doesn't exist yet.")  
+
             hostID = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
             # clean up the ones that are not host and claim they are () on second thought, we don't even need the isHost right? we can just check...
             for machine in config.get('machines', []):
@@ -94,19 +101,21 @@ class CommonConfigFileManager:
         # Load the config file
         with open(self.web3mcserver.common_config_file_path) as f:
             config = toml.load(f)
-            
-        # Get the server_run_priority values for all online peers and myself
-        server_priorities = [machine['server_run_priority'] for machine in config['machines'] if machine['ID'] in everyone_online]
-        server_priorities.sort(reverse=True)
-
-        print(f"everyines ids: {everyone_online}")
-        print(f"my id: {my_id}")
-
-        # Get my position in the priority list
-        my_priority = config['machines'][config['machines'].index({'ID': my_id})]['server_run_priority']
-        my_position = len([priority for priority in server_priorities if priority > my_priority])
-
-        return my_position
+        
+        # Get server run priorities for online peers
+        priorities = {}
+        for machine in config["machines"]:
+            if machine["ID"] in everyone_online:
+                priorities[machine["ID"]] = machine["server_run_priority"]
+        
+        # Sort priorities in descending order
+        sorted_priorities = sorted(priorities.items(), key=lambda x: x[1], reverse=True)
+        
+        # Find my order in priority queue
+        my_priority = priorities[my_id]
+        my_order = sum(1 for _, priority in sorted_priorities if priority > my_priority)
+        
+        return my_order
 
     def is_new_node(self):
         try:
