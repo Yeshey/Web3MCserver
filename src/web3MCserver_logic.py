@@ -51,6 +51,7 @@ class Web3MCserverLogic:
         self.going_to_restart = None
         self.lastServerHostChange = None
         self.youShouldStopBeingHost = False
+        self.iAmAFakeHost = False
 
         self.server_folder_path = os.path.abspath("./sync/server/")
         self.playitcli_toml_config_main_server = os.path.abspath("./playit-cli_config/main_server_config.toml")
@@ -527,15 +528,18 @@ class Web3MCserverLogic:
             id_that_disconnected = self.peerDisconnected
             self.peerDisconnected = None
 
+            if self.terminating:
+                print("[DEBUG] Someone disconnected, but terminating, skipping")
+                continue
+
+            if self.iAmAFakeHost is True: # shame on me
+                break
+
             if self.going_to_restart is not None:
                 if self.going_to_restart == id_that_disconnected:
                     self.going_to_restart = None
                     print("[DEBUG] giving it 30 seconds before checking again")
                     time.sleep(30)
-
-            if self.terminating:
-                print("[DEBUG] Someone disconnected, but terminating, skipping")
-                continue
 
             print("[DEBUG] Someone disconnected")
             field = "syncthing_server_command"

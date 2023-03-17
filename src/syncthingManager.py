@@ -126,7 +126,7 @@ class SyncthingManager:
 
     def check_devices(self):
         while True:
-            time.sleep(120) # Check every 2 minutes
+            time.sleep(100) # Check every 100 seconds
             if self.web3mcserver.terminating == True:
                 break
 
@@ -144,6 +144,20 @@ class SyncthingManager:
                     self.web3mcserver.event_peerDisconnecteds.set() # let server go to someone better
             else:
                 print("[DEBUG] Syncthing server address doesn't exist yet.")    
+
+            # am I the actual host?
+            if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
+                remote_address = self.get_syncthing_server_address()
+            else:
+                print("[DEBUG] Syncthing server address doesn't exist yet.")    
+            if self.web3mcserver.isHost == True:
+                if (
+                        self.syncthing_manager.syncthing_active(remote_address, timeout=1) and 
+                        self.syncthing_manager.get_remote_syncthing_ID() != self.syncthing_manager.get_my_syncthing_ID()
+                    ):
+                    print("[DEBUG] I'm a fake host!?")
+                    self.web3mcserver.iAmAFakeHost = True
+                    self.web3mcserver.event_peerDisconnecteds.set()
 
             # Check if there are syncthing peers that want to connect
             if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command") and self.syncthing_active(self.web3mcserver.local_syncthing_address, timeout=3):
