@@ -437,7 +437,7 @@ class Web3MCserverLogic:
         else:
             print(f"[DEBUG] {self.server_path} does not exist")
 
-    def is_mc_server_online(server_address):
+    def is_mc_server_online(self, server_address):
         try:
             # Split the server address into its hostname and port
             host, port = server_address.split(":")
