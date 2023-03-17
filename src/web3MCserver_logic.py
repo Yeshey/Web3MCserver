@@ -30,7 +30,7 @@ class Web3MCserverLogic:
     secret_main_playitcli = "secret_main_playitcli.txt"
     server_path = "./../sync/server/"
     minecraft_server_file_name = "server.jar"
-    minecraft_server_url = "https://piston-data.mojang.com/v1/objects/c9df48efed58511cdd0213c56b9013a7b5c9ac1f/server.jar"
+    minecraft_server_url = "https://piston-data.mojang.com/v1/objects/8f3112a1049751cc472ec13e397eade5336ca7ae/server.jar"
     playitcli_toml_config_syncthing_server = "./playit-cli_config/syncthing_server_config.toml"
     playitcli_toml_config_syncthing_server2 = "./../playit-cli_config/syncthing_server_config.toml"
     syncthing_config = "./../syncthing_config"

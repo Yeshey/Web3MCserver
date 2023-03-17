@@ -88,20 +88,22 @@ class CommonConfigFileManager:
         # Get my ID
         my_id = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
         online_peers = self.web3mcserver.syncthing_manager.online_peers_list()
+        everyone_online = online_peers.append(my_id)
         print(f"[DEBUG] Online peers: {online_peers}")
         
         # Load the config file
         with open(self.web3mcserver.common_config_file_path) as f:
             config = toml.load(f)
             
-        # Find the online host with highest priority
-        host = max(config["machines"], key=lambda m: m["server_run_priority"] if m["ID"] in online_peers else float("-inf"))
-        
-        # Determine own order in server host priority
-        if host["ID"] == my_id:
-            return 0
-        else:
-            return sum(1 for m in config["machines"] if m["server_run_priority"] > host["server_run_priority"] and m["ID"] in online_peers)
+        # Get the server_run_priority values for all online peers and myself
+        server_priorities = [machine['server_run_priority'] for machine in config['machines'] if machine['ID'] in everyone_online]
+        server_priorities.sort(reverse=True)
+
+        # Get my position in the priority list
+        my_priority = config['machines'][config['machines'].index({'ID': my_id})]['server_run_priority']
+        my_position = len([priority for priority in server_priorities if priority > my_priority])
+
+        return my_position
 
     def is_new_node(self):
         try:
