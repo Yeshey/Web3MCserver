@@ -108,7 +108,7 @@ class CommonConfigFileManager:
                 priorities[machine["ID"]] = machine["server_run_priority"]
         
         # Sort priorities in descending order
-        sorted_priorities = sorted(priorities.items(), key=lambda x: x[1], reverse=True)
+        sorted_priorities = dict(sorted(priorities.items(), key=lambda x: x[1], reverse=True))
         return sorted_priorities
 
     def my_order_in_server_host_priority(self):
@@ -119,8 +119,8 @@ class CommonConfigFileManager:
         sorted_priorities = self.sorted_dic_of_ID_and_server_run_priority()
         
         # Find my order in priority queue
-        my_priority = sorted_priorities[my_id]
-        my_order = sum(1 for _, priority in sorted_priorities if priority > my_priority)
+        my_priority = sorted_priorities.get(my_id)
+        my_order = sum(1 for _, priority in sorted_priorities.items() if priority > my_priority)
         
         return my_order
 
