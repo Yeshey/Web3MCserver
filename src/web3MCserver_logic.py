@@ -448,7 +448,10 @@ class Web3MCserverLogic:
     def test_machine(self): # todo, if device is on battery, then it should do from -100 to 0 instead
         print("[DEBUG] Calculating Machine performance...")
 
-        is_power_plugged = psutil.sensors_battery().power_plugged
+        try:
+            is_power_plugged = psutil.sensors_battery().power_plugged
+        except:
+            is_power_plugged = False # if can't get the information, assume its on battery
 
         print(f"[DEBUG] Power Plugged: {is_power_plugged}")
 
