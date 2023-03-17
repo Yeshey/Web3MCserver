@@ -558,18 +558,21 @@ class Web3MCserverLogic:
 
                 remote_server_still_running = True
                 for _ in range(2):
-                    if (
-                            self.syncthing_manager.syncthing_active(remote_address, timeout=1) and 
-                            self.syncthing_manager.get_remote_syncthing_ID() != self.syncthing_manager.get_my_syncthing_ID() and 
-                            self.is_mc_server_online(self.get_main_server_address())
-                        ):
-                        remote_server_still_running = True
-                        time.sleep(3) # give him time to shutdown in the other side
-                        print(f"[DEBUG] remote server still running: {remote_server_still_running}")
-                    else:
+                    try:
+                        if (
+                                self.syncthing_manager.syncthing_active(remote_address, timeout=1) and 
+                                self.syncthing_manager.get_remote_syncthing_ID() != self.syncthing_manager.get_my_syncthing_ID() and 
+                                self.is_mc_server_online(self.get_main_server_address())
+                            ):
+                            remote_server_still_running = True
+                            time.sleep(3) # give him time to shutdown in the other side
+                            print(f"[DEBUG] remote server still running: {remote_server_still_running}")
+                        else:
+                            remote_server_still_running = False
+                            print(f"[DEBUG] remote server still running: {remote_server_still_running}")
+                            break
+                    except:
                         remote_server_still_running = False
-                        print(f"[DEBUG] remote server still running: {remote_server_still_running}")
-                        break
 
                 if not remote_server_still_running:
                     num_in_queue = my_order
