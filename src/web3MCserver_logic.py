@@ -90,20 +90,6 @@ class Web3MCserverLogic:
             if not os.path.exists(directory):
                 os.mkdir(directory)
 
-    def put_observer_for_changes(self):
-        if self.observer_is_triggered_and_server_is_not_running():
-            if self.common_config_file_manager.my_priority_position_in_common_config_file() == 0:
-                self.i_will_be_host_now()
-            else:
-                self.check_if_server_started_correctly_or_I_need_to_host()
-
-    def check_if_server_started_correctly_or_I_need_to_host(self):
-        time.sleep(30)
-        if not self.syncthing_manager.there_are_active_tunnels():
-            if self.common_config_file_manager.my_priority_position_in_common_config_file() == 1: #I'm the second option
-                self.common_config_file_manager.mark_other_machines_as_not_online()
-                self.i_will_be_host_now()
-
     def set_exit_function(self):
         atexit.register(self.shutting_down_now)
 
@@ -135,7 +121,22 @@ class Web3MCserverLogic:
         else:
             print("Syncthing server address doesn't exist yet!")
 
-    def i_will_be_host_now(self, save_main_erver_address_in_secrets = False):
+    def run_minecraft(self, command, cwd):
+        address_added = False # Make it save the address
+
+        for path in self.execute(command,
+                        cwd=cwd):
+            print(path, end="")
+            if not address_added:
+                address_added = True
+                tunnels_list = self.get_existing_tunnels(self.get_secrets_playitcli_file(self.secret_main_playitcli))
+                print(f"[DEBUG] Tunnels_list: {tunnels_list}")
+                port_of_first_tunnel = tunnels_list.split()[4]
+                address_of_first_tunnel = tunnels_list.split()[3]
+                print(f"[DEBUG] You can access the minecraft server with: http://{address_of_first_tunnel} or if that doesn't work: http://{address_of_first_tunnel}:{port_of_first_tunnel}")
+                self.write_secret_addresses_toml_file(main_server_address=f"{address_of_first_tunnel}:{port_of_first_tunnel}")
+
+    def i_will_be_host_now(self):
         # Send system notification saying that thes PC will be host now
         print("\n[DEBUG] Becoming Host\n")
         self.isHost = True
@@ -148,11 +149,27 @@ class Web3MCserverLogic:
         try:
             server_address = self.get_main_server_address()
         except Exception:
-            server_address = "/First time running, please check secrets/secret_addresses.toml/"
+            server_address = "--First time running, please check /secrets/secret_addresses.toml--"
         notification.message = f"server address: {server_address}"
         notification.send()
 
-        # Start the server
+        # tmp trying another way
+        t = threading.Thread(target=self.run_minecraft, args=([self.bin_path + "/playit-cli", 
+            "launch", 
+            self.playitcli_toml_config_main_server], 
+            self.server_folder_path))
+        t.start()
+        
+        while True: # wait for it to save the stuff in the file
+            try:
+                _ = self.get_main_server_address()
+                break
+            except:
+                time.sleep(1)
+
+        time.sleep(10000)
+
+        '''# Start the server
         address_added = False # Make it save the address
 
         for path in self.execute([self.bin_path + "/playit-cli", 
@@ -160,16 +177,15 @@ class Web3MCserverLogic:
             self.playitcli_toml_config_main_server],
             cwd=self.server_folder_path):
 
-            if save_main_erver_address_in_secrets:
-                if not address_added:
-                    address_added = True
-                    tunnels_list = self.get_existing_tunnels(self.get_secrets_playitcli_file(self.secret_main_playitcli))
-                    print(f"[DEBUG] Tunnels_list: {tunnels_list}")
-                    port_of_first_tunnel = tunnels_list.split()[4]
-                    address_of_first_tunnel = tunnels_list.split()[3]
-                    print(f"[DEBUG] You can access the minecraft server with: http://{address_of_first_tunnel} or if that doesn't work: http://{address_of_first_tunnel}:{port_of_first_tunnel}")
-                    self.write_secret_addresses_toml_file(main_server_address=f"{address_of_first_tunnel}:{port_of_first_tunnel}")
-            print(path, end="")
+            if not address_added:
+                address_added = True
+                tunnels_list = self.get_existing_tunnels(self.get_secrets_playitcli_file(self.secret_main_playitcli))
+                print(f"[DEBUG] Tunnels_list: {tunnels_list}")
+                port_of_first_tunnel = tunnels_list.split()[4]
+                address_of_first_tunnel = tunnels_list.split()[3]
+                print(f"[DEBUG] You can access the minecraft server with: http://{address_of_first_tunnel} or if that doesn't work: http://{address_of_first_tunnel}:{port_of_first_tunnel}")
+                self.write_secret_addresses_toml_file(main_server_address=f"{address_of_first_tunnel}:{port_of_first_tunnel}")
+            print(path, end="")'''
 
     def get_existing_tunnels(self, secret_to_use):
         tunnels_list = subprocess.check_output([self.bin_path + "/playit-cli", 

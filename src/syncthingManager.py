@@ -15,10 +15,8 @@ class SyncthingManager:
         self.web3mcserver = web3mcserver
 
     def run_syncthing(self, command, cwd):
-        for path in self.web3mcserver.execute([self.web3mcserver.bin_path + "/playit-cli", 
-                        "launch", 
-                        self.web3mcserver.playitcli_toml_config_syncthing_server],
-                        cwd="./../"):
+        for path in self.web3mcserver.execute(command,
+                        cwd=cwd):
             print(path, end="")
             if 'Access the GUI via the following URL:' in path:
                 self.web3mcserver.local_syncthing_address = path.split()[-1]
