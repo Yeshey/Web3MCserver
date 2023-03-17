@@ -133,6 +133,8 @@ class CommonConfigFileManager:
         # Get sorted priorities
         sorted_priorities = self.sorted_dic_of_ID_and_server_run_priority()
         
+        print(f"[DEBUG] sorted_priorities: {sorted_priorities}")
+
         # Return the ID of the machine with the highest priority
         return sorted_priorities[0][0]
 

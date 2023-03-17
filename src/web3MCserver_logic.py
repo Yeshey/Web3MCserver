@@ -447,7 +447,7 @@ class Web3MCserverLogic:
             id_that_disconnected = self.peerDisconnected
             self.peerDisconnected = None
 
-            if self.going_to_restart is None:
+            if self.going_to_restart is not None:
                 if self.going_to_restart == id_that_disconnected:
                     self.going_to_restart = None
                     print("[DEBUG] giving it 30 seconds before checking again")
@@ -467,7 +467,7 @@ class Web3MCserverLogic:
                 remote_server_still_running = True
                 for _ in range(2):
                     print("[DEBUG] HERE 2")
-                    if self.syncthing_manager.syncthing_active(remote_address, timeout=3) and self.syncthing_manager.get_remote_syncthing_ID() != self.syncthing_manager.get_my_syncthing_ID():
+                    if self.syncthing_manager.syncthing_active(remote_address, timeout=1) and self.syncthing_manager.get_remote_syncthing_ID() != self.syncthing_manager.get_my_syncthing_ID():
                         remote_server_still_running = True
                         time.sleep(3) # give him time to shutdown in the other side
                         print(f"[DEBUG] {remote_server_still_running}")
