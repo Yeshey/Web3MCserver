@@ -447,6 +447,11 @@ class Web3MCserverLogic:
 
     def test_machine(self): # todo, if device is on battery, then it should do from -100 to 0 instead
         print("[DEBUG] Calculating Machine performance...")
+
+        is_power_plugged = psutil.sensors_battery().power_plugged
+
+        print(f"[DEBUG] Power Plugged: {is_power_plugged}")
+
         try:
             # Get internet speed score
             st = speedtest.Speedtest()
@@ -472,6 +477,9 @@ class Web3MCserverLogic:
         
         # Ensure score is between 0 and 100
         total_score = max(0, min(total_score, 100))
+
+        if is_power_plugged == False: #  loose 100 points if it is not plugged in
+            total_score -= 100
         
         print(f"[DEBUG] Performance given: {total_score}")
         return total_score

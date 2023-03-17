@@ -89,8 +89,9 @@ class CommonConfigFileManager:
         # should skip if in the process of choosing new host
         def run_update():
             while True:
-                time.sleep(7200)  # sleep for 2 hours
+                print("[DEBUG] running update_common_config_file_periodically")
                 self.update_common_config_file(recalculate_server_run_priority=True, Is_Host=None)
+                time.sleep(7200)  # sleep for 2 hours
         
         thread = threading.Thread(target=run_update)
         thread.daemon = True # so this thread ends automatically when main thread ends
