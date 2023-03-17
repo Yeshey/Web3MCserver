@@ -579,8 +579,7 @@ class Web3MCserverLogic:
                     if num_in_queue == 0:
                         print("[DEBUG] I should be host!!")
                         if iAmHost == True:
-                            print("[DEBUG] But I'm already host so...")
-                            continue
+                            print("[DEBUG] I'm already host... restarting anyways")
                         break
                     elif iAmHost == True:
                         print("[DEBUG] Gonna become a normal observer then...")
