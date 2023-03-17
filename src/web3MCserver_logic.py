@@ -132,6 +132,7 @@ class Web3MCserverLogic:
             print("Syncthing server address doesn't exist yet!")
 
     def run_minecraft(self, command, cwd):
+        print("[Debug] Killing Minecraft")
         self.terminate_minecraft()
         address_added = False # Make it save the address
 
@@ -200,6 +201,7 @@ class Web3MCserverLogic:
             print(path, end="")'''
 
     def terminate_minecraft(self):
+        
         try:
             if self.mc_process != None:
                 print(f"mc process pid: {self.mc_process.pid}")
@@ -213,6 +215,16 @@ class Web3MCserverLogic:
                 self.mc_process.kill() # doesn't seem to do anything?
         except:
             print("[DEBUG] Minecraft doesn't seem to be running")
+        
+        command_parts = self.update_playit_syncthing_config_command_from_secrets()
+        for proc in psutil.process_iter():
+            try:
+                cmd = proc.cmdline()
+                if 'java' in cmd and all(part in cmd for part in command_parts):
+                    proc.kill()
+                    print('Process killed')
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
 
         self.mc_process = None
         pass
