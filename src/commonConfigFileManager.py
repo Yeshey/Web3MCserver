@@ -136,7 +136,7 @@ class CommonConfigFileManager:
         print(f"[DEBUG] sorted_priorities: {sorted_priorities}")
 
         # Return the ID of the machine with the highest priority
-        return sorted_priorities[0][0]
+        return list(sorted_priorities.keys())[0]
 
     def is_new_node(self):
         try:
