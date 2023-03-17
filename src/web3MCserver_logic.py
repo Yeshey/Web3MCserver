@@ -504,15 +504,18 @@ class Web3MCserverLogic:
 
     def is_mc_server_online(self, server_address):
         try:
-            # Split the server address into its hostname and port
-            host, port = server_address.split(":")
-            # Create a MinecraftServer object
-            server = MinecraftServer(host, int(port))
-            # Call the status() method to get the server's status
-            status = server.status()
-            return True
-        except (socket.timeout, ConnectionRefusedError):
-            # If the server is not responding or refused the connection, return False
+            try:
+                # Split the server address into its hostname and port
+                host, port = server_address.split(":")
+                # Create a MinecraftServer object
+                server = MinecraftServer(host, int(port))
+                # Call the status() method to get the server's status
+                status = server.status()
+                return True
+            except (socket.timeout, ConnectionRefusedError):
+                # If the server is not responding or refused the connection, return False
+                return False
+        except:
             return False
 
     def observer_of_common_conf_file(self, iAmHost = False):
@@ -566,7 +569,7 @@ class Web3MCserverLogic:
 
                 if not remote_server_still_running:
                     num_in_queue = my_order
-                    interval_time = 30
+                    interval_time = 100
 
                     if iAmHost == True:
                         print(f"[DEBUG] remote server not responding, but I am host. I'm doing an awful job!!")    
