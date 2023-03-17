@@ -132,6 +132,7 @@ class Web3MCserverLogic:
             print("Syncthing server address doesn't exist yet!")
 
     def run_minecraft(self, command, cwd):
+        self.terminate_minecraft()
         address_added = False # Make it save the address
 
         for path in self.execute_mc(command,
