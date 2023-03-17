@@ -88,7 +88,7 @@ class CommonConfigFileManager:
         # Get my ID
         my_id = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
         online_peers = self.web3mcserver.syncthing_manager.online_peers_list()
-        everyone_online = online_peers.append(my_id)
+        everyone_online = online_peers + [my_id]
         print(f"[DEBUG] Online peers: {online_peers}")
         
         # Load the config file
