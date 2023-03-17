@@ -245,7 +245,7 @@ class SyncthingManager:
         syncthingApiKey = self.get_api_key()
         headers = {"X-API-Key": syncthingApiKey}
         url = f"{remoteSyncthingAddress}/rest/system/status"
-        response = requests.get(url, headers=headers, timeout=60)
+        response = requests.get(url, headers=headers, timeout=30)
         response.raise_for_status()
         response_json = response.json()
         my_id = response_json["myID"]
