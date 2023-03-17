@@ -488,12 +488,15 @@ class Web3MCserverLogic:
                         #self.event.set()
                         print("[DEBUG] I should be host!!")
                         break
-
+                    
+                    not_gonna_be_host = False
                     for _ in range(num_in_queue):
                         time.sleep(interval_time)
                         if self.syncthing_manager.syncthing_active(remote_address, timeout=3):
                             print("[DEBUG] server running already, oki")
-                            continue
+                            not_gonna_be_host = True
+                    if not_gonna_be_host:
+                        continue
 
                     if self.terminating:
                         print("[DEBUG] File changed, but terminating, skipping")
