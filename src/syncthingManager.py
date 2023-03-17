@@ -274,7 +274,11 @@ class SyncthingManager:
                 if response.status_code == 200:
                     return True
             except requests.exceptions.RequestException:
-                print(f"[DEBUG] no syncthing detected, trying {3-i} more")
+                if i == 0:
+                    print(f"[DEBUG] no syncthing detected")
+                else:
+                    print(".", end="")
+                    
             
             time.sleep(3)
 
