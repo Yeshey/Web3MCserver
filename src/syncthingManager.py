@@ -141,7 +141,7 @@ class SyncthingManager:
             if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
                 if not self.web3mcserver.is_mc_server_online(self.web3mcserver.get_main_server_address()):
                     print("[DEBUG] server is not online!!!")
-                    self.web3mcserver.event_peerDisconnecteds.set() # let server go to someone better
+                    self.web3mcserver.event_peerDisconnected.set() # let server go to someone better
             else:
                 print("[DEBUG] Syncthing server address doesn't exist yet.")    
 
@@ -157,7 +157,7 @@ class SyncthingManager:
                     ):
                     print("[DEBUG] I'm a fake host!?")
                     self.web3mcserver.iAmAFakeHost = True
-                    self.web3mcserver.event_peerDisconnecteds.set()
+                    self.web3mcserver.event_peerDisconnected.set()
 
             # Check if there are syncthing peers that want to connect
             if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command") and self.syncthing_active(self.web3mcserver.local_syncthing_address, timeout=3):
