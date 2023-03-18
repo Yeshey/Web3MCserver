@@ -217,6 +217,7 @@ class Web3MCserverLogic:
             print("[DEBUG] Minecraft doesn't seem to be running")
         
         command_parts = self.update_playit_syncthing_config_command_from_secrets()
+        print(f"[DEBUG] command parts: {command_parts}")
         for proc in psutil.process_iter():
             try:
                 cmd = proc.cmdline()
@@ -224,10 +225,9 @@ class Web3MCserverLogic:
                     proc.kill()
                     print('Process killed')
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                pass
+                print(f"[DEBUG] Exception on killing minecraft")
 
         self.mc_process = None
-        pass
 
     def get_existing_tunnels(self, secret_to_use):
         tunnels_list = subprocess.check_output([self.bin_path + "/playit-cli", 

@@ -292,8 +292,8 @@ class SyncthingManager:
                 return False
 
     def syncthing_active(self, syncthing_address, timeout = 60):
-        if not self.internet_on():
-            raise Exception("No internet!")
+        while not self.internet_on():
+            print("[DEBUG] No internet!")
         secret = self.get_api_key() # Replace with your actual secret key
         headers = {'X-API-Key': secret}
 
