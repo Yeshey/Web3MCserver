@@ -2,6 +2,7 @@ from asyncio import Lock
 from datetime import datetime, timedelta
 from enum import Flag
 from multiprocessing import RLock
+import multiprocessing
 import threading
 from .playitCliManager import PlayitCliManager
 from .syncthingManager import SyncthingManager
@@ -540,6 +541,11 @@ class Web3MCserverLogic:
 
     def observer_of_common_conf_file(self, iAmHost = False):
         while True:
+            active = multiprocessing.active_children()
+            print(f"Active child processes: {active}")
+            for child in active:
+                child.terminate()
+
             with self.my_lock_notDoingStuff:
                 self.notDoingStuff = True
             self.event_peerDisconnected.wait()
