@@ -68,6 +68,9 @@ class Web3MCserverLogic:
         self.my_lock_local_syncthing_address = threading.Lock()
         with self.my_lock_local_syncthing_address:
             self.local_syncthing_address = None
+        self.my_lock_notDoingStuff = threading.Lock()
+        with self.my_lock_notDoingStuff:
+            self.notDoingStuff = False
 
         self.event_peerDisconnected = threading.Event()    
 
@@ -401,7 +404,7 @@ class Web3MCserverLogic:
         if platform.system() == 'Windows':
             default_command = f"./bin/windows/syncthing/syncthing.exe --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
         else:
-            default_command = f"./bin/linux/syncthing/syncthing --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
+            default_command = f"./bin/linux/syncthing/syncthing --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840" 
 
         # there was no command there, we need to create a new key
         if not server_command:
@@ -537,7 +540,11 @@ class Web3MCserverLogic:
 
     def observer_of_common_conf_file(self, iAmHost = False):
         while True:
+            with self.my_lock_notDoingStuff:
+                self.notDoingStuff = True
             self.event_peerDisconnected.wait()
+            with self.my_lock_notDoingStuff:
+                self.notDoingStuff = False
             self.event_peerDisconnected.clear()  # Reset event
             print("Continuing main thread execution...")
 
