@@ -19,7 +19,7 @@ class PlayitCliManager:
         url_of_site = subprocess.check_output([self.web3mcserverLogic.bin_path + "/playit-cli", "claim", "url", playitcli_code])
         url_of_site = url_of_site.decode().strip()
         print("[DEBUG] If site doesn't open, open it manually: " + url_of_site)
-        webbrowser.open(url_of_site, new=0, autoraise=True) 
+        #webbrowser.open(url_of_site, new=0, autoraise=True) 
 
         playitcli_secret = subprocess.check_output([self.web3mcserverLogic.bin_path + "/playit-cli", "claim", "exchange", playitcli_code])
         playitcli_secret = playitcli_secret.decode().strip()
