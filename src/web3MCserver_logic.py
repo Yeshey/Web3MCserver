@@ -586,7 +586,7 @@ class Web3MCserverLogic:
             id_that_disconnected = self.peerDisconnected
             self.peerDisconnected = None
 
-            if not self.internet_on():
+            if not self.syncthing_manager.internet_on():
                 print("[DEBUG] No internet!")
                 continue
 
