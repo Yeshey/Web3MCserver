@@ -252,6 +252,10 @@ class SyncthingManager:
         return api_key
 
     def terminate_syncthing(self, syncthing_address, syncthing_process):
+
+        self.web3mcserver.kill_playitcli_server(self.web3mcserver.playitcli_toml_config_syncthing_server)
+
+        print("Trying old method of killing syncthing too")
         try:
             syncthingApiKey = self.get_api_key() # same key for everyone in the cluster
             headers = {"X-API-Key": syncthingApiKey}
@@ -265,8 +269,11 @@ class SyncthingManager:
                 raise Exception("No pid?")
             except:
                 print(f"[DEBUG] Failed to kill syncthing, kill it manually. Address: {syncthing_address}")
-                syncthing_process.terminate() # doesn't seem to do anything?
-                syncthing_process.kill() # doesn't seem to do anything?
+                try:
+                    syncthing_process.terminate() # doesn't seem to do anything?
+                    syncthing_process.kill() # doesn't seem to do anything?
+                except:
+                    print("WTH, no syncthing at all, what are you trying to kill?")
         with self.web3mcserver.my_lock_local_syncthing_address:
             self.web3mcserver.local_syncthing_address = None
             self.web3mcserver.syncthing_process = None

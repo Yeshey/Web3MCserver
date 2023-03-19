@@ -56,6 +56,7 @@ class Web3MCserverLogic:
 
         self.server_folder_path = os.path.abspath("./sync/server/")
         self.playitcli_toml_config_main_server = os.path.abspath("./playit-cli_config/main_server_config.toml")
+        self.playitcli_toml_config_syncthing_server = os.path.abspath("./playit-cli_config/syncthing_server_config.toml")
         self.sync_folder_path = os.path.abspath("./sync/")
         self.common_config_file_path = os.path.abspath("./sync/common_conf.toml")
         #print(f"[DEBUG] {self.playitcli_toml_config_main_server}")
@@ -204,8 +205,40 @@ class Web3MCserverLogic:
                 self.write_secret_addresses_toml_file(main_server_address=f"{address_of_first_tunnel}:{port_of_first_tunnel}")
             print(path, end="")'''
 
+    def kill_process_by_command(self, command, command_args):
+        # Get process information for all running processes
+        for proc in psutil.process_iter(attrs=['name', 'cmdline']):
+            try:
+                # Check if process name and command-line arguments match
+                
+                if proc.info['name'] in command and all(arg in proc.info['cmdline'] for arg in command_args):
+                    print(proc.info['name'])
+                    # Kill the process
+                    proc.kill()
+                    print(f"Process {proc.pid} ({command} {' '.join(command_args)}) has been terminated.")
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                # Process has already terminated or we don't have permission to kill it
+                print("[DEBUG] Couldn't kill, or, wasn't found")
+    
+    def kill_playitcli_server(self, playitconfig):
+        # Read the TOML config file
+        with open(playitconfig, "r") as f:
+            config = toml.load(f)
+        
+        # Extract command and command_args from the config file
+        command = config.get("command")
+        command_args = config.get("command_args", [])
+        print(command)
+        print(command_args)
+        
+        # Kill the process with the matching command and command_args
+        self.kill_process_by_command(command, command_args)
+
+
     def terminate_minecraft(self):
         
+        self.kill_playitcli_server(self.playitcli_toml_config_main_server)
+
         try:
             if self.mc_process != None:
                 print(f"mc process pid: {self.mc_process.pid}")
@@ -219,8 +252,8 @@ class Web3MCserverLogic:
                 self.mc_process.kill() # doesn't seem to do anything?
         except:
             print("[DEBUG] Minecraft doesn't seem to be running")
-        
-        command_parts = self.update_playit_syncthing_config_command_from_secrets()
+
+        '''command_parts = self.update_playit_syncthing_config_command_from_secrets()
         print(f"[DEBUG] command parts: {command_parts}")
         for proc in psutil.process_iter():
             try:
@@ -229,7 +262,7 @@ class Web3MCserverLogic:
                     proc.kill()
                     print('Process killed')
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                print(f"[DEBUG] Exception on killing minecraft")
+                print(f"[DEBUG] Exception on killing minecraft")'''
 
         self.mc_process = None
 
@@ -552,6 +585,10 @@ class Web3MCserverLogic:
 
             id_that_disconnected = self.peerDisconnected
             self.peerDisconnected = None
+
+            if not self.internet_on():
+                print("[DEBUG] No internet!")
+                continue
 
             if self.terminating:
                 print("[DEBUG] Someone disconnected, but terminating, skipping")
