@@ -590,7 +590,7 @@ class Web3MCserverLogic:
                     try:
                         if (
                                 self.syncthing_manager.syncthing_active(remote_address, timeout=1) and 
-                                self.syncthing_manager.get_remote_syncthing_ID() != self.syncthing_manager.get_my_syncthing_ID() and 
+                                self.syncthing_manager.get_remote_syncthing_ID() != self.syncthing_manager.get_my_syncthing_ID() or 
                                 self.is_mc_server_online(self.get_main_server_address())
                             ):
                             remote_server_still_running = True
