@@ -541,10 +541,6 @@ class Web3MCserverLogic:
 
     def observer_of_common_conf_file(self, iAmHost = False):
         while True:
-            active = multiprocessing.active_children()
-            print(f"Active child processes: {active}")
-            for child in active:
-                child.terminate()
 
             with self.my_lock_notDoingStuff:
                 self.notDoingStuff = True
