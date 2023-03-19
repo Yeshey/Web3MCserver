@@ -51,7 +51,7 @@ class SyncthingManager:
             if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
                 remote_address = self.web3mcserver.get_syncthing_server_address()
                 if self.syncthing_active(remote_address, timeout=1) and self.get_remote_syncthing_ID() != self.get_my_syncthing_ID():
-                    print("[WARNING] Shouldn't start while syncthing server is running!...")
+                    Exception("[WARNING] Shouldn't start while syncthing server is running!...")
             else:
                 print("[DEBUG] Syncthing server address doesn't exist yet.")    
 
