@@ -409,7 +409,7 @@ class SyncthingManager:
                 print(f"[DEBUG] Sync compleation above {value}%, continuing...")
                 break
             print(f"[DEBUG] Sync compleation below {value}%, checking for new peers every {time_to_sleep} seconds")
-            if value > 80: # Don't let it advance if sync compleation isn't above 80%
+            if value > 88: # Don't let it advance if sync compleation isn't above 80%
                 value -= 1
             time.sleep(time_to_sleep)
                 

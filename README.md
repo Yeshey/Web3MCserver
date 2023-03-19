@@ -22,7 +22,8 @@ Distributed Minecraft server to run always on the available PC
 
 # How to run
 
-- run `download_dependencies.py`
+- download and install python
+- run `pip install -r requirements.txt`
 - make and get the secret for a playit-gg account: `playit-cli claim generate` && `playit-cli claim url <CODE>` && `playit-cli claim exchange <CODE>`, then you can put the secret in the `./secrets/secrets.toml` file
 
 # To-Do
