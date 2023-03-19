@@ -310,7 +310,6 @@ class SyncthingManager:
             try:
                 response = requests.get(f"{syncthing_address}/rest/system/ping", headers=headers, timeout=timeout)
                 if response.status_code == 200:
-                    self.wait_for_sync_to_finish()
                     return True
             except requests.exceptions.RequestException:
                 print(f"[DEBUG] no syncthing detected, trying {3-i} more")
@@ -356,6 +355,9 @@ class SyncthingManager:
         return online_ids
 
     def wait_for_sync_to_finish(self):
+        if self.syncthing_active(self.web3mcserver.local_syncthing_address, timeout=1):
+            print("[DEBUG] Local syncthing not active, not checking for sync compleation")
+            return
         urlScan = f'{self.web3mcserver.local_syncthing_address}rest/db/scan\?folder\=sync'
         url = f'{self.web3mcserver.local_syncthing_address}rest/db/completion'
         headers = {'X-API-Key': self.get_api_key()}
