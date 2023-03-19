@@ -697,14 +697,11 @@ class Web3MCserverLogic:
                                 if self.is_mc_server_online(self.get_main_server_address()):
                                     remote_server_still_running = True
                                     time.sleep(3) # give him time to shutdown in the other side
-                                    print(f"[DEBUG] remote server still running: {remote_server_still_running}")
+                                    print(f"[DEBUG] 1 - remote server still running: {remote_server_still_running}")
                                     break
-                            remote_server_still_running = False
-                            print(f"[DEBUG] remote server still running: {remote_server_still_running}")
-                            break
                         else:
                             remote_server_still_running = False
-                            print(f"[DEBUG] remote server still running: {remote_server_still_running}")
+                            print(f"[DEBUG] 3 - dremote server still running: {remote_server_still_running}")
                             break
                     except KeyboardInterrupt:
                         # handle KeyboardInterrupt separately
