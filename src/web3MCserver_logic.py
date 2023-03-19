@@ -220,8 +220,9 @@ class Web3MCserverLogic:
         for proc in psutil.process_iter(attrs=['name', 'cmdline']):
             try:
                 # Check if process name and command-line arguments match
-                
-                if proc.info['name'] in command and all(arg in proc.info['cmdline'] for arg in command_args):
+                #if proc is None: # this is needed in Windows
+                #    proc = []
+                if proc.info['name'] in command and proc.info['cmdline'] is not None and all(arg in proc.info['cmdline'] for arg in command_args):
                     print(proc.info['name'])
                     # Kill the process
                     proc.kill()
