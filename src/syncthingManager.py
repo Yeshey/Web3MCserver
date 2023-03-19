@@ -310,6 +310,7 @@ class SyncthingManager:
             try:
                 response = requests.get(f"{syncthing_address}/rest/system/ping", headers=headers, timeout=timeout)
                 if response.status_code == 200:
+                    self.wait_for_sync_to_finish()
                     return True
             except requests.exceptions.RequestException:
                 print(f"[DEBUG] no syncthing detected, trying {3-i} more")
@@ -364,24 +365,20 @@ class SyncthingManager:
 
         time_to_sleep = 3
 
-        i = 10
-        while i > 0: # make it not take forever... there might be no peers online
-            i -= 1
+        value = 100
+        while True: # make it not take forever... there might be no peers online
             response = requests.get(url, headers=headers, timeout=60)
             data = response.json()
             completion = data.get('completion')
             if not self.online_peers_list(): # list is empty
                 print(f"[DEBUG] No online peers, unable to garantee most recent version")
-                if completion >= 98:
-                    print(f"[DEBUG] Sync compleation above 98%, continuing in {i*time_to_sleep} seconds")
-                else:
-                    i=10
-                    print(f"[DEBUG] Sync compleation below 98%, checking for new peers every {time_to_sleep} seconds")
-            else:
-                i=10
-            if completion == 100:
+
+            if completion >= value:
+                print(f"[DEBUG] Sync compleation above {value}%, continuing...")
                 break
-            else:
-                time.sleep(time_to_sleep)
+            print(f"[DEBUG] Sync compleation below {value}%, checking for new peers every {time_to_sleep} seconds")
+            if value > 80: # Don't let it advance if sync compleation isn't above 80%
+                value -= 1
+            time.sleep(time_to_sleep)
                 
         print("[DEBUG] Sync compleate!")

@@ -159,7 +159,7 @@ class Web3MCserverLogic:
         self.lastServerHostChange = datetime.now()
         self.isHost = True
 
-        self.syncthing_manager.wait_for_sync_to_finish() # todo, check https://man.archlinux.org/man/community/syncthing/syncthing-rest-api.7.en
+        self.syncthing_manager.wait_for_sync_to_finish()
 
         # Send desktop notification
         notification = Notify()
@@ -594,6 +594,8 @@ class Web3MCserverLogic:
                 print("[DEBUG] Someone disconnected, but terminating, skipping")
                 continue
 
+            self.syncthing_manager.wait_for_sync_to_finish()
+
             if self.iAmAFakeHost is True: # shame on me
                 self.iAmAFakeHost = False
                 print("[DEBUG] I am fake host? Confirming...")
@@ -615,8 +617,8 @@ class Web3MCserverLogic:
             if self.going_to_restart is not None:
                 if self.going_to_restart == id_that_disconnected:
                     self.going_to_restart = None
-                    print("[DEBUG] giving it 30 seconds before checking again")
-                    time.sleep(30)
+                    print("[DEBUG] giving it 90 seconds before checking again")
+                    time.sleep(90)
 
             print("[DEBUG] Someone disconnected")
             field = "syncthing_server_command"
