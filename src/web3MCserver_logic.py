@@ -59,6 +59,7 @@ class Web3MCserverLogic:
         self.playitcli_toml_config_syncthing_server = os.path.abspath("./playit-cli_config/syncthing_server_config.toml")
         self.sync_folder_path = os.path.abspath("./sync/")
         self.common_config_file_path = os.path.abspath("./sync/common_conf.toml")
+        self.root = os.path.abspath("./")
         #print(f"[DEBUG] {self.playitcli_toml_config_main_server}")
 
         self.my_lock_terminating = threading.Lock()
@@ -459,7 +460,9 @@ class Web3MCserverLogic:
         api_key = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(20))
         # Use the random string as the API key in the default command
         if platform.system() == 'Windows':
-            default_command = f"./bin/windows/syncthing/syncthing.exe --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
+            syncthing_path = os.path.abspath(os.path.join(self.root, 'bin', 'windows', 'syncthing', 'syncthing.exe'))
+            print (syncthing_path)
+            default_command = fr"{syncthing_path} --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
         else:
             default_command = f"./bin/linux/syncthing/syncthing --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840" 
 
@@ -512,6 +515,7 @@ class Web3MCserverLogic:
         
         with open(playitcli_toml_config, "w") as f:
             toml.dump(playitcli_config, f)
+            #f.write(toml.dumps(playitcli_config).replace('\\\\', '\\'))
 
         return command_parts
 

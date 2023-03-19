@@ -45,7 +45,7 @@ class CommonConfigFileManager:
                 remote_address = self.web3mcserver.get_syncthing_server_address()
                 if self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1):
                     updateSyncthingShenenigans = True
-                    print("[DEBUG] Shouldn't start while syncthing server is running! Not updating common config file about remote syncthing")
+                    print("[DEBUG] Syncthing online, updating common config file about remote syncthing")
             else:
                 print("[DEBUG] Syncthing server address field in file doesn't exist yet. Not updating common config file about remote syncthing")
         except KeyboardInterrupt:

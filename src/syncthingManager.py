@@ -14,7 +14,8 @@ class SyncthingManager:
     def __init__(self, web3mcserver):
         self.web3mcserver = web3mcserver
 
-    def run_syncthing(self, command, cwd):
+    def run_syncthing(self, command, cwd):      
+        print(f"[DEBUG] run syncthing, command: {command}, cwd: {cwd}")
         for path in self.web3mcserver.execute(command,
                         cwd=cwd):
             print(path, end="")
@@ -53,7 +54,7 @@ class SyncthingManager:
                 if self.syncthing_active(remote_address, timeout=1) and self.get_remote_syncthing_ID() != self.get_my_syncthing_ID():
                     Exception("[WARNING] Shouldn't start while syncthing server is running!...")
             else:
-                print("[DEBUG] Syncthing server address doesn't exist yet.")    
+                print("[DEBUG] Syncthing server address doesn't exist yet.")
 
             # tmp trying another way
             t = threading.Thread(target=self.run_syncthing, args=([self.web3mcserver.bin_path + "/playit-cli", 
@@ -78,7 +79,7 @@ class SyncthingManager:
         else:
             print("[DEBUG] Starting Syncthing locally...")
             # tmp trying another way
-            t = threading.Thread(target=self.run_syncthing, args=(command, "./../"))
+            t = threading.Thread(target=self.run_syncthing, args=(command, self.web3mcserver.root))
             t.start()
             #self.web3mcserver.local_syncthing_address = "http://127.0.0.1:23840/" # find better way for this too
 
