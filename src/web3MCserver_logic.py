@@ -595,7 +595,22 @@ class Web3MCserverLogic:
                 continue
 
             if self.iAmAFakeHost is True: # shame on me
-                break
+                self.iAmAFakeHost = False
+                print("[DEBUG] I am fake host? Confirming...")
+                if iAmHost == True:
+                    try:
+                        if (
+                                self.web3mcserver.syncthing_manager.get_remote_syncthing_ID() != self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
+                            ):
+                            print("\n[DEBUG] I'm a fake host!!\n")
+                            break
+                        elif (self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1)):
+                            print("\n[DEBUG] I'm a fake host?? Syncthing server not online?\n")
+                            break
+                    except:
+                        print("\n[DEBUG] Exception? I'm a fake host?? Syncthing server not online? Relinquishing host status...\n")
+                        break
+                
 
             if self.going_to_restart is not None:
                 if self.going_to_restart == id_that_disconnected:
