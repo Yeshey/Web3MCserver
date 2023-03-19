@@ -175,6 +175,10 @@ class SyncthingManager:
                         ID_of_peer_that_wants_to_connect = list(data.keys())[0]
                         self.connect_to_syncthing_peer(ID_of_peer_that_wants_to_connect)
                         self.add_folders_to_sync([ID_of_peer_that_wants_to_connect])
+                except KeyboardInterrupt:
+                    # handle KeyboardInterrupt separately
+                    print("KeyboardInterrupt caught")
+                    raise KeyboardInterrupt
                 except requests.exceptions.RequestException as e:
                     print(f"Error: {e}")
 
@@ -262,18 +266,31 @@ class SyncthingManager:
             url = f"{syncthing_address}rest/system/shutdown"
             response = requests.post(url, headers=headers, timeout=60)
             print(f"[DEBUG] {response.text}")
-        except:
+        except KeyboardInterrupt:
+            # handle KeyboardInterrupt separately
+            print("KeyboardInterrupt caught")
+            raise KeyboardInterrupt
+        except Exception as e:
             try:
+                print(f"[DEBUG] Exception: {e}")
                 print(syncthing_process.pid)
                 print(os.getpid())
                 raise Exception("No pid?")
-            except:
-                print(f"[DEBUG] Failed to kill syncthing, kill it manually. Address: {syncthing_address}")
+            except KeyboardInterrupt:
+                # handle KeyboardInterrupt separately
+                print("KeyboardInterrupt caught")
+                raise KeyboardInterrupt
+            except Exception as e:
+                print(f"[DEBUG] Exception: {e}, Failed to kill syncthing, kill it manually. Address: {syncthing_address}")
                 try:
                     syncthing_process.terminate() # doesn't seem to do anything?
                     syncthing_process.kill() # doesn't seem to do anything?
-                except:
-                    print("WTH, no syncthing at all, what are you trying to kill?")
+                except KeyboardInterrupt:
+                    # handle KeyboardInterrupt separately
+                    print("KeyboardInterrupt caught")
+                    raise KeyboardInterrupt
+                except Exception as e:
+                    print(f"Exception: {e}, WTH, no syncthing at all, what are you trying to kill?")
         with self.web3mcserver.my_lock_local_syncthing_address:
             self.web3mcserver.local_syncthing_address = None
             self.web3mcserver.syncthing_process = None
@@ -293,10 +310,18 @@ class SyncthingManager:
         try:
             urllib.request.urlopen("http://google.com") #Python 3.x
             return True
+        except KeyboardInterrupt:
+            # handle KeyboardInterrupt separately
+            print("KeyboardInterrupt caught")
+            raise KeyboardInterrupt
         except:
             try:
                 urllib.request.urlopen("https://www.bing.com") #Python 3.x
                 return True
+            except KeyboardInterrupt:
+                # handle KeyboardInterrupt separately
+                print("KeyboardInterrupt caught")
+                raise KeyboardInterrupt
             except:
                 return False
 
@@ -311,6 +336,10 @@ class SyncthingManager:
                 response = requests.get(f"{syncthing_address}/rest/system/ping", headers=headers, timeout=timeout)
                 if response.status_code == 200:
                     return True
+            except KeyboardInterrupt:
+                # handle KeyboardInterrupt separately
+                print("KeyboardInterrupt caught")
+                raise KeyboardInterrupt
             except requests.exceptions.RequestException:
                 print(f"[DEBUG] no syncthing detected, trying {3-i} more")
             

@@ -30,27 +30,39 @@ class CommonConfigFileManager:
         # return if my syncthing is not running
         try:
             syncthingDeviceID = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
+        except KeyboardInterrupt:
+            # handle KeyboardInterrupt separately
+            print("KeyboardInterrupt caught")
+            raise KeyboardInterrupt
         except RuntimeError as e:
-            print("[DEBUG] Syncthing config doesn't exist yet: ", e)
+            print(f"[DEBUG] exception caught: {e}, Syncthing config doesn't exist yet: ")
             return
 
         
-        updateSyncthingShenenigans = True
+        updateSyncthingShenenigans = False
         try:
             if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
                 remote_address = self.web3mcserver.get_syncthing_server_address()
-                if self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1) and self.web3mcserver.syncthing_manager.get_remote_syncthing_ID() != self.web3mcserver.syncthing_manager.get_my_syncthing_ID():
+                if self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1):
                     updateSyncthingShenenigans = True
-                    Exception("[DEBUG] Shouldn't start while syncthing server is running! Not updating common config file about remote syncthing")
+                    print("[DEBUG] Shouldn't start while syncthing server is running! Not updating common config file about remote syncthing")
             else:
                 print("[DEBUG] Syncthing server address field in file doesn't exist yet. Not updating common config file about remote syncthing")
-        except:
+        except KeyboardInterrupt:
+            # handle KeyboardInterrupt separately
+            print("KeyboardInterrupt caught")
+            raise KeyboardInterrupt
+        except Exception as e:
            updateSyncthingShenenigans = False 
         if updateSyncthingShenenigans:
             try:
                 hostID = self.web3mcserver.syncthing_manager.get_remote_syncthing_ID()
-            except:
-                print("[DEBUG] Exception getting remote ID, Not updating common config file about remote syncthing")
+            except KeyboardInterrupt:
+                # handle KeyboardInterrupt separately
+                print("KeyboardInterrupt caught")
+                raise KeyboardInterrupt
+            except Exception as e:
+                print(f"[DEBUG] Exception getting remote ID: {e}, Not updating common config file about remote syncthing")
                 updateSyncthingShenenigans = False
         if updateSyncthingShenenigans:
             myID = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
@@ -145,7 +157,11 @@ class CommonConfigFileManager:
     def is_new_node(self):
         try:
             ID = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
-        except:
+        except KeyboardInterrupt:
+            # handle KeyboardInterrupt separately
+            print("KeyboardInterrupt caught")
+            raise KeyboardInterrupt
+        except Exception as e:
             return True
 
         print(self.web3mcserver.common_config_file_path)

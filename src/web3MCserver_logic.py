@@ -166,7 +166,12 @@ class Web3MCserverLogic:
         notification.title = "This computer will be host for the Minecraft server now"
         try:
             server_address = self.get_main_server_address()
-        except Exception:
+        except KeyboardInterrupt:
+            # handle KeyboardInterrupt separately
+            print("KeyboardInterrupt caught")
+            raise KeyboardInterrupt
+        except Exception as e:
+            print(f"[DEBUG] Exception: {e}")
             server_address = "--First time running, please check /secrets/secret_addresses.toml--"
         notification.message = f"server address: {server_address}"
         notification.send()
@@ -182,7 +187,12 @@ class Web3MCserverLogic:
             try:
                 _ = self.get_main_server_address()
                 break
-            except:
+            except KeyboardInterrupt:
+                # handle KeyboardInterrupt separately
+                print("KeyboardInterrupt caught")
+                raise KeyboardInterrupt
+            except Exception as e:
+                print(f"[DEBUG] Exception caught: {e}")
                 time.sleep(1)
 
         self.observer_of_common_conf_file(iAmHost = True)
@@ -216,6 +226,10 @@ class Web3MCserverLogic:
                     # Kill the process
                     proc.kill()
                     print(f"Process {proc.pid} ({command} {' '.join(command_args)}) has been terminated.")
+            except KeyboardInterrupt:
+                # handle KeyboardInterrupt separately
+                print("KeyboardInterrupt caught")
+                raise KeyboardInterrupt
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 # Process has already terminated or we don't have permission to kill it
                 print("[DEBUG] Couldn't kill, or, wasn't found")
@@ -250,8 +264,12 @@ class Web3MCserverLogic:
                     print("Pid of minecraft and Pid of this python script are the same, not killing!")
                 self.mc_process.terminate() # doesn't seem to do anything?
                 self.mc_process.kill() # doesn't seem to do anything?
-        except:
-            print("[DEBUG] Minecraft doesn't seem to be running")
+        except KeyboardInterrupt:
+            # handle KeyboardInterrupt separately
+            print("KeyboardInterrupt caught")
+            raise KeyboardInterrupt
+        except Exception as e:
+            print(f"[DEBUG] Exception caught: {e}, Minecraft doesn't seem to be running")
 
         '''command_parts = self.update_playit_syncthing_config_command_from_secrets()
         print(f"[DEBUG] command parts: {command_parts}")
@@ -327,7 +345,11 @@ class Web3MCserverLogic:
                 resp = requests.get(self.minecraft_server_url, timeout=60).content
                 with open(self.server_path + self.minecraft_server_file_name, "wb") as f:
                     f.write(resp)
-                print("image is saved")
+                print("[DEBUG] server.jar is saved")
+            except KeyboardInterrupt:
+                # handle KeyboardInterrupt separately
+                print("KeyboardInterrupt caught")
+                raise KeyboardInterrupt
             except Exception as e:
                 raise e
 
@@ -504,7 +526,12 @@ class Web3MCserverLogic:
 
         try:
             is_power_plugged = psutil.sensors_battery().power_plugged
-        except:
+        except KeyboardInterrupt:
+            # handle KeyboardInterrupt separately
+            print("KeyboardInterrupt caught")
+            raise KeyboardInterrupt
+        except Exception as e:
+            print(f"[DEBUG] Exception caught: {e}, couldn't get battery information, assuming on battery")
             is_power_plugged = False # if can't get the information, assume its on battery
 
         print(f"[DEBUG] Power Plugged: {is_power_plugged}")
@@ -515,6 +542,10 @@ class Web3MCserverLogic:
             download_speed = st.download() / 10**6  # convert to Mbps
             upload_speed = st.upload() / 10**6  # convert to Mbps
             internet_score = ((download_speed + upload_speed) / 2) / 100 * 75
+        except KeyboardInterrupt:
+            # handle KeyboardInterrupt separately
+            print("KeyboardInterrupt caught")
+            raise KeyboardInterrupt
         except speedtest.SpeedtestException:
             internet_score = 0
             print("[WARNING] Unable to measure internet speed")
@@ -525,6 +556,10 @@ class Web3MCserverLogic:
             ram_usage = psutil.virtual_memory().percent
             disk_usage = psutil.disk_usage('/').percent
             hardware_score = (100 - cpu_usage - ram_usage - disk_usage) / 100 * 25
+        except KeyboardInterrupt:
+            # handle KeyboardInterrupt separately
+            print("KeyboardInterrupt caught")
+            raise KeyboardInterrupt
         except Exception as e:
             hardware_score = 0
             print(f"[WARNING] Unable to measure hardware performance: {e}")
@@ -551,6 +586,10 @@ class Web3MCserverLogic:
                     for dir in dirs:
                         if not dir.startswith('.'):
                             os.rmdir(os.path.join(root, dir))
+            except KeyboardInterrupt:
+                # handle KeyboardInterrupt separately
+                print("KeyboardInterrupt caught")
+                raise KeyboardInterrupt
             except Exception as e:
                 print(f"Failed to delete. Reason: {e}")
         else:
@@ -566,10 +605,19 @@ class Web3MCserverLogic:
                 # Call the status() method to get the server's status
                 status = server.status()
                 return True
+            except KeyboardInterrupt:
+                # handle KeyboardInterrupt separately
+                print("KeyboardInterrupt caught")
+                raise KeyboardInterrupt
             except (socket.timeout, ConnectionRefusedError):
                 # If the server is not responding or refused the connection, return False
                 return False
-        except:
+        except KeyboardInterrupt:
+            # handle KeyboardInterrupt separately
+            print("KeyboardInterrupt caught")
+            raise KeyboardInterrupt
+        except Exception as e:
+            print(f"[DEBUG] Exception caught on is_mc_server_online: {e}")
             return False
 
     def observer_of_common_conf_file(self, iAmHost = False):
@@ -609,8 +657,12 @@ class Web3MCserverLogic:
                         elif (self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1)):
                             print("\n[DEBUG] I'm a fake host?? Syncthing server not online?\n")
                             break
-                    except:
-                        print("\n[DEBUG] Exception? I'm a fake host?? Syncthing server not online? Relinquishing host status...\n")
+                    except KeyboardInterrupt:
+                        # handle KeyboardInterrupt separately
+                        print("KeyboardInterrupt caught")
+                        raise KeyboardInterrupt
+                    except Exception as e:
+                        print(f"\n[DEBUG] Exception caught: {e}, I'm a fake host?? Syncthing server not online? Relinquishing host status...\n")
                         break
                 
 
@@ -650,7 +702,12 @@ class Web3MCserverLogic:
                             remote_server_still_running = False
                             print(f"[DEBUG] remote server still running: {remote_server_still_running}")
                             break
-                    except:
+                    except KeyboardInterrupt:
+                        # handle KeyboardInterrupt separately
+                        print("KeyboardInterrupt caught")
+                        raise KeyboardInterrupt
+                    except Exception as e:
+                        print(f"[DEBUG] Exception caught: {e}")
                         remote_server_still_running = False
 
                 if not remote_server_still_running:
