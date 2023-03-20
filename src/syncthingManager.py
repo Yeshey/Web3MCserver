@@ -384,6 +384,10 @@ class SyncthingManager:
         online_ids = [id for id, conn in connections.items() if conn.get('connected')]
         return online_ids
 
+    '''
+        Returns False if no peers online and don't have the minium required sync amount to continue being host
+        Returns True otherwise
+    '''
     def wait_for_sync_to_finish(self):
         if self.syncthing_active(self.web3mcserver.local_syncthing_address, timeout=1):
             print("[DEBUG] Local syncthing not active, not checking for sync compleation")
@@ -397,20 +401,23 @@ class SyncthingManager:
 
         time_to_sleep = 3
 
-        value = 100
+        value = 99
+        min_completion = 91
         while True: # make it not take forever... there might be no peers online
             response = requests.get(url, headers=headers, timeout=60)
             data = response.json()
             completion = data.get('completion')
             if not self.online_peers_list(): # list is empty
                 print(f"[DEBUG] No online peers, unable to garantee most recent version")
+                if completion < min_completion:
+                    return False
 
             if completion >= value:
                 print(f"[DEBUG] Sync compleation above {value}%, continuing...")
                 break
             print(f"[DEBUG] Sync compleation below {value}%, checking for new peers every {time_to_sleep} seconds")
-            if value > 88: # Don't let it advance if sync compleation isn't above 80%
+            if value > min_completion: # Don't let it advance if sync compleation isn't above 91%
                 value -= 1
             time.sleep(time_to_sleep)
-                
+        return True
         print("[DEBUG] Sync compleate!")

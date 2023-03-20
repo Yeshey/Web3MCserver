@@ -58,6 +58,8 @@ class Cli_interface:
             try:
                 self.web3mcserver.syncthing_manager.launch_syncthing_in_separate_thread(with_playitgg = True) # with_playitgg = False means it will be available to the world
                 self.web3mcserver.common_config_file_manager.update_common_config_file(recalculate_server_run_priority = False, Is_Host = True)
+                if self.web3mcserver.syncthing_manager.wait_for_sync_to_finish() is False:
+                    raise Exception("Don't have a recent enough synced file. Not becoming host")
                 self.web3mcserver.i_will_be_host_now() # Should only get out of here when won't be/isn't host anymore (there is a better machine)
             except KeyboardInterrupt:
                 print("KeyboardInterrupt caught")

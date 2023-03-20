@@ -160,8 +160,6 @@ class Web3MCserverLogic:
         self.lastServerHostChange = datetime.now()
         self.isHost = True
 
-        self.syncthing_manager.wait_for_sync_to_finish()
-
         # Send desktop notification
         notification = Notify()
         notification.title = "This computer will be host for the Minecraft server now"
@@ -647,7 +645,9 @@ class Web3MCserverLogic:
                 print("[DEBUG] Someone disconnected, but terminating, skipping")
                 continue
 
-            self.syncthing_manager.wait_for_sync_to_finish()
+            if self.syncthing_manager.wait_for_sync_to_finish() is False:
+                print("[DEBUG] Someone disconnected, don't have a recent enough version of server and no peers online to get it. Not becoming host...")
+                continue
 
             if self.iAmAFakeHost is True: # shame on me
                 self.iAmAFakeHost = False
