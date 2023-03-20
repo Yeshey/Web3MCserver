@@ -389,8 +389,8 @@ class SyncthingManager:
         Returns True otherwise
     '''
     def wait_for_sync_to_finish(self):
-        if self.syncthing_active(self.web3mcserver.local_syncthing_address, timeout=1):
-            print("[DEBUG] Local syncthing not active, not checking for sync compleation")
+        if not self.syncthing_active(self.web3mcserver.local_syncthing_address, timeout=1):
+            print("[DEBUG] Local syncthing not active, returning False for sync compleation")
             return
         urlScan = f'{self.web3mcserver.local_syncthing_address}rest/db/scan\?folder\=sync'
         url = f'{self.web3mcserver.local_syncthing_address}rest/db/completion'
