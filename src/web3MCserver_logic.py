@@ -33,8 +33,8 @@ class Web3MCserverLogic:
     server_path = "./../sync/server/"
     minecraft_server_file_name = "server.jar"
     minecraft_server_url = "https://piston-data.mojang.com/v1/objects/8f3112a1049751cc472ec13e397eade5336ca7ae/server.jar"
-    playitcli_toml_config_syncthing_server = "./playit-cli_config/syncthing_server_config.toml"
-    playitcli_toml_config_syncthing_server2 = "./../playit-cli_config/syncthing_server_config.toml"
+    playitcli_toml_config_syncthing_server = "./sync/playit-cli_config/syncthing_server_config.toml"
+    playitcli_toml_config_syncthing_server2 = "./../sync/playit-cli_config/syncthing_server_config.toml"
     syncthing_config = "./../syncthing_config"
 
     def __init__(self):
@@ -55,8 +55,8 @@ class Web3MCserverLogic:
         self.iAmAFakeHost = False
 
         self.server_folder_path = os.path.abspath("./sync/server/")
-        self.playitcli_toml_config_main_server = os.path.abspath("./playit-cli_config/main_server_config.toml")
-        self.playitcli_toml_config_syncthing_server = os.path.abspath("./playit-cli_config/syncthing_server_config.toml")
+        self.playitcli_toml_config_main_server = os.path.abspath("./sync/playit-cli_config/main_server_config.toml")
+        self.playitcli_toml_config_syncthing_server = os.path.abspath("./sync/playit-cli_config/syncthing_server_config.toml")
         self.sync_folder_path = os.path.abspath("./sync/")
         self.common_config_file_path = os.path.abspath("./sync/common_conf.toml")
         self.root = os.path.abspath("./")

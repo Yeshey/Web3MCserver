@@ -7,9 +7,15 @@ server
 *.tmp
 *sync-conflict*
 common_config_file
-sync
 tests
 
+# ignore everything inside sync
+/sync/*
+
+# un-ignore playit-cli_config folder
+!/sync/playit-cli_config/ 
+# un-ignore all files and directories inside cli_config folder
+!/sync/playit-cli_config/**
 
 # Created by https://www.toptal.com/developers/gitignore/api/go,git,rust,linux,macos,haskell,windows,intellij,visualstudiocode,python,pythonvanilla,pycharm,jupyternotebooks,pydev
 # Edit at https://www.toptal.com/developers/gitignore?templates=go,git,rust,linux,macos,haskell,windows,intellij,visualstudiocode,python,pythonvanilla,pycharm,jupyternotebooks,pydev
