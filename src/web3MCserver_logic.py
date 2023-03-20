@@ -701,11 +701,9 @@ class Web3MCserverLogic:
                         remote_server_still_running = True
                         #        time.sleep(3) # give him time to shutdown in the other side
                         print(f"[DEBUG] 1 - remote server still running: {remote_server_still_running}")
-                        break
                     else:
                         remote_server_still_running = False
                         print(f"[DEBUG] 3 - remote server still running: {remote_server_still_running}")
-                        break
                 except KeyboardInterrupt:
                     # handle KeyboardInterrupt separately
                     print("KeyboardInterrupt caught")
