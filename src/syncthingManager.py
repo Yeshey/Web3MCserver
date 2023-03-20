@@ -128,39 +128,6 @@ class SyncthingManager:
     def check_devices(self):
         while True:
             time.sleep(100) # Check every 100 seconds
-            if self.web3mcserver.terminating == True:
-                break
-
-            if self.web3mcserver.notDoingStuff == True:
-
-                if self.web3mcserver.isHost == True:
-                    if self.web3mcserver._30_minutes_passed(self.web3mcserver.lastServerHostChange):
-                        sorted_priorities = self.web3mcserver.common_config_file_manager.sorted_dic_of_ID_and_server_run_priority()
-                        my_order = self.web3mcserver.common_config_file_manager.my_order_in_server_host_priority(sorted_priorities)
-                        if my_order != 0:
-                            self.youShouldStopBeingHost = True
-                            self.web3mcserver.event_peerDisconnected.set() # let server go to someone better
-                
-                if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
-                    if not self.web3mcserver.is_mc_server_online(self.web3mcserver.get_main_server_address()):
-                        print("[DEBUG] server is not online!!!")
-                        self.web3mcserver.event_peerDisconnected.set() # let server go to someone better
-                else:
-                    print("[DEBUG] Syncthing server address doesn't exist yet.")    
-
-                # am I the actual host?
-                if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
-                    remote_address = self.web3mcserver.get_syncthing_server_address()
-                else:
-                    print("[DEBUG] Syncthing server address doesn't exist yet.")    
-                if self.web3mcserver.isHost == True:
-                    if (
-                            self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1) and 
-                            self.web3mcserver.syncthing_manager.get_remote_syncthing_ID() != self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
-                        ):
-                        print("\n[DEBUG] I'm a fake host!?\n")
-                        self.web3mcserver.iAmAFakeHost = True
-                        self.web3mcserver.event_peerDisconnected.set()
 
             # Check if there are syncthing peers that want to connect
             if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command") and self.syncthing_active(self.web3mcserver.local_syncthing_address, timeout=3):
@@ -182,6 +149,40 @@ class SyncthingManager:
                     raise KeyboardInterrupt
                 except requests.exceptions.RequestException as e:
                     print(f"Error: {e}")
+
+            if self.web3mcserver.terminating == True:
+                break
+
+            if self.web3mcserver.notDoingStuff == True:
+
+                if self.web3mcserver.isHost == True:
+                    if self.web3mcserver._30_minutes_passed(self.web3mcserver.lastServerHostChange):
+                        sorted_priorities = self.web3mcserver.common_config_file_manager.sorted_dic_of_ID_and_server_run_priority()
+                        my_order = self.web3mcserver.common_config_file_manager.my_order_in_server_host_priority(sorted_priorities)
+                        if my_order != 0:
+                            self.youShouldStopBeingHost = True
+                            self.web3mcserver.event_peerDisconnected.set() # let server go to someone better
+
+                # am I the actual host?
+                if self.web3mcserver.file_has_field(file = os.path.join(self.web3mcserver.secrets_path, self.web3mcserver.secret_addresses_file_name), field = "syncthing_server_command"):
+                    remote_address = self.web3mcserver.get_syncthing_server_address()
+
+                    if ( not self.syncthing_active(remote_address, timeout=1) ):
+                        print("[DEBUG] server is not online!!!")
+                        self.web3mcserver.event_peerDisconnected.set() 
+
+                    if self.web3mcserver.isHost == True:
+                        if (
+                                self.web3mcserver.syncthing_manager.syncthing_active(remote_address, timeout=1) and 
+                                self.web3mcserver.syncthing_manager.get_remote_syncthing_ID() != self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
+                            ):
+                            print("\n[DEBUG] I'm a fake host!?\n")
+                            self.web3mcserver.iAmAFakeHost = True
+                            self.web3mcserver.event_peerDisconnected.set()
+                else:
+                    print("[DEBUG] Syncthing server address doesn't exist yet.")    
+
+
 
     def add_folders_to_sync(self, ids=[]):
     # The following works, and see this website (https://docs.syncthing.net/v1.22.1/rest/config.html)
