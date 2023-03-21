@@ -231,7 +231,7 @@ class SyncthingManager:
     def get_my_syncthing_ID(self):
         syncthingDeviceID = subprocess.check_output([self.web3mcserver.syncthing_path, 
             "--home", 
-            "./../syncthing_config",
+            os.path.join(".","..","syncthing_config"),
             "-device-id" ])
         syncthingDeviceID = syncthingDeviceID.decode().strip()
         if 'Error' in syncthingDeviceID:
