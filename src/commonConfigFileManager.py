@@ -28,16 +28,10 @@ class CommonConfigFileManager:
             config = {}
 
         # return if my syncthing is not running
-        try:
-            syncthingDeviceID = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
-        except KeyboardInterrupt:
-            # handle KeyboardInterrupt separately
-            print("KeyboardInterrupt caught")
-            raise KeyboardInterrupt
-        except RuntimeError as e:
-            print(f"[DEBUG] exception caught: {e}, Syncthing config doesn't exist yet: ")
+        syncthingDeviceID = self.web3mcserver.syncthing_manager.get_my_syncthing_ID()
+        if syncthingDeviceID is None:
+            print("[DEBUG] Couldn't get Syncthing ID")
             return
-
         
         updateSyncthingShenenigans = False
         try:

@@ -229,13 +229,19 @@ class SyncthingManager:
         print(f"[DEBUG] add_folders_to_sync: {response}")
 
     def get_my_syncthing_ID(self):
-        syncthingDeviceID = subprocess.check_output([self.web3mcserver.syncthing_path, 
-            "--home", 
-            os.path.join(".","..","syncthing_config"),
-            "-device-id" ])
-        syncthingDeviceID = syncthingDeviceID.decode().strip()
-        if 'Error' in syncthingDeviceID:
-            raise RuntimeError('Unable to get Syncthing device ID')
+        try:
+            syncthingDeviceID = subprocess.check_output([self.web3mcserver.syncthing_path, 
+                "--home", 
+                os.path.join(".","..","syncthing_config"),
+                "-device-id" ])
+            syncthingDeviceID = syncthingDeviceID.decode().strip()
+        except KeyboardInterrupt:
+            # handle KeyboardInterrupt separately
+            print("KeyboardInterrupt caught")
+            raise KeyboardInterrupt
+        except Exception as e:
+            print(f"Exception caught: {e}, Couldn't get Syncthing ID")
+            return None
         return syncthingDeviceID
 
     def get_api_key(self):
