@@ -83,8 +83,10 @@ class Web3MCserverLogic:
         system = platform.system()
         if system == 'Windows':
             self.bin_path = os.path.join(base_path, '..', 'bin', 'windows')
+            self.syncthing_path = os.path.abspath(os.path.join(self.root, 'bin', 'windows', 'syncthing', 'syncthing.exe'))
         elif system == 'Linux':
             self.bin_path = os.path.join(base_path, '..', 'bin', 'linux')
+            self.syncthing_path = os.path.abspath(os.path.join(self.root, 'bin', 'linux', 'syncthing', 'syncthing'))
         else:
             print(f"Unsupported system: {system}")
             return
@@ -458,9 +460,7 @@ class Web3MCserverLogic:
         api_key = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(20))
         # Use the random string as the API key in the default command
         if platform.system() == 'Windows':
-            syncthing_path = os.path.abspath(os.path.join(self.root, 'bin', 'windows', 'syncthing', 'syncthing.exe'))
-            print (syncthing_path)
-            default_command = fr"{syncthing_path} --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
+            default_command = fr"{self.syncthing_path} --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840"
         else:
             default_command = f"./bin/linux/syncthing/syncthing --home ./syncthing_config --gui-apikey={api_key} --no-default-folder --no-browser --gui-address=0.0.0.0:23840" 
 
