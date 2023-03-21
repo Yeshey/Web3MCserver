@@ -117,10 +117,21 @@ class CommonConfigFileManager:
             config = toml.load(f)
         
         # Get server run priorities for online peers
+        try:
+            _ = config["machines"]
+        except KeyboardInterrupt:
+            # handle KeyboardInterrupt separately
+            print("KeyboardInterrupt caught")
+            raise KeyboardInterrupt
+        except RuntimeError as e:
+            print(f"[DEBUG] exception caught: {e}, common config file still empty, create it")
+            self.update_common_config_file()
+
         priorities = {}
         for machine in config["machines"]:
             if machine["ID"] in everyone_online:
                 priorities[machine["ID"]] = machine["server_run_priority"]
+
         
         # Sort priorities in descending order
         sorted_priorities = dict(sorted(priorities.items(), key=lambda x: x[1], reverse=True))
