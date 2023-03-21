@@ -28,6 +28,7 @@ Distributed Minecraft server to run always on the available PC
 
 # To-Do
 
+- Handle the situation when the minectraft server crashes, or the eula needs to be accepted
 - [Pin nixpkgs](https://nix.dev/tutorials/towards-reproducibility-pinning-nixpkgs#pinning-nixpkgs)
 - Check a working playit-gg tunnel configuration from the website:
 - Compile executables (look for Cpython)
