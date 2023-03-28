@@ -426,5 +426,5 @@ class SyncthingManager:
             if value > min_completion: # Don't let it advance if sync compleation isn't above 91%
                 value -= 1
             time.sleep(time_to_sleep)
-        return True
         print("[DEBUG] Sync compleate!")
+        return True
