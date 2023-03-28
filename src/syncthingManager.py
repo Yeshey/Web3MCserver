@@ -169,7 +169,14 @@ class SyncthingManager:
 
                     if ( not self.syncthing_active(remote_address, timeout=1) ):
                         print("[DEBUG] server is not online!!!")
-                        self.web3mcserver.event_peerDisconnected.set() 
+                        self.web3mcserver.event_peerDisconnected.set()
+                        continue
+
+                    if not self.web3mcserver.is_mc_server_online(self.web3mcserver.get_main_server_address()):
+                        time.sleep(200)
+                        if not self.web3mcserver.is_mc_server_online(self.web3mcserver.get_main_server_address()):
+                            print("[DEBUG] mc server is not online!!!")
+                            self.web3mcserver.event_peerDisconnected.set() # let server go to someone better
 
                     if self.web3mcserver.isHost == True:
                         if (

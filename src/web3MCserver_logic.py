@@ -693,24 +693,26 @@ class Web3MCserverLogic:
                             break
 
                 remote_server_still_running = False
-                try:
-                    if ( self.syncthing_manager.syncthing_active(remote_address, timeout=1) ):
-                        #for _ in range(2):
-                        #    time.sleep(5)
-                        #    if self.is_mc_server_online(self.get_main_server_address()):
-                        remote_server_still_running = True
-                        #        time.sleep(3) # give him time to shutdown in the other side
-                        print(f"[DEBUG] 1 - remote server still running: {remote_server_still_running}")
-                    else:
-                        remote_server_still_running = False
-                        print(f"[DEBUG] 3 - remote server still running: {remote_server_still_running}")
-                except KeyboardInterrupt:
-                    # handle KeyboardInterrupt separately
-                    print("KeyboardInterrupt caught")
-                    raise KeyboardInterrupt
-                except Exception as e:
-                    print(f"[DEBUG] Exception caught: {e}")
-                    remote_server_still_running = False
+                for _ in range(2):
+                    try:
+                        if ( self.syncthing_manager.syncthing_active(remote_address, timeout=1) ):
+                            for _ in range(2):
+                                time.sleep(5)
+                                if self.is_mc_server_online(self.get_main_server_address()):
+                                    remote_server_still_running = True
+                                    time.sleep(3) # give him time to shutdown in the other side
+                                    print(f"[DEBUG] 1 - remote server still running: {remote_server_still_running}")
+                                    break
+                        else:
+                            remote_server_still_running = False
+                            print(f"[DEBUG] 3 - dremote server still running: {remote_server_still_running}")
+                            break
+                    except KeyboardInterrupt:
+                        # handle KeyboardInterrupt separately
+                        print("KeyboardInterrupt caught")
+                        raise KeyboardInterrupt
+                    except Exception as e:
+                        print(f"[DEBUG] Exception caught: {e}")
 
                 if not remote_server_still_running:
                     num_in_queue = my_order
