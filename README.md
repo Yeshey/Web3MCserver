@@ -1,4 +1,8 @@
   # Web3MCserver
+Project abandoned for now, waiting on a more mature libp2p to reeimplement. 
+
+TODO: rebrand to the project NucleusFly
+
 Distributed Minecraft server to run always on the available PC
 
 # Links
